@@ -17,6 +17,7 @@
       EtcdSgId: "sg-eae64983"
       MasterExtElbSgId: "sg-eae64983"
       MasterIntElbSgId: "sg-eae64983"
+      InfraSgId: "sg-eae64983"
       NodeSgId: "sg-eae64983"
       MasterSgId: "sg-eae64983"
       Subnets: "subnet-cf57c596"

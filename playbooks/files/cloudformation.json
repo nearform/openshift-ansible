@@ -509,10 +509,7 @@
     },
     "InfraASG": {
       "Type": "AWS::AutoScaling::AutoScalingGroup",
-      "DependsOn": [
-          "InfraLC",
-          "MasterLC"
-      ],
+      "DependsOn": ["InfraLC"],
       "Properties": {
         "DesiredCapacity": {"Ref": "NumInfra"},
         "MinSize": {"Ref": "NumInfra"},
@@ -538,7 +535,7 @@
     },
     "NodeASG": {
       "Type": "AWS::AutoScaling::AutoScalingGroup",
-      "DependsOn": ["VpcInternetGateway","VpcGA","Vpc","InfraLC","MasterLC","Subnet1"],
+      "DependsOn": ["NodeLC"],
       "Properties": {
         "DesiredCapacity": {"Ref": "NumNodes"},
         "MinSize": {"Ref": "NumNodes"},
@@ -563,7 +560,7 @@
     },
     "MasterASG": {
       "Type": "AWS::AutoScaling::AutoScalingGroup",
-      "DependsOn": ["VpcInternetGateway","VpcGA","Vpc","InfraLC","MasterLC","Subnet1"],
+      "DependsOn": ["MasterLC"],
       "Properties": {
         "DesiredCapacity": {"Ref": "NumMasters"},
         "MinSize": {"Ref": "NumMasters"},

@@ -16,6 +16,11 @@
     wait_for: "port=22 host={{ item }}"
     with_items: "{{ env_cluster_hosts }}"
 
+
+  - debug: var=groups
+  - debug: var=master_hosts
+  - debug: var=node_hosts
+
   - name: Add masters to requisite groups
     add_host:
       name: "{{ item }}"

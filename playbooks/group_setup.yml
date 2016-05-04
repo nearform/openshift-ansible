@@ -2,14 +2,14 @@
   hosts: localhost
   connection: local
   vars:
-    env_cluster_hosts: "{{ groups.tags.['tag_environment_' ~ env_id]
-                           | intersect(groups.tags.['tag_clusterid_' ~ cluster_id]) }}"
-    master_hosts: "{{ groups.tags.['tag_environment_' ~ env_id]
-                      | intersect(groups.tags.['tag_clusterid_' ~ cluster_id]
-                                  | intersect( groups.tags.['tag_host-type_master'])) }}"
-    node_hosts: "{{ groups.tags.['tag_environment_' ~ env_id]
-                    | intersect(groups.tags.['tag_clusterid_' ~ cluster_id]
-                                | intersect(groups.tags.['tag_host-type_node'])) }}"
+    env_cluster_hosts: "{{ groups['tag_environment_' ~ env_id]
+                           | intersect(groups['tag_clusterid_' ~ cluster_id]) }}"
+    master_hosts: "{{ groups['tag_environment_' ~ env_id]
+                      | intersect(groups['tag_clusterid_' ~ cluster_id]
+                                  | intersect( groups['tag_host-type_master'])) }}"
+    node_hosts: "{{ groups['tag_environment_' ~ env_id]
+                    | intersect(groups['tag_clusterid_' ~ cluster_id]
+                                | intersect(groups['tag_host-type_node'])) }}"
   become: no
   tasks:
   - name: wait for ssh

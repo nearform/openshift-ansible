@@ -582,47 +582,6 @@
         ],
         "VPCZoneIdentifier": { "Ref": "Subnets" }
       }
-    },
-    "RegistryVolume": {
-      "Type": "AWS::EC2::Volume",
-      "Properties": {
-        "AvailabilityZone" : {"Fn::Select": ["0", {"Ref": "SubnetAvailabilityZones"}]},
-        "Size" : { "Ref": "RegistryVolumeSize" },
-        "Tags": [ { "Key": "Name", "Value": {"Fn::Join": ["-", [{"Ref": "VpcName"}, "pv-registry"]]} } ],
-        "VolumeType" : "gp2"
-      }
-    },
-    "MetricsVolume": {
-      "Type": "AWS::EC2::Volume",
-      "Properties": {
-        "AvailabilityZone" : {"Fn::Select": ["0", {"Ref": "SubnetAvailabilityZones"}]},
-        "Size" : { "Ref": "MetricsVolumeSize" },
-        "Tags": [ { "Key": "Name", "Value": {"Fn::Join": ["-", [{"Ref": "VpcName"}, "pv-metrics"]]} } ],
-        "VolumeType" : "gp2"
-      }
-    },
-    "LoggingVolume": {
-      "Type": "AWS::EC2::Volume",
-      "Properties": {
-        "AvailabilityZone" : {"Fn::Select": ["0", {"Ref": "SubnetAvailabilityZones"}]},
-        "Size" : { "Ref": "LoggingVolumeSize" },
-        "Tags": [ { "Key": "Name", "Value": {"Fn::Join": ["-", [{"Ref": "VpcName"}, "pv-logging"]]} } ],
-        "VolumeType" : "gp2"
-      }
-    }
-  },
-  "Outputs" : {
-    "RegistryVolumeID" : {
-      "Description" : "Registry Volume ID",
-      "Value" : { "Ref": "RegistryVolume" }
-    },
-    "MetricsVolumeID" : {
-      "Description" : "Metrics Volume ID",
-      "Value" : { "Ref": "MetricsVolume" }
-    },
-    "LoggingVolumeID" : {
-      "Description" : "Logging Volume ID",
-      "Value" : { "Ref": "LoggingVolume" }
     }
   }
 }

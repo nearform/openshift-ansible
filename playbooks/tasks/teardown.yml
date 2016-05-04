@@ -1,0 +1,6 @@
+---
+- name: Launch the CloudFormation Template
+  cloudformation:
+    region: "{{ ec2_region }}"
+    stack_name: openshift-{{ cluster_id }}-{{ env_id }}
+    state: absent

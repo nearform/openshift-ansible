@@ -15,3 +15,4 @@
       region: "{{ ec2_region }}"
       stack_name: openshift-{{ cluster_id }}-{{ env_id }}
       state: absent
+      template: files/cloudformation.json

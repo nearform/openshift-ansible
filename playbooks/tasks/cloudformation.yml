@@ -1,10 +1,11 @@
 - name: Launch the CloudFormation Template
   cloudformation:
     region: "{{ ec2_region }}"
-    stack_name: openshift-demo-{{ cluster_id }}
+    stack_name: openshift-{{ cluster_id }}-{{ env_id }}
     state: present
     tags:
-      openshift-demo: "{{ cluster_id }}"
+      environment: "{{ env_id }}"
+      clusterid: "{{ cluster_id }}"
     template: files/cloudformation.json
     template_parameters:
       Route53HostedZone: "{{ r53_zone }}."

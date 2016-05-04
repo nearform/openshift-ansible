@@ -10,6 +10,9 @@
     "MasterExtElbSgId": {
       "Type": "String"
     },
+    "InfraElbSgId": {
+      "Type": "String"
+    },
     "MasterIntElbSgId": {
       "Type": "String"
     },

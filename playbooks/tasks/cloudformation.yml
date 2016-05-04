@@ -29,35 +29,10 @@
       NumMasters: "{{ os_defaults.masters.count }}"
       MasterInstanceType: "{{ os_defaults.masters.instance_type }}"
       MasterImageId: "{{ ec2_image }}"
-      MasterUserData: "{{ lookup('template', '../templates/user_data_master.j2') | b64encode }}"
-      MasterRootVolSize: "{{ os_defaults.masters.vol_sizes.root }}"
-      MasterRootVolType: gp2
-      MasterDockerVolSize: "{{ os_defaults.masters.vol_sizes.docker }}"
-      MasterDockerVolType: gp2
-      MasterEtcdVolSize: "{{ os_defaults.masters.vol_sizes.etcd }}"
-      MasterEtcdVolType: gp2
       NumInfra: "{{ os_defaults.infra_nodes.count }}"
       InfraInstanceType: "{{ os_defaults.infra_nodes.instance_type }}"
       InfraImageId: "{{ ec2_image }}"
-      InfraUserData: "{{ lookup('template', '../templates/user_data_node.j2') | b64encode }}"
-      InfraRootVolSize: "{{ os_defaults.infra_nodes.vol_sizes.root }}"
-      InfraRootVolType: gp2
-      InfraDockerVolSize: "{{ os_defaults.infra_nodes.vol_sizes.docker }}"
-      InfraDockerVolType: gp2
       NumNodes: "{{ os_defaults.app_nodes.count }}"
       NodeInstanceType: "{{ os_defaults.app_nodes.instance_type }}"
       NodeImageId: "{{ ec2_image }}"
-      NodeUserData: "{{ lookup('template', '../templates/user_data_node.j2') | b64encode }}"
-      NodeRootVolSize: "{{ os_defaults.app_nodes.vol_sizes.root }}"
-      NodeRootVolType: gp2
-      NodeDockerVolSize: "{{ os_defaults.app_nodes.vol_sizes.docker }}"
-      NodeDockerVolType: gp2
-#  register: cf_output
-
-#- name: Store CloudFormation-generated volume IDs as facts
-#  set_fact:
-#    registry_volume: "{{ cf_output.stack_outputs.RegistryVolumeID }}"
-#    metrics_volume: "{{ cf_output.stack_outputs.MetricsVolumeID }}"
-#    logging_volume: "{{ cf_output.stack_outputs.LoggingVolumeID }}"
-
-
+  register: cf_output

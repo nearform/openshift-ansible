@@ -16,6 +16,9 @@
     "NodeSgId": {
       "Type": "String"
     },
+    "InfraSgId": {
+      "Type": "String"
+    },
     "MasterSgId": {
       "Type": "String"
     },

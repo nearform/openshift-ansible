@@ -12,7 +12,7 @@
       MasterHealthTarget: "TCP:{{ api_port }}"
       MasterClusterHostname: openshift.internal.hosts.{{ r53_hosted_zone }}
       MasterClusterPublicHostname: openshift.hosts.{{ r53_hosted_zone }}
-      AppWildcardDomain: "*.apps.{{ r53_hoted_zone }}"
+      AppWildcardDomain: "*.apps.{{ r53_hosted_zone }}"
       SshSgId: "sg-eae64983"
       EtcdSgId: "sg-eae64983"
       MasterExtElbSgId: "sg-eae64983"

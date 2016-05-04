@@ -1,0 +1,17 @@
+# vim: set ft=ansible:
+---
+- name: 'Tearing Down an Environment'
+  hosts: localhost
+  connection: local
+  sudo: no
+  gather_facts: no
+  vars_files:
+  - vars.yml
+  tasks:
+  - include: tasks/validator.yml
+
+  - name: Teardown CloudFormation Template
+    cloudformation:
+      region: "{{ ec2_region }}"
+      stack_name: openshift-{{ cluster_id }}-{{ env_id }}
+      state: absent

@@ -12,5 +12,42 @@
     r53_subdomain: "{{ cluster_id }}.{{ env_id }}.{{ r53_zone }}"
   tasks:
   - include: tasks/validator.yml
-  - include: tasks/cloudformation.yml
 
+  - name: Launch the CloudFormation Template
+    cloudformation:
+      region: "{{ ec2_region }}"
+      stack_name: openshift-{{ cluster_id }}-{{ env_id }}
+      state: present
+      tags:
+        environment: "{{ env_id }}"
+        clusterid: "{{ cluster_id }}"
+      template: files/cloudformation.json
+      template_parameters:
+        Route53HostedZone: "{{ r53_zone }}."
+        MasterApiPort: "{{ api_port }}"
+        MasterHealthTarget: "TCP:{{ api_port }}"
+        MasterClusterHostname: openshift.internal.hosts.{{ r53_subdomain }}
+        MasterClusterPublicHostname: openshift.hosts.{{ r53_subdomain }}
+        AppWildcardDomain: "*.apps.{{ r53_subdomain }}"
+        SshSgId: "sg-5875023f"
+        EtcdSgId: "sg-5875023f"
+        MasterExtElbSgId: "sg-5875023f"
+        MasterIntElbSgId: "sg-5875023f"
+        InfraElbSgId: "sg-5875023f"
+        InfraSgId: "sg-5875023f"
+        NodeSgId: "sg-5875023f"
+        MasterSgId: "sg-5875023f"
+        Subnets: "subnet-cf57c596"
+        SubnetAvailabilityZones: "us-east-1d"
+        #SubnetAvailabilityZones: "{{ vpc_subnet_azs }}"
+        KeyName: libra
+        NumMasters: "{{ os_defaults.masters.count }}"
+        MasterInstanceType: "{{ os_defaults.masters.instance_type }}"
+        MasterImageId: "{{ ec2_image }}"
+        NumInfra: "{{ os_defaults.infra_nodes.count }}"
+        InfraInstanceType: "{{ os_defaults.infra_nodes.instance_type }}"
+        InfraImageId: "{{ ec2_image }}"
+        NumNodes: "{{ os_defaults.app_nodes.count }}"
+        NodeInstanceType: "{{ os_defaults.app_nodes.instance_type }}"
+        NodeImageId: "{{ ec2_image }}"
+    register: cf_output

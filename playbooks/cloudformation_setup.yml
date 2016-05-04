@@ -9,6 +9,7 @@
   - vars.yml
   vars:
     vpc_subnet_azs: "{{ lookup('ec2_zones_by_region', ec2_region) }}"
+    r53_hosted_zone: "{{ cluster_id }}.{{ env_id }}.{{ r53_zone }}"
   tasks:
   - include: tasks/validator.yml
   - include: tasks/cloudformation.yml

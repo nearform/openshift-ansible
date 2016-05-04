@@ -1,8 +1,4 @@
 ---
-debug_level: 3
-node_debug_level: 2
-master_debug_level: 2
-
 identity_providers:
 - name: htpasswd_auth
   login: true
@@ -10,50 +6,23 @@ identity_providers:
   kind: HTPasswdPasswordIdentityProvider
   filename: /etc/origin/master/htpasswd
 
-#registry_image_url: 'ncdc/origin-docker-registry:roadshow'
-registry_image_url: "openshift3/ose-${component}:${version}"
-router_image_url: "openshift3/ose-${component}:${version}"
-
-preload_images:
-- openshift3/nodejs-010-rhel7:latest
-- openshift3/ose-pod:latest
-- openshift3/ose-sti-builder:latest
-- openshift3/ose-docker-builder:latest
-- openshift3/ose-deployer:latest
-- rhscl/mongodb-26-rhel7:latest
-- jboss-eap-6/eap64-openshift:latest
-- kubernetes/guestbook:latest
-
-users:
-- user: demo
-  project: demo
-- user: admin
-  project: empty
-
-hexboard:
-  namespace: demo
-  watch_namespace: demo
-  name: hexboard
-  src_url: https://github.com/2015-Middleware-Keynote/hexboard
-  img: openshift3/nodejs-010-rhel7:latest
-
 os_defaults:
   masters:
-    count: "{{ num_masters }}"
-    instance_type: "{{ ec2_master_instance_type }}"
+    count: "{{ num_masters | default(3) }}"
+    instance_type: m4.xlarge
     vol_sizes:
       root: 15
       docker: 25
       etcd: 25
   infra_nodes:
-    count: "{{ num_infra_nodes }}"
-    instance_type: "{{ ec2_infra_instance_type }}"
+    count: "{{ num_infra_nodes | default(2) }}"
+    instance_type: m4.xlarge
     vol_sizes:
       root: 30
       docker: 25
   app_nodes:
-    count: "{{ num_app_nodes }}"
-    instance_type: "{{ ec2_node_instance_type }}"
+    count: "{{ num_app_nodes | default(2) }}"
+    instance_type: m4.xlarge
     vol_sizes:
       root: 30
       docker: 25

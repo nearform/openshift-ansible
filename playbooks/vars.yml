@@ -1,6 +1,8 @@
 ---
 ec2_region: us-east-1
 ec2_image: ami-7e14f213
+api_port: 443
+console_port: 443
 
 identity_providers:
 - name: htpasswd_auth

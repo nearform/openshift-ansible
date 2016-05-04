@@ -50,12 +50,12 @@
       NodeRootVolType: gp2
       NodeDockerVolSize: "{{ os_defaults.app_nodes.vol_sizes.docker }}"
       NodeDockerVolType: gp2
-  register: cf_output
+#  register: cf_output
 
-- name: Store CloudFormation-generated volume IDs as facts
-  set_fact:
-    registry_volume: "{{ cf_output.stack_outputs.RegistryVolumeID }}"
-    metrics_volume: "{{ cf_output.stack_outputs.MetricsVolumeID }}"
-    logging_volume: "{{ cf_output.stack_outputs.LoggingVolumeID }}"
+#- name: Store CloudFormation-generated volume IDs as facts
+#  set_fact:
+#    registry_volume: "{{ cf_output.stack_outputs.RegistryVolumeID }}"
+#    metrics_volume: "{{ cf_output.stack_outputs.MetricsVolumeID }}"
+#    logging_volume: "{{ cf_output.stack_outputs.LoggingVolumeID }}"
 
 

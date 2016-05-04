@@ -3,13 +3,13 @@
   connection: local
   vars:
     env_cluster_hosts: "{{ groups['tag_environment_' ~ env_id]
-                           | intersection(groups['tag_clusterid_' ~ cluster_id]) }}"
+                           | intersect(groups['tag_clusterid_' ~ cluster_id]) }}"
     master_hosts: "{{ groups['tag_environment_' ~ env_id]
-                      | intersection(groups['tag_clusterid_' ~ cluster_id]
-                                     | intersection( groups['tag_host_type_master'])) }}"
+                      | intersect(groups['tag_clusterid_' ~ cluster_id]
+                                  | intersect( groups['tag_host_type_master'])) }}"
     node_hosts: "{{ groups['tag_environment_' ~ env_id]
-                    | intersection(groups['tag_clusterid_' ~ cluster_id]
-                                   | intersection(groups['tag_host_type_node'])) }}"
+                    | intersect(groups['tag_clusterid_' ~ cluster_id]
+                                | intersect(groups['tag_host_type_node'])) }}"
   become: no
   tasks:
   - name: wait for ssh

@@ -7,12 +7,12 @@
       openshift-demo: "{{ cluster_id }}"
     template: files/cloudformation.json
     template_parameters:
-      Route53HostedZone: "{{ r53_hosted_zone }}."
+      Route53HostedZone: "{{ r53_zone }}."
       MasterApiPort: "{{ api_port }}"
       MasterHealthTarget: "TCP:{{ api_port }}"
-      MasterClusterHostname: openshift.internal.hosts.{{ r53_hosted_zone }}
-      MasterClusterPublicHostname: openshift.hosts.{{ r53_hosted_zone }}
-      AppWildcardDomain: "*.apps.{{ r53_hosted_zone }}"
+      MasterClusterHostname: openshift.internal.hosts.{{ r53_subdomain }}
+      MasterClusterPublicHostname: openshift.hosts.{{ r53_subdomain }}
+      AppWildcardDomain: "*.apps.{{ r53_subdomain }}"
       SshSgId: "sg-5875023f"
       EtcdSgId: "sg-5875023f"
       MasterExtElbSgId: "sg-5875023f"

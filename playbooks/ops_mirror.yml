@@ -22,5 +22,5 @@
   
   - name: Copy Atomic OpenShift yum repository key
     copy:
-      content: '{{ ops_mirror_key_conntents }}'
+      content: '{{ ops_mirror_key_contents }}'
       dest: /var/lib/yum/client-key.pem

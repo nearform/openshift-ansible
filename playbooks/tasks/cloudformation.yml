@@ -43,8 +43,6 @@
       InfraDockerVolType: gp2
       NumNodes: "{{ os_defaults.app_nodes.count }}"
       NodesInstanceType: "{{ os_defaults.app_nodes.instance_type }}"
-      NumNodes: "{{ num_app_nodes }}"
-      NodeInstanceType: "{{ ec2_node_instance_type }}"
       NodeImageId: "{{ ec2_image }}"
       NodeUserData: "{{ lookup('template', '../templates/user_data_node.j2') | b64encode }}"
       NodeRootVolSize: "{{ os_defaults.app_nodes.vol_sizes.root }}"

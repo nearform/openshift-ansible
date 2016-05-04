@@ -403,12 +403,12 @@
         "LaunchConfigurationName": { "Ref": "InfraLC" },
         "LoadBalancerNames": [ { "Ref": "InfraElb" } ],
         "Tags": [
-          { "Key": {"Fn::Join": ["-", [{"Ref": "AWS::StackName"}, "host-type"]]},
+          { "Key": "host-type",
             "Value": "node",
             "PropagateAtLaunch": true
           },
-          { "Key": {"Fn::Join": ["-", [{"Ref": "AWS::StackName"}, "node-type"]]},
-            "Value": "infrastructure",
+          { "Key": "sub-host_type",
+            "Value": "infra",
             "PropagateAtLaunch": true
           },
           { "Key": "Name",
@@ -428,12 +428,12 @@
         "MaxSize": {"Ref": "NumNodes"},
         "LaunchConfigurationName": { "Ref": "NodeLC" },
         "Tags": [
-          { "Key": {"Fn::Join": ["-", [{"Ref": "AWS::StackName"}, "host-type"]]},
+          { "Key": "host-type",
             "Value": "node",
             "PropagateAtLaunch": true
           },
-          { "Key": {"Fn::Join": ["-", [{"Ref": "AWS::StackName"}, "node-type"]]},
-            "Value": "application",
+          { "Key": "sub-host_type",
+            "Value": "compute",
             "PropagateAtLaunch": true
           },
           { "Key": "Name",
@@ -457,8 +457,12 @@
           { "Ref": "MasterIntElb" }
         ],
         "Tags": [
-          { "Key": {"Fn::Join": ["-", [{"Ref": "AWS::StackName"}, "host-type"]]},
+          { "Key": "host-type",
             "Value": "master",
+            "PropagateAtLaunch": true
+          },
+          { "Key": "sub-host_type",
+            "Value": "default",
             "PropagateAtLaunch": true
           },
           { "Key": "Name",

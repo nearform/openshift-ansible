@@ -8,7 +8,12 @@
   vars_files:
   - vars.yml
   tasks:
-  - include: tasks/validator.yml
+  - name: 'Validating options'
+    fail:
+      msg: required values not set
+    when: >
+      cluster_id is not defined
+      or env_id is not defined
 
   - name: Teardown CloudFormation Template
     cloudformation:

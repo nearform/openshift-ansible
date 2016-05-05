@@ -11,7 +11,13 @@
     vpc_subnet_azs: "{{ lookup('ec2_zones_by_region', ec2_region) }}"
     r53_subdomain: "{{ cluster_id }}.{{ env_id }}.{{ r53_zone }}"
   tasks:
-  - include: tasks/validator.yml
+  - name: 'Validating options'
+    fail:
+      msg: required values not set
+    when: >
+      cluster_id is not defined
+      or env_id is not defined
+      or r53_zone is not defined
 
   - name: Launch the CloudFormation Template
     cloudformation:
@@ -41,13 +47,13 @@
         SubnetAvailabilityZones: "us-east-1d"
         #SubnetAvailabilityZones: "{{ vpc_subnet_azs }}"
         KeyName: libra
-        NumMasters: "{{ os_defaults.masters.count }}"
-        MasterInstanceType: "{{ os_defaults.masters.instance_type }}"
+        NumMasters: "{{ masters.count }}"
+        MasterInstanceType: "{{ masters.instance_type }}"
         MasterImageId: "{{ ec2_image }}"
-        NumInfra: "{{ os_defaults.infra_nodes.count }}"
-        InfraInstanceType: "{{ os_defaults.infra_nodes.instance_type }}"
+        NumInfra: "{{ infra_nodes.count }}"
+        InfraInstanceType: "{{ infra_nodes.instance_type }}"
         InfraImageId: "{{ ec2_image }}"
-        NumNodes: "{{ os_defaults.app_nodes.count }}"
-        NodeInstanceType: "{{ os_defaults.app_nodes.instance_type }}"
+        NumNodes: "{{ app_nodes.count }}"
+        NodeInstanceType: "{{ app_nodes.instance_type }}"
         NodeImageId: "{{ ec2_image }}"
     register: cf_output

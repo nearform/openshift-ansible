@@ -1,7 +1,0 @@
-- name: 'Validating options'
-  fail:
-    msg: required values not set
-  when: >
-    cluster_id is not defined
-    or env_id is not defined
-    or r53_zone is not defined

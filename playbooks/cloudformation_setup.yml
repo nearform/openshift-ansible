@@ -26,8 +26,8 @@
         Route53HostedZone: "{{ r53_zone }}."
         MasterApiPort: "{{ api_port }}"
         MasterHealthTarget: "TCP:{{ api_port }}"
-        MasterClusterHostname: openshift.internal.hosts.{{ r53_subdomain }}
-        MasterClusterPublicHostname: openshift.hosts.{{ r53_subdomain }}
+        MasterClusterHostname: openshift.internal.{{ r53_subdomain }}
+        MasterClusterPublicHostname: openshift.{{ r53_subdomain }}
         AppWildcardDomain: "*.apps.{{ r53_subdomain }}"
         SshSgId: "sg-5875023f"
         EtcdSgId: "sg-5875023f"

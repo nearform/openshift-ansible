@@ -57,3 +57,5 @@
         NodeInstanceType: "{{ app_nodes.instance_type }}"
         NodeImageId: "{{ ec2_image }}"
     register: cf_output
+
+  - meta: refresh_inventory

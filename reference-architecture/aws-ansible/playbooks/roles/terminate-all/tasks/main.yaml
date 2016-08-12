@@ -1,0 +1,249 @@
+---
+- name: Remove all instances with testing key
+  ec2:
+     state: absent
+     region: "{{ region }}"
+     instance_ids: "{{ hostvars[item].ec2_id }}"
+  with_items: "groups['key_OSE-key']"
+- name: Remove ELBs
+  ec2_elb_lb:
+    name: "{{ item }}"
+    region: "{{ region }}"
+    state: absent
+  with_items:
+  - ose-router-elb
+  - ose-internal-master-elb
+  - ose-master-elb
+- name: Remove Nat Gateway
+  cloudformation:
+    stack_name: "NatGateway"
+    state: absent
+    template: roles/nat-gateway/files/nat-gateway.json
+    region: "{{ region }}"
+  ignore_errors: true
+- name: remove sg
+  ec2_group:
+    name: "{{ item }}"
+    state: absent
+    description: removal
+    region: "{{ region }}"
+  with_items:
+  - ose_infra_node_sg
+  - ose_etcd_sg
+  - ose_app_node_sg
+  - ose_master_sg
+  - bastion_sg
+- name: remove sg
+  ec2_group:
+    name: "{{ item }}"
+    state: absent
+    description: removal
+    region: "{{ region }}"
+  with_items:
+  - ose_elb_router_sg
+  - ose_elb_master_sg
+  - ose_internal_elb_master_sg
+- name: remove any elastic ips
+  ec2_eip:
+    ip: "{{ hostvars[item].ec2_ip_address }}"
+    region: "{{ region }}"
+    state: absent
+  with_items: "groups['security_group_bastion_sg']"
+- name: Remove policy used for user
+  iam_policy:
+    iam_name: "{{ s3_username }}"
+    iam_type: user
+    policy_name: S3FullAccess
+    state: absent
+    region: "{{ region }}"
+- name: Remove S3 OpenShift registry user
+  iam:
+    iam_type: user
+    name: "{{ s3_username }}"
+    state: absent
+- name: delete vpc
+  ec2_vpc:
+    vpc_id: "{{ hostvars[item].ec2_vpc_id }}"
+    region: "{{ region }}"
+    state: absent
+    resource_tags: "{}"
+  with_items: "groups['security_group_bastion_sg']"
+- name: Remove policy used for Role
+  iam_policy:
+    iam_name: ose-ebs
+    iam_type: "role"
+    policy_name: ose-ebs
+    state: absent
+    region: "{{ region }}"
+- name: remove role
+  iam:
+    iam_type: role
+    name: ose-ebs
+    state: absent
+    region: "{{ region }}"
+- name: Lookup DNS in Route53
+  route53:
+    command: get
+    zone: "{{ public_hosted_zone }}"
+    record: "{{ openshift_master_cluster_hostname }}"
+    type: CNAME
+  register: master_elb
+- name: Remove DNS in Route53
+  route53:
+    command: delete
+    zone: "{{ public_hosted_zone }}"
+    record: "{{ master_elb.set.record }}"
+    ttl: "{{ master_elb.set.ttl }}"
+    type: "{{ master_elb.set.type }}"
+    value: "{{ master_elb.set.value }}"
+- name: Lookup DNS in Route53
+  route53:
+    command: get
+    zone: "{{ public_hosted_zone }}"
+    record: "{{ openshift_master_cluster_public_hostname }}"
+    type: CNAME
+  register: internal_elb
+- name: Remove DNS in Route53
+  route53:
+    command: delete
+    zone: "{{ public_hosted_zone }}"
+    record: "{{ internal_elb.set.record }}"
+    ttl: "{{ internal_elb.set.ttl }}"
+    type: "{{ internal_elb.set.type }}"
+    value: "{{ internal_elb.set.value }}"
+- name: Lookup DNS in Route53
+  route53:
+      command: get
+      zone: "{{ public_hosted_zone }}"
+      record: "{{ master_instance_prefix }}01.{{ public_hosted_zone }}"
+      type: A
+  register: master1
+- name: debug
+  debug: var=master1
+- name: Remove DNS in Route53
+  route53:
+      command: delete
+      zone: "{{ public_hosted_zone }}"
+      record: "{{ master1.set.record }}"
+      ttl: "{{ master1.set.ttl }}"
+      type: "{{ master1.set.type }}"
+      value: "{{ master1.set.value }}"
+- name: Lookup DNS in Route53
+  route53:
+      command: get
+      zone: "{{ public_hosted_zone }}"
+      record: "{{ master_instance_prefix }}02.{{ public_hosted_zone }}"
+      type: A
+  register: master2
+- name: Remove DNS in Route53
+  route53:
+      command: delete
+      zone: "{{ public_hosted_zone }}"
+      record: "{{ master2.set.record }}"
+      ttl: "{{ master2.set.ttl }}"
+      type: "{{ master2.set.type }}"
+      value: "{{ master2.set.value }}"
+- name: Lookup DNS in Route53
+  route53:
+      command: get
+      zone: "{{ public_hosted_zone }}"
+      record: "{{ master_instance_prefix }}03.{{ public_hosted_zone }}"
+      type: A
+  register: master3
+- name: Remove DNS in Route53
+  route53:
+      command: delete
+      zone: "{{ public_hosted_zone }}"
+      record: "{{ master3.set.record }}"
+      ttl: "{{ master3.set.ttl }}"
+      type: "{{ master3.set.type }}"
+      value: "{{ master3.set.value }}"
+- name: Lookup DNS in Route53
+  route53:
+      command: get
+      zone: "{{ public_hosted_zone }}"
+      record: "{{ app_instance_prefix }}01.{{ public_hosted_zone }}"
+      type: A
+  register: app1
+- name: Remove DNS in Route53
+  route53:
+      command: delete
+      zone: "{{ public_hosted_zone }}"
+      record: "{{ app1.set.record }}"
+      ttl: "{{ app1.set.ttl }}"
+      type: "{{ app1.set.type }}"
+      value: "{{ app1.set.value }}"
+- name: Lookup DNS in Route53
+  route53:
+      command: get
+      zone: "{{ public_hosted_zone }}"
+      record: "{{ app_instance_prefix }}02.{{ public_hosted_zone }}"
+      type: A
+  register: app2
+- name: Remove DNS in Route53
+  route53:
+      command: delete
+      zone: "{{ public_hosted_zone }}"
+      record: "{{ app2.set.record }}"
+      ttl: "{{ app2.set.ttl }}"
+      type: "{{ app2.set.type }}"
+      value: "{{ app2.set.value }}"
+- name: Lookup DNS in Route53
+  route53:
+      command: get
+      zone: "{{ public_hosted_zone }}"
+      record: "{{ infra_instance_prefix }}01.{{ public_hosted_zone }}"
+      type: A
+  register: infra1
+- name: Remove DNS in Route53
+  route53:
+      command: delete
+      zone: "{{ public_hosted_zone }}"
+      record: "{{ infra1.set.record }}"
+      ttl: "{{ infra1.set.ttl }}"
+      type: "{{ infra1.set.type }}"
+      value: "{{ infra1.set.value }}"
+- name: Lookup DNS in Route53
+  route53:
+      command: get
+      zone: "{{ public_hosted_zone }}"
+      record: "{{ infra_instance_prefix }}02.{{ public_hosted_zone }}"
+      type: A
+  register: infra2
+- name: Remove DNS in Route53
+  route53:
+      command: delete
+      zone: "{{ public_hosted_zone }}"
+      record: "{{ infra2.set.record }}"
+      ttl: "{{ infra2.set.ttl }}"
+      type: "{{ infra2.set.type }}"
+      value: "{{ infra2.set.value }}"
+- name: Lookup DNS in Route53
+  route53:
+      command: get
+      zone: "{{ public_hosted_zone }}"
+      record: "bastion.{{ public_hosted_zone }}"
+      type: A
+  register: bastion
+- name: Remove DNS in Route53
+  route53:
+      command: delete
+      zone: "{{ public_hosted_zone }}"
+      record: "{{ bastion.set.record }}"
+      ttl: "{{ bastion.set.ttl }}"
+      type: "{{ bastion.set.type }}"
+      value: "{{ bastion.set.value }}"
+- name: Lookup DNS in Route53
+  route53:
+    command: get
+    zone: "{{ public_hosted_zone }}"
+    record: "\\*.{{ osm_default_subdomain }}"
+    type: CNAME
+  register: router_elb
+- name: Remove DNS in Route53
+  route53:
+    command: delete
+    zone: "{{ public_hosted_zone }}"
+    record: "\\*.{{ osm_default_subdomain }}"
+    type: "{{ router_elb.set.type }}"
+    value: "{{ router_elb.set.value }}"

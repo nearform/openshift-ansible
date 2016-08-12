@@ -1,0 +1,18 @@
+[
+  {
+    "DeviceName": "/dev/xvdb",
+    "Ebs": {
+    "DeleteOnTermination": true,
+    "VolumeType": "gp2",
+    "VolumeSize": 20
+    }
+  },
+  {
+    "DeviceName": "/dev/xvdc",
+    "Ebs": {
+    "DeleteOnTermination": true,
+    "VolumeType": "gp2",
+    "VolumeSize": 50
+    }
+  }
+]

@@ -1,6 +1,6 @@
 # The Reference Architecture Bash Script
 The bash scripts provided in this repository will create the infrastucture required to install OpenShift.  Once the
-infrastructure is deployed then using an Ansible script OpenShift and the required components will be installed.
+infrastructure is deployed then using the Ansible script in aws-ansible directory will install OpenShift and the required components will be installed.
 
 ## Region
 The default region is us-east-1.
@@ -13,7 +13,7 @@ yum install -y awscli.noarch
 yum install -y jq
 ```
 Once the awscli packages have been installed, the AWS CLI needs to be configured. To configure the
-AWS ClI peform the following
+AWS Cli peform the following
 ```
 $ aws configure
 AWS Access Key ID [None]: AKIAIOSFODNN7EXAMPLE

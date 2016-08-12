@@ -60,7 +60,7 @@ Host bastion
 cd ../aws-ansible
 ansible-playbook -i inventory/aws/hosts \
 -e 'public_hosted_zone=sysdeseng.com \
-wildcard_zone=apps.sysdeseng.com \*
+wildcard_zone=apps.sysdeseng.com \
 console_port=8443 \
 deployment_type=openshift-enterprise \
 rhsm_user=user \

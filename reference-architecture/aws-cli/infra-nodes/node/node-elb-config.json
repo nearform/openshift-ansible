@@ -1,0 +1,10 @@
+[
+  {
+    "DeviceName": "/dev/xvdb",
+    "Ebs": {
+    "DeleteOnTermination": true,
+    "VolumeType": "gp2",
+    "VolumeSize": 20
+    }
+  }
+]

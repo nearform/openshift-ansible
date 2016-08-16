@@ -1,0 +1,5 @@
+---
+- name: check to see if host is available
+  wait_for:
+    path: /etc/redhat-release
+    delay: 10

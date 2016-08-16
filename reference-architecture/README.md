@@ -4,7 +4,7 @@ This repository contains the scripts used to deploy an OpenShift environment bas
 ## Overview
 The repository contains both a bash script option and a grouping of Ansible playbooks which deploy 3 Masters in different availability zones, 2 infrastructure nodes and 2 applcation nodes. The Infrastrucute and Application nodes are split between two availbility zones.  The playbooks deploy a Docker registry and scale the router to the number of Infrastruture nodes.  Either method can be used to deploy the infrastucture. If using the bash installation the openshift-install.yaml will need to be launched once the environment deploys.
 
-![Architecture](https://github.com/cooktheryan/openshift-ansible-contrib/raw/master/reference-architecture/images/arch.jpg)
+![Architecture](images/arch.jpg)
 
 ## Prerequisites
 A registered domain must be added to Route53 as a Hosted Zone before installation.  This registered domain can be purchased through AWS.

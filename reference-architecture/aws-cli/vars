@@ -9,8 +9,8 @@ IG_TAG=${UNIQ_VAR}-IG
 AMI_ID=ami-10251c7a
 
 # Instance types
-MASTER_INST_TYPE=t2.medium
-NODE_INST_TYPE=t2.medium
+MASTER_INST_TYPE=m4.large
+NODE_INST_TYPE=m4.large
 BASTION_INSTANCE=t2.micro
 
 # Network info

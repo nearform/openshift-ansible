@@ -18,9 +18,9 @@ import sys
               show_default=True)
 @click.option('--ami', default='ami-10251c7a', help='ec2 ami',
               show_default=True)
-@click.option('--master-instance-type', default='t2.medium', help='ec2 instance type',
+@click.option('--master-instance-type', default='m4.large', help='ec2 instance type',
               show_default=True)
-@click.option('--node-instance-type', default='t2.medium', help='ec2 instance type',
+@click.option('--node-instance-type', default='m4.large', help='ec2 instance type',
               show_default=True)
 @click.option('--keypair', help='ec2 keypair name',
               show_default=True)

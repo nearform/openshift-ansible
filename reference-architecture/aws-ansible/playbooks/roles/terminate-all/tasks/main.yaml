@@ -33,6 +33,9 @@
   - ose_app_node_sg
   - ose_master_sg
   - bastion_sg
+- name: pause to allow for unlinking of security groups
+  pause:
+    seconds: 10
 - name: remove sg
   ec2_group:
     name: "{{ item }}"

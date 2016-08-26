@@ -45,7 +45,7 @@
       - docker-storage-setup
 - include: ../../../../openshift-ansible/playbooks/byo/openshift-cluster/config.yml
   vars_files:
-    - ../../../../ose-on-aws/refarch-ansible/playbooks/vars/main.yaml
+      - ../../../../openshift-ansible-contrib/reference-architecture/aws-ansible/playbooks/vars/main.yaml
 - hosts: localhost
   connection: local
   gather_facts: no

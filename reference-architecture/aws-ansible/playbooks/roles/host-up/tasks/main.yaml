@@ -1,5 +1,7 @@
 ---
 - name: check to see if host is available
   wait_for:
-    path: /etc/redhat-release
-    delay: 10
+    port: 22
+    state: started
+    delay: 20
+  when: "'bastion' in inventory_hostname"

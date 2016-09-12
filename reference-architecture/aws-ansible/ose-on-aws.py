@@ -8,7 +8,7 @@ import sys
 @click.command()
 
 ### Cluster options
-@click.option('--console-port', default='8443', type=click.IntRange(1,65535), help='OpenShift web console port',
+@click.option('--console-port', default='443', type=click.IntRange(1,65535), help='OpenShift web console port',
               show_default=True)
 @click.option('--deployment-type', default='openshift-enterprise', help='OpenShift deployment type',
               show_default=True)
@@ -20,7 +20,7 @@ import sys
               show_default=True)
 @click.option('--master-instance-type', default='m4.large', help='ec2 instance type',
               show_default=True)
-@click.option('--node-instance-type', default='m4.large', help='ec2 instance type',
+@click.option('--node-instance-type', default='t2.medium', help='ec2 instance type',
               show_default=True)
 @click.option('--keypair', help='ec2 keypair name',
               show_default=True)
@@ -58,6 +58,8 @@ import sys
 ### Miscellaneous options
 @click.option('--byo-bastion', default='no', help='skip bastion install when one exists within the cloud provider',
               show_default=True)
+@click.option('--bastion-sg', default='/dev/null', help='Specify Bastion Security group used with byo-bastion',
+              show_default=True)
 @click.option('--no-confirm', is_flag=True,
               help='Skip confirmation prompt')
 @click.help_option('--help', '-h')
@@ -80,10 +82,11 @@ def launch_refarch_env(region=None,
                     public_subnet_id2=None,
                     public_subnet_id3=None,
                     byo_bastion=None,
+                    bastion_sg=None,
                     public_hosted_zone=None,
                     app_dns_prefix=None,
                     deployment_type=None,
-                    console_port=8443,
+                    console_port=443,
                     rhsm_user=None,
                     rhsm_password=None,
                     verbose=0):
@@ -119,6 +122,11 @@ def launch_refarch_env(region=None,
     public_subnet_id2 = click.prompt('Specify the second Public subnet within the existing VPC')
     public_subnet_id3 = click.prompt('Specify the third Public subnet within the existing VPC')
 
+ # Prompt for Bastion SG if byo-bastion specified
+  if byo_bastion in 'yes' and bastion_sg in '/dev/null':
+    bastion_sg = click.prompt('Specify the the Bastion Security group(example: sg-4afdd24)')
+  
+
   # If the user already provided values, don't bother asking again
   if rhsm_user is None:
     rhsm_user = click.prompt("RHSM username?")
@@ -146,6 +154,7 @@ def launch_refarch_env(region=None,
   click.echo('\tpublic_subnet_id2: %s' % public_subnet_id2)
   click.echo('\tpublic_subnet_id3: %s' % public_subnet_id3)
   click.echo('\tbyo_bastion: %s' % byo_bastion)
+  click.echo('\tbastion_sg: %s' % bastion_sg)
   click.echo('\tconsole port: %s' % console_port)
   click.echo('\tdeployment_type: %s' % deployment_type)
   click.echo('\tpublic_hosted_zone: %s' % public_hosted_zone)
@@ -191,6 +200,7 @@ def launch_refarch_env(region=None,
     public_subnet_id2=%s \
     public_subnet_id3=%s \
     byo_bastion=%s \
+    bastion_sg=%s \
     master_instance_type=%s \
     node_instance_type=%s \
     public_hosted_zone=%s \
@@ -212,6 +222,7 @@ def launch_refarch_env(region=None,
                     public_subnet_id2,
                     public_subnet_id3,
                     byo_bastion,
+                    bastion_sg,
                     master_instance_type,
                     node_instance_type,
                     public_hosted_zone,

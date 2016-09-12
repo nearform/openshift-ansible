@@ -1,0 +1,141 @@
+---
+- name: Create Greenfield Infrastructure
+  cloudformation:
+    stack_name: "OpenShift-Infra"
+    state: "present"
+    region: "{{ region }}"
+    template: "roles/cloudformation-infra/files/greenfield.json"
+    template_parameters:
+      Region: "{{ region }}"
+      Route53HostedZone: "{{ public_hosted_zone }}."
+      PublicHostedZone: "{{ public_hosted_zone }}"
+      MasterApiPort: "{{ console_port }}"
+      MasterHealthTarget: "TCP:{{ console_port }}"
+      MasterClusterHostname: "{{ openshift_master_cluster_hostname }}"
+      MasterClusterPublicHostname: "{{ openshift_master_cluster_public_hostname }}"
+      AppWildcardDomain: "*.{{ wildcard_zone }}"
+      VpcCidrBlock: "{{ cidr_block }}"
+      VpcName: "{{ vpc_prefix }}"
+      SubnetAvailabilityZones: "{{ vpc_subnet_azs }}"
+      SubnetCidrBlocks: "{{ subnet_blocks }}" 
+      KeyName: "{{ keypair }}"
+      MasterInstanceType: "{{ master_instance_type }}"
+      AmiId: "{{ ami }}"
+      BastionInstanceType: "{{ node_instance_type }}"
+      MasterRootVolSize: 10
+      BastionRootVolType: gp2
+      MasterRootVolType: gp2
+      MasterDockerVolSize: "{{ docker_storage }}"
+      MasterDockerVolType: gp2
+      MasterEtcdVolSize: "{{ etcd_storage }}"
+      MasterEtcdVolType: gp2
+      MasterUserData: "{{ lookup('template', 'files/user_data_master.yml') | b64encode }}" 
+      InfraInstanceType: "{{ node_instance_type }}"
+      InfraRootVolSize: 25
+      InfraRootVolType: gp2
+      InfraDockerVolSize: "{{ docker_storage }}"
+      InfraDockerVolType: gp2
+      NodeEmptyVolSize: "{{ emptydir_storage }}"
+      NodeEmptyVolType: gp2
+      NodeUserData: "{{ lookup('template', 'files/user_data_node.yml') | b64encode }}"
+      AppNodeInstanceType: "{{ node_instance_type }}"
+      NodeRootVolSize: 25
+      NodeRootVolType: gp2
+      NodeDockerVolSize: "{{ docker_storage }}"
+      NodeDockerVolType: gp2
+  when: create_vpc == "yes"
+
+- name: Create Brownfield Infrastructure
+  cloudformation:
+    stack_name: "OpenShift-Infra-Brownfield"
+    state: "present"
+    region: "{{ region }}"
+    template: "roles/cloudformation-infra/files/brownfield.json"
+    template_parameters:
+      Vpc: "{{ vpc_id }}"
+      PrivateSubnet1: "{{ private_subnet_id1 }}"
+      PrivateSubnet2: "{{ private_subnet_id2 }}"
+      PrivateSubnet3: "{{ private_subnet_id3 }}"
+      PublicSubnet1: "{{ public_subnet_id1 }}"
+      PublicSubnet2: "{{ public_subnet_id2 }}"
+      PublicSubnet3: "{{ public_subnet_id3 }}"
+      Route53HostedZone: "{{ public_hosted_zone }}."
+      PublicHostedZone: "{{ public_hosted_zone }}"
+      MasterApiPort: "{{ console_port }}"
+      MasterHealthTarget: "TCP:{{ console_port }}"
+      MasterClusterHostname: "{{ openshift_master_cluster_hostname }}"
+      MasterClusterPublicHostname: "{{ openshift_master_cluster_public_hostname }}"
+      AppWildcardDomain: "*.{{ wildcard_zone }}"
+      KeyName: "{{ keypair }}"
+      MasterInstanceType: "{{ master_instance_type }}"
+      AmiId: "{{ ami }}"
+      BastionInstanceType: "{{ node_instance_type }}"
+      MasterRootVolSize: 10
+      BastionRootVolType: gp2
+      MasterRootVolType: gp2
+      MasterDockerVolSize: "{{ docker_storage }}"
+      MasterDockerVolType: gp2
+      MasterEtcdVolSize: "{{ etcd_storage }}"
+      MasterEtcdVolType: gp2
+      MasterUserData: "{{ lookup('template', 'files/user_data_master.yml') | b64encode }}" 
+      InfraInstanceType: "{{ node_instance_type }}"
+      InfraRootVolSize: 25
+      InfraRootVolType: gp2
+      InfraDockerVolSize: "{{ docker_storage }}"
+      InfraDockerVolType: gp2
+      NodeEmptyVolSize: "{{ emptydir_storage }}"
+      NodeEmptyVolType: gp2
+      NodeUserData: "{{ lookup('template', 'files/user_data_node.yml') | b64encode }}"
+      AppNodeInstanceType: "{{ node_instance_type }}"
+      NodeRootVolSize: 25
+      NodeRootVolType: gp2
+      NodeDockerVolSize: "{{ docker_storage }}"
+      NodeDockerVolType: gp2
+  when: create_vpc == "no" and byo_bastion == "no"
+
+- name: Create Brownfield Infrastructure with existing bastion
+  cloudformation:
+    stack_name: "OpenShift-Infra-Brownfield-wo-bastion"
+    state: "present"
+    region: "{{ region }}"
+    template: "roles/cloudformation-infra/files/brownfield-byo-bastion.json"
+    template_parameters:
+      Vpc: "{{ vpc_id }}"
+      BastionSg: "{{ bastion_sg }}"
+      PrivateSubnet1: "{{ private_subnet_id1 }}"
+      PrivateSubnet2: "{{ private_subnet_id2 }}"
+      PrivateSubnet3: "{{ private_subnet_id3 }}"
+      PublicSubnet1: "{{ public_subnet_id1 }}"
+      PublicSubnet2: "{{ public_subnet_id2 }}"
+      PublicSubnet3: "{{ public_subnet_id3 }}"
+      Route53HostedZone: "{{ public_hosted_zone }}."
+      PublicHostedZone: "{{ public_hosted_zone }}"
+      MasterApiPort: "{{ console_port }}"
+      MasterHealthTarget: "TCP:{{ console_port }}"
+      MasterClusterHostname: "{{ openshift_master_cluster_hostname }}"
+      MasterClusterPublicHostname: "{{ openshift_master_cluster_public_hostname }}"
+      AppWildcardDomain: "*.{{ wildcard_zone }}"
+      KeyName: "{{ keypair }}"
+      MasterInstanceType: "{{ master_instance_type }}"
+      AmiId: "{{ ami }}"
+      MasterRootVolSize: 10
+      MasterRootVolType: gp2
+      MasterDockerVolSize: "{{ docker_storage }}"
+      MasterDockerVolType: gp2
+      MasterEtcdVolSize: "{{ etcd_storage }}"
+      MasterEtcdVolType: gp2
+      MasterUserData: "{{ lookup('template', 'files/user_data_master.yml') | b64encode }}" 
+      InfraInstanceType: "{{ node_instance_type }}"
+      InfraRootVolSize: 25
+      InfraRootVolType: gp2
+      InfraDockerVolSize: "{{ docker_storage }}"
+      InfraDockerVolType: gp2
+      NodeEmptyVolSize: "{{ emptydir_storage }}"
+      NodeEmptyVolType: gp2
+      NodeUserData: "{{ lookup('template', 'files/user_data_node.yml') | b64encode }}"
+      AppNodeInstanceType: "{{ node_instance_type }}"
+      NodeRootVolSize: 25
+      NodeRootVolType: gp2
+      NodeDockerVolSize: "{{ docker_storage }}"
+      NodeDockerVolType: gp2
+  when: create_vpc == "no" and byo_bastion == "yes"

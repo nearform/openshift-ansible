@@ -7,6 +7,16 @@
   roles:
       # Group systems
       - instance-groups
+      
+- hosts: bastion 
+  gather_facts: no
+  become: yes
+  user: ec2-user
+  vars_files:
+      - vars/main.yaml
+  roles:
+      - host-up
+      
 - hosts: cluster_hosts
   gather_facts: no
   become: yes
@@ -15,8 +25,8 @@
   vars_files:
       - vars/main.yaml
   roles:
-      - host-up
       - rhsm-subscription
+      
 - hosts: cluster_hosts
   gather_facts: no
   become: yes
@@ -26,50 +36,36 @@
   roles:
       - rhsm-repos
       - prerequisites
-- hosts: schedulable_nodes
-  gather_facts: no
-  become: yes
-  user: ec2-user
-  vars_files:
-      - vars/main.yaml
-  roles:
-      - openshift-volume-quota
-- hosts: cluster_hosts
-  gather_facts: no
-  become: yes
-  serial: 1
-  user: ec2-user
-  vars_files:
-      - vars/main.yaml
-  roles:
-      - docker-storage-setup
-- include: ../../../../openshift-ansible/playbooks/byo/openshift-cluster/config.yml
-  vars_files:
-      - ../../../../openshift-ansible-contrib/reference-architecture/aws-ansible/playbooks/vars/main.yaml
+      
+- include: openshift-setup.yaml
+
 - hosts: localhost
   connection: local
-  gather_facts: no
+  gather_facts: yes
   become: no
   vars_files:
       - vars/main.yaml
   roles:
       - s3-registry-user
       - s3-registry-bucket
+      
 - hosts: schedulable_nodes
-  gather_facts: yes
+  gather_facts: no
   become: yes
   vars_files:
       - vars/main.yaml
   roles:
       - openshift-images
       - openshift-emptydir-quota
+      
 - hosts: primary_master
-  gather_facts: yes
+  gather_facts: no 
   become: yes
   vars_files:
       - vars/main.yaml
   roles:
       - openshift-registry
+      
 - hosts: masters
   gather_facts: no
   become: yes
@@ -80,7 +76,7 @@
   roles:
       - openshift-default-selector
 - hosts: primary_master
-  gather_facts: yes
+  gather_facts: no
   become: yes
   vars_files:
       - vars/main.yaml

@@ -15,10 +15,5 @@
     iam_name: "{{ s3user.user_meta.access_keys.0.user_name }}"
     iam_type: "user"
     policy_name: S3FullAccess
-    policy_json:
-      Version: '2012-10-17'
-      Statement:
-          - Action: ['s3:*']
-            Effect: Allow
-            Resource: '*'
+    policy_json: '{"Version":"2012-10-17","Statement":[{"Action":["s3:*"],"Effect":"Allow","Resource":"*"}]}'
     state: present

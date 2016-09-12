@@ -1,11 +1,17 @@
 ---
+- name: Add bastion to group
+  add_host:
+    name: "bastion.{{ public_hosted_zone }}"
+    groups: bastion
+  when: byo_bastion == "no"
+
 - name: Add masters to requisite groups
   add_host:
     name: "{{ hostvars[item].ec2_tag_Name }}"
     groups: masters, etcd, nodes, cluster_hosts
     openshift_node_labels:
       role: master
-  with_items: "groups['{{ master_group_tag }}']"
+  with_items: "{{ groups['tag_openshift-role_master'] }}"
 
 - name: Add a master to the primary masters group
   add_host:
@@ -13,7 +19,7 @@
     groups: primary_master
     openshift_node_labels:
       role: master
-  with_items: "groups['{{ master_group_tag }}'].0"
+  with_items: "{{ groups['tag_openshift-role_master'].0 }}"
 
 - name: Add infra instances to host group
   add_host:
@@ -21,7 +27,7 @@
     groups: nodes, cluster_hosts, schedulable_nodes
     openshift_node_labels:
       role: infra
-  with_items: "groups['{{ infra_group_tag }}']"
+  with_items: "{{ groups['tag_openshift-role_infra'] }}"
 
 - name: Add app instances to host group
   add_host:
@@ -29,4 +35,4 @@
     groups: nodes, cluster_hosts, schedulable_nodes
     openshift_node_labels:
       role: app
-  with_items: "groups['{{ app_group_tag }}']"
+  with_items: "{{ groups['tag_openshift-role_app'] }}"

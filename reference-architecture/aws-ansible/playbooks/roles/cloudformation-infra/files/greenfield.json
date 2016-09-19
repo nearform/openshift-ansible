@@ -60,6 +60,9 @@
       "Type": "String",
       "Default": "gp2"
     },
+    "BastionUserData": {
+      "Type": "String"
+    },
     "MasterRootVolSize": {
       "Type": "String",
       "Default": "10"
@@ -917,6 +920,7 @@
        "Type" : "AWS::EC2::Instance",
        "Properties" : {
           "ImageId" : {"Ref": "AmiId"},
+          "UserData": {"Ref": "BastionUserData"},
           "KeyName" : {"Ref": "KeyName"},
 	      "InstanceType": {"Ref": "BastionInstanceType"},
 		  "SecurityGroupIds": [{ "Fn::GetAtt" : ["BastionSg", "GroupId"] }],

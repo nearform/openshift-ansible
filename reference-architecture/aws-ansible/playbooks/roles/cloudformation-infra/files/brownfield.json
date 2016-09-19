@@ -48,6 +48,9 @@
       "Type": "String",
       "Default": "gp2"
     },
+    "BastionUserData": {
+      "Type": "String"
+    },
     "MasterRootVolSize": {
       "Type": "String",
       "Default": "10"
@@ -63,6 +66,9 @@
     "MasterEtcdVolType": {
       "Type": "String",
       "Default": "gp2"
+    },
+    "MasterUserData": {
+      "Type": "String"
     },
     "MasterDockerVolType": {
       "Type": "String",
@@ -99,6 +105,9 @@
     "NodeRootVolSize": {
       "Type": "String",
       "Default": "30"
+    },
+    "NodeUserData": {
+      "Type": "String"
     },
     "NodeDockerVolSize": {
       "Type": "String",
@@ -714,6 +723,7 @@
        "Type" : "AWS::EC2::Instance",
        "Properties" : {
           "ImageId" : {"Ref": "AmiId"},
+          "UserData": {"Ref": "BastionUserData"},
           "KeyName" : {"Ref": "KeyName"},
 	      "InstanceType": {"Ref": "BastionInstanceType"},
 		  "SecurityGroupIds": [{ "Fn::GetAtt" : ["BastionSg", "GroupId"] }],

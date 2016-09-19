@@ -22,6 +22,7 @@
       MasterInstanceType: "{{ master_instance_type }}"
       AmiId: "{{ ami }}"
       BastionInstanceType: "{{ node_instance_type }}"
+      BastionUserData: "{{ lookup('file', 'user_data_bastion.yml') | b64encode }}" 
       MasterRootVolSize: 10
       BastionRootVolType: gp2
       MasterRootVolType: gp2
@@ -29,7 +30,7 @@
       MasterDockerVolType: gp2
       MasterEtcdVolSize: "{{ etcd_storage }}"
       MasterEtcdVolType: gp2
-      MasterUserData: "{{ lookup('template', 'files/user_data_master.yml') | b64encode }}" 
+      MasterUserData: "{{ lookup('file', 'user_data_master.yml') | b64encode }}" 
       InfraInstanceType: "{{ node_instance_type }}"
       InfraRootVolSize: 25
       InfraRootVolType: gp2
@@ -37,7 +38,7 @@
       InfraDockerVolType: gp2
       NodeEmptyVolSize: "{{ emptydir_storage }}"
       NodeEmptyVolType: gp2
-      NodeUserData: "{{ lookup('template', 'files/user_data_node.yml') | b64encode }}"
+      NodeUserData: "{{ lookup('file', 'user_data_node.yml') | b64encode }}"
       AppNodeInstanceType: "{{ node_instance_type }}"
       NodeRootVolSize: 25
       NodeRootVolType: gp2
@@ -70,6 +71,7 @@
       MasterInstanceType: "{{ master_instance_type }}"
       AmiId: "{{ ami }}"
       BastionInstanceType: "{{ node_instance_type }}"
+      BastionUserData: "{{ lookup('file', 'user_data_bastion.yml') | b64encode }}" 
       MasterRootVolSize: 10
       BastionRootVolType: gp2
       MasterRootVolType: gp2
@@ -77,7 +79,7 @@
       MasterDockerVolType: gp2
       MasterEtcdVolSize: "{{ etcd_storage }}"
       MasterEtcdVolType: gp2
-      MasterUserData: "{{ lookup('template', 'files/user_data_master.yml') | b64encode }}" 
+      MasterUserData: "{{ lookup('file', 'user_data_master.yml') | b64encode }}" 
       InfraInstanceType: "{{ node_instance_type }}"
       InfraRootVolSize: 25
       InfraRootVolType: gp2
@@ -85,7 +87,7 @@
       InfraDockerVolType: gp2
       NodeEmptyVolSize: "{{ emptydir_storage }}"
       NodeEmptyVolType: gp2
-      NodeUserData: "{{ lookup('template', 'files/user_data_node.yml') | b64encode }}"
+      NodeUserData: "{{ lookup('file', 'user_data_node.yml') | b64encode }}"
       AppNodeInstanceType: "{{ node_instance_type }}"
       NodeRootVolSize: 25
       NodeRootVolType: gp2
@@ -124,7 +126,7 @@
       MasterDockerVolType: gp2
       MasterEtcdVolSize: "{{ etcd_storage }}"
       MasterEtcdVolType: gp2
-      MasterUserData: "{{ lookup('template', 'files/user_data_master.yml') | b64encode }}" 
+      MasterUserData: "{{ lookup('file', 'user_data_master.yml') | b64encode }}" 
       InfraInstanceType: "{{ node_instance_type }}"
       InfraRootVolSize: 25
       InfraRootVolType: gp2
@@ -132,7 +134,7 @@
       InfraDockerVolType: gp2
       NodeEmptyVolSize: "{{ emptydir_storage }}"
       NodeEmptyVolType: gp2
-      NodeUserData: "{{ lookup('template', 'files/user_data_node.yml') | b64encode }}"
+      NodeUserData: "{{ lookup('file', 'user_data_node.yml') | b64encode }}"
       AppNodeInstanceType: "{{ node_instance_type }}"
       NodeRootVolSize: 25
       NodeRootVolType: gp2

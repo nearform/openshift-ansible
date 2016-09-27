@@ -54,6 +54,7 @@ import sys
 @click.option('--rhsm-user', help='Red Hat Subscription Management User')
 @click.option('--rhsm-password', help='Red Hat Subscription Management Password',
                 hide_input=True,)
+@click.option('--rhsm-pool', help='Red Hat Subscription Management Pool ID or Subscription Name')
 
 ### Miscellaneous options
 @click.option('--byo-bastion', default='no', help='skip bastion install when one exists within the cloud provider',
@@ -89,6 +90,7 @@ def launch_refarch_env(region=None,
                     console_port=443,
                     rhsm_user=None,
                     rhsm_password=None,
+                    rhsm_pool=None,
                     verbose=0):
 
   # Need to prompt for the R53 zone:
@@ -131,7 +133,9 @@ def launch_refarch_env(region=None,
   if rhsm_user is None:
     rhsm_user = click.prompt("RHSM username?")
   if rhsm_password is None:
-    rhsm_password = click.prompt("RHSM password?", hide_input=True, confirmation_prompt=True)
+    rhsm_password = click.prompt("RHSM password?")
+  if rhsm_pool is None:
+    rhsm_pool = click.prompt("RHSM Pool ID or Subscription Name?")
 
   # Calculate various DNS values
   wildcard_zone="%s.%s" % (app_dns_prefix, public_hosted_zone)
@@ -162,6 +166,7 @@ def launch_refarch_env(region=None,
   click.echo('\tapps_dns: %s' % wildcard_zone)
   click.echo('\trhsm_user: %s' % rhsm_user)
   click.echo('\trhsm_password: *******')
+  click.echo('\trhsm_pool: %s' % rhsm_pool)
   click.echo("")
 
   if not no_confirm:
@@ -208,7 +213,8 @@ def launch_refarch_env(region=None,
     console_port=%s \
     deployment_type=%s \
     rhsm_user=%s \
-    rhsm_password=%s \' %s' % (region,
+    rhsm_password=%s \
+    rhsm_pool=%s \' %s' % (region,
                     ami,
                     keypair,
                     create_key,
@@ -231,6 +237,7 @@ def launch_refarch_env(region=None,
                     deployment_type,
                     rhsm_user,
                     rhsm_password,
+                    rhsm_pool,
                     playbook)
 
     if verbose > 0:

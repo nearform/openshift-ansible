@@ -55,7 +55,6 @@
   vars_files:
       - vars/main.yaml
   roles:
-      - openshift-images
       - openshift-emptydir-quota
       
 - hosts: primary_master
@@ -65,20 +64,3 @@
       - vars/main.yaml
   roles:
       - openshift-registry
-      
-- hosts: masters
-  gather_facts: no
-  become: yes
-  serial: 1
-  user: ec2-user
-  vars_files:
-      - vars/main.yaml
-  roles:
-      - openshift-default-selector
-- hosts: primary_master
-  gather_facts: no
-  become: yes
-  vars_files:
-      - vars/main.yaml
-  roles:
-      - openshift-infra-pod-scale

@@ -15,10 +15,12 @@ The code in this repository handles all of the AWS specific components except fo
 ```
 $ *subscription-manager repos --enable rhel-7-server-optional-rpms*
 $ *subscription-manager repos --enable rhel-7-server-ose-3.2-rpms*
+$ *subscription-manager repos --enable rhel-7-server-ose-3.3-rpms*
 $ *rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm*
 $ *yum -y install atomic-openshift-utils \ *
   *               python2-boto \ *
   *               git \ *
+  *               ansible-2.2.0-0.5.prerelease.el7.noarch \ *
   *               python-netaddr \ *
   *               python-httplib2 *
 ```

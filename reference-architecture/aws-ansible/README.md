@@ -1,5 +1,5 @@
 # The Reference Architecture OpenShift on Amazon Web Services
-This repository contains the scripts used to deploy an OpenShift environment based off of the Reference Architecture Guide for OpenShift 3.2 on Amazon Web Services.
+This repository contains the scripts used to deploy an OpenShift environment based off of the Reference Architecture Guide for OpenShift 3.3 on Amazon Web Services.
 
 ## Overview
 The repository contains Ansible playbooks which deploy 3 Masters in different availability zones, 2 infrastructure nodes and 2 applcation nodes. The Infrastrucute and Application nodes are split between two availbility zones.  The playbooks deploy a Docker registry and scale the router to the number of Infrastruture nodes.
@@ -13,16 +13,16 @@ A registered domain must be added to Route53 as a Hosted Zone before installatio
 The code in this repository handles all of the AWS specific components except for the installation of OpenShift. We rely on the OpenShift playbooks from the openshift-ansible-playbooks rpm. You will need the rpm installed on the workstation before using ose-on-aws.py.
 
 ```
-$ *subscription-manager repos --enable rhel-7-server-optional-rpms*
-$ *subscription-manager repos --enable rhel-7-server-ose-3.2-rpms*
-$ *subscription-manager repos --enable rhel-7-server-ose-3.3-rpms*
-$ *rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm*
-$ *yum -y install atomic-openshift-utils \ *
-  *               python2-boto \ *
-  *               git \ *
-  *               ansible-2.2.0-0.5.prerelease.el7.noarch \ *
-  *               python-netaddr \ *
-  *               python-httplib2 *
+$ subscription-manager repos --enable rhel-7-server-optional-rpms
+$ subscription-manager repos --enable rhel-7-server-ose-3.2-rpms
+$ subscription-manager repos --enable rhel-7-server-ose-3.3-rpms
+$ rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+$ yum -y install atomic-openshift-utils \ 
+                 python2-boto \ 
+                 git \ 
+                 ansible-2.2.0-0.5.prerelease.el7.noarch \ 
+                 python-netaddr \ 
+                 python-httplib2 
 ```
 
 ## Usage

@@ -25,7 +25,7 @@
 
 - name: Sleep to allow for route propegation
   pause:
-     seconds: 5
+     seconds: 10
 - name: check the status of the page
   uri:
      url: "http://cakephp-example-validate.{{ wildcard_zone }}"

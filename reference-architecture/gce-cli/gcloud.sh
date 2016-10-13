@@ -628,6 +628,30 @@ else
     echo "Bucket '${REGISTRY_BUCKET}' already exists"
 fi
 
+# Configure local SSH so we can connect directly to all instances
+ssh_config_file=~/.ssh/config
+if ! grep -q '# OpenShift on GCE Section' "$ssh_config_file"; then
+    echo -e '\n# OpenShift on GCE Section\n' >> "$ssh_config_file"
+    bastion_data=$(gcloud --project "$GCLOUD_PROJECT" compute instances list --filter='name:bastion' --format='value(EXTERNAL_IP,id)')
+    echo "Host bastion
+    HostName $(echo $bastion_data | cut -d ' ' -f 1)
+    User cloud-user
+    IdentityFile ~/.ssh/google_compute_engine
+    UserKnownHostsFile ~/.ssh/google_compute_known_hosts
+    HostKeyAlias compute.$(echo $bastion_data | cut -d ' ' -f 2)
+    IdentitiesOnly yes
+    CheckHostIP no
+" >> "$ssh_config_file"
+    instances=$(gcloud --project "$GCLOUD_PROJECT" compute instances list --filter='tags.items:ocp' --format='value(name)')
+    for i in $instances; do
+        echo "Host ${i}
+    User cloud-user
+    proxycommand ssh bastion -W %h:%p
+" >> "$ssh_config_file"
+    done
+    echo -e '# End of OpenShift on GCE Section\n' >> "$ssh_config_file"
+fi
+
 # Prepare config file for ansible based on the configuration from this script
 export DNS_DOMAIN \
     OCP_APPS_DNS_NAME \

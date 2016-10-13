@@ -1010,8 +1010,8 @@
           "ImageId" : {"Ref": "AmiId"},
           "UserData": {"Ref": "MasterUserData"},
           "KeyName" : {"Ref": "KeyName"},
-	      "InstanceType": {"Ref": "MasterInstanceType"},
-		  "SecurityGroupIds": [{ "Fn::GetAtt" : ["NodeSG", "GroupId"] }, { "Fn::GetAtt" : ["MasterSG", "GroupId"] }, { "Fn::GetAtt" : ["EtcdSG", "GroupId"] }],
+          "InstanceType": {"Ref": "MasterInstanceType"},
+          "SecurityGroupIds": [{ "Fn::GetAtt" : ["NodeSG", "GroupId"] }, { "Fn::GetAtt" : ["MasterSG", "GroupId"] }, { "Fn::GetAtt" : ["EtcdSG", "GroupId"] }],
           "SubnetId" : {"Ref": "PrivateSubnet2"},
           "IamInstanceProfile": { "Ref": "MasterInstanceProfile" },
           "Tags": [
@@ -1057,8 +1057,8 @@
           "ImageId" : {"Ref": "AmiId"},
           "UserData": {"Ref": "MasterUserData"},
           "KeyName" : {"Ref": "KeyName"},
-	      "InstanceType": {"Ref": "MasterInstanceType"},
-		  "SecurityGroupIds": [{ "Fn::GetAtt" : ["NodeSG", "GroupId"] }, { "Fn::GetAtt" : ["MasterSG", "GroupId"] }, { "Fn::GetAtt" : ["EtcdSG", "GroupId"] }],
+	  "InstanceType": {"Ref": "MasterInstanceType"},
+	  "SecurityGroupIds": [{ "Fn::GetAtt" : ["NodeSG", "GroupId"] }, { "Fn::GetAtt" : ["MasterSG", "GroupId"] }, { "Fn::GetAtt" : ["EtcdSG", "GroupId"] }],
           "SubnetId" : {"Ref": "PrivateSubnet3"},
           "IamInstanceProfile": { "Ref": "MasterInstanceProfile" },
           "Tags": [
@@ -1104,10 +1104,10 @@
           "ImageId" : {"Ref": "AmiId"},
           "UserData": {"Ref": "NodeUserData"},
           "KeyName" : {"Ref": "KeyName"},
-	      "InstanceType": {"Ref": "InfraInstanceType"},
-		  "SecurityGroupIds": [{ "Fn::GetAtt" : ["NodeSG", "GroupId"] }, { "Fn::GetAtt" : ["InfraSG", "GroupId"] }],
+	  "InstanceType": {"Ref": "InfraInstanceType"},
+          "SecurityGroupIds": [{ "Fn::GetAtt" : ["NodeSG", "GroupId"] }, { "Fn::GetAtt" : ["InfraSG", "GroupId"] }],
           "SubnetId" : {"Ref": "PrivateSubnet1"},
-		  "IamInstanceProfile": { "Ref": "NodeInstanceProfile" },
+          "IamInstanceProfile": { "Ref": "NodeInstanceProfile" },
           "Tags": [
             { "Key": "Name",
               "Value": {"Fn::Join": [".", ["ose-infra-node01",{"Ref": "PublicHostedZone"}]]}
@@ -1151,10 +1151,10 @@
           "ImageId" : {"Ref": "AmiId"},
           "UserData": {"Ref": "NodeUserData"},
           "KeyName" : {"Ref": "KeyName"},
-	      "InstanceType": {"Ref": "InfraInstanceType"},
-		  "SecurityGroupIds": [{ "Fn::GetAtt" : ["NodeSG", "GroupId"] }, { "Fn::GetAtt" : ["InfraSG", "GroupId"] }],
+          "InstanceType": {"Ref": "InfraInstanceType"},
+          "SecurityGroupIds": [{ "Fn::GetAtt" : ["NodeSG", "GroupId"] }, { "Fn::GetAtt" : ["InfraSG", "GroupId"] }],
           "SubnetId" : {"Ref": "PrivateSubnet2"},
-		  "IamInstanceProfile": { "Ref": "NodeInstanceProfile" },
+          "IamInstanceProfile": { "Ref": "NodeInstanceProfile" },
           "Tags": [
             { "Key": "Name",
               "Value": {"Fn::Join": [".", ["ose-infra-node02",{"Ref": "PublicHostedZone"}]]}
@@ -1198,10 +1198,10 @@
           "ImageId" : {"Ref": "AmiId"},
           "UserData": {"Ref": "NodeUserData"},
           "KeyName" : {"Ref": "KeyName"},
-	      "InstanceType": {"Ref": "AppNodeInstanceType"},
-		  "SecurityGroupIds": [{ "Fn::GetAtt" : ["NodeSG", "GroupId"] }],
+          "InstanceType": {"Ref": "AppNodeInstanceType"},
+          "SecurityGroupIds": [{ "Fn::GetAtt" : ["NodeSG", "GroupId"] }],
           "SubnetId" : {"Ref": "PrivateSubnet1"},
-		  "IamInstanceProfile": { "Ref": "NodeInstanceProfile" },
+          "IamInstanceProfile": { "Ref": "NodeInstanceProfile" },
           "Tags": [
             { "Key": "Name",
               "Value": {"Fn::Join": [".", ["ose-app-node01",{"Ref": "PublicHostedZone"}]]}
@@ -1245,10 +1245,10 @@
           "ImageId" : {"Ref": "AmiId"},
           "UserData": {"Ref": "NodeUserData"},
           "KeyName" : {"Ref": "KeyName"},
-	      "InstanceType": {"Ref": "AppNodeInstanceType"},
-		  "SecurityGroupIds": [{ "Fn::GetAtt" : ["NodeSG", "GroupId"] }],
+          "InstanceType": {"Ref": "AppNodeInstanceType"},
+	  "SecurityGroupIds": [{ "Fn::GetAtt" : ["NodeSG", "GroupId"] }],
           "SubnetId" : {"Ref": "PrivateSubnet2"},
-		  "IamInstanceProfile": { "Ref": "NodeInstanceProfile" },
+	  "IamInstanceProfile": { "Ref": "NodeInstanceProfile" },
           "Tags": [
             { "Key": "Name",
               "Value": {"Fn::Join": [".", ["ose-app-node02",{"Ref": "PublicHostedZone"}]]}

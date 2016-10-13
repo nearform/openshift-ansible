@@ -8,10 +8,10 @@
       # Group systems
       - instance-groups
       
-- hosts: bastion 
+- hosts: localhost
+  connection: local
   gather_facts: no
-  become: yes
-  user: ec2-user
+  become: no
   vars_files:
       - vars/main.yaml
   roles:

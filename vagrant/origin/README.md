@@ -1,7 +1,7 @@
 Overview
 --------
 
-This main branch uses Openshift Origin (latest), there is an 'enterprise' branch of this project which uses Openshift Container Platform 3.3 (Openshift Enterprise).
+This a Vagrant project which provides a multi machine vagrant environment in which an advanced Openshift Origin install (i.e. one using the ansible playbook) can be run and tested.
 
 Pre-requisites
 --------------

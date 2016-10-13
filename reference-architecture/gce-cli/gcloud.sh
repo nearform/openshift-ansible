@@ -170,38 +170,33 @@ function revert {
     fi
 
     # Master forwarding rule
-    if gcloud --project "$GCLOUD_PROJECT" compute forwarding-rules describe "$MASTER_HTTPS_LB_RULE" --global &>/dev/null; then
-        gcloud -q --project "$GCLOUD_PROJECT" compute forwarding-rules delete "$MASTER_HTTPS_LB_RULE" --global
-    fi
-
-    # Master IP
-    if gcloud --project "$GCLOUD_PROJECT" compute addresses describe "$MASTER_HTTPS_LB_IP" --global &>/dev/null; then
-        gcloud -q --project "$GCLOUD_PROJECT" compute addresses delete "$MASTER_HTTPS_LB_IP" --global
+    if gcloud --project "$GCLOUD_PROJECT" compute forwarding-rules describe "$MASTER_SSL_LB_RULE" --global &>/dev/null; then
+        gcloud -q --project "$GCLOUD_PROJECT" compute forwarding-rules delete "$MASTER_SSL_LB_RULE" --global
     fi
 
     # Master target proxy
-    if gcloud --project "$GCLOUD_PROJECT" compute target-https-proxies describe "$MASTER_HTTPS_LB_TARGET" &>/dev/null; then
-        gcloud -q --project "$GCLOUD_PROJECT" compute target-https-proxies delete "$MASTER_HTTPS_LB_TARGET"
+    if gcloud --project "$GCLOUD_PROJECT" compute target-ssl-proxies describe "$MASTER_SSL_LB_TARGET" &>/dev/null; then
+        gcloud -q --project "$GCLOUD_PROJECT" compute target-ssl-proxies delete "$MASTER_SSL_LB_TARGET"
     fi
 
     # Master certificate
-    if gcloud --project "$GCLOUD_PROJECT" compute ssl-certificates describe "$MASTER_HTTPS_LB_CERT" &>/dev/null; then
-        gcloud -q --project "$GCLOUD_PROJECT" compute ssl-certificates delete "$MASTER_HTTPS_LB_CERT"
+    if gcloud --project "$GCLOUD_PROJECT" compute ssl-certificates describe "$MASTER_SSL_LB_CERT" &>/dev/null; then
+        gcloud -q --project "$GCLOUD_PROJECT" compute ssl-certificates delete "$MASTER_SSL_LB_CERT"
     fi
 
-    # Master URL map
-    if gcloud --project "$GCLOUD_PROJECT" compute url-maps describe "$MASTER_HTTPS_LB_MAP" &>/dev/null; then
-        gcloud -q --project "$GCLOUD_PROJECT" compute url-maps delete "$MASTER_HTTPS_LB_MAP"
+    # Master IP
+    if gcloud --project "$GCLOUD_PROJECT" compute addresses describe "$MASTER_SSL_LB_IP" --global &>/dev/null; then
+        gcloud -q --project "$GCLOUD_PROJECT" compute addresses delete "$MASTER_SSL_LB_IP" --global
     fi
 
     # Master backend service
-    if gcloud --project "$GCLOUD_PROJECT" compute backend-services describe "$MASTER_HTTPS_LB_BACKEND" &>/dev/null; then
-        gcloud -q --project "$GCLOUD_PROJECT" compute backend-services delete "$MASTER_HTTPS_LB_BACKEND"
+    if gcloud --project "$GCLOUD_PROJECT" compute backend-services describe "$MASTER_SSL_LB_BACKEND" &>/dev/null; then
+        gcloud -q --project "$GCLOUD_PROJECT" compute backend-services delete "$MASTER_SSL_LB_BACKEND"
     fi
 
     # Master health check
-    if gcloud --project "$GCLOUD_PROJECT" compute https-health-checks describe "$MASTER_HTTPS_LB_HEALTH_CHECK" &>/dev/null; then
-        gcloud -q --project "$GCLOUD_PROJECT" compute https-health-checks delete "$MASTER_HTTPS_LB_HEALTH_CHECK"
+    if gcloud --project "$GCLOUD_PROJECT" compute health-checks describe "$MASTER_SSL_LB_HEALTH_CHECK" &>/dev/null; then
+        gcloud -q --project "$GCLOUD_PROJECT" compute health-checks delete "$MASTER_SSL_LB_HEALTH_CHECK"
     fi
 
     # Additional disks for instances for docker storage
@@ -246,7 +241,7 @@ function revert {
         gcloud -q --project "$GCLOUD_PROJECT" compute instances delete "$BASTION_INSTANCE" --zone "$GCLOUD_ZONE"
     fi
 
-    # Temp instance (it shouldn't exist, but to be sure..)
+    # Temp instance (it shouldn't exist, just to be sure..)
     if gcloud --project "$GCLOUD_PROJECT" compute instances describe "$TEMP_INSTANCE" --zone "$GCLOUD_ZONE" &>/dev/null; then
         gcloud -q --project "$GCLOUD_PROJECT" compute instances delete "$TEMP_INSTANCE" --zone "$GCLOUD_ZONE"
     fi
@@ -481,29 +476,29 @@ for i in $instances; do
 done
 
 # Master health check
-if ! gcloud --project "$GCLOUD_PROJECT" compute https-health-checks describe "$MASTER_HTTPS_LB_HEALTH_CHECK" &>/dev/null; then
-    gcloud --project "$GCLOUD_PROJECT" compute https-health-checks create "$MASTER_HTTPS_LB_HEALTH_CHECK" --port "$CONSOLE_PORT" --request-path "/healthz"
+if ! gcloud --project "$GCLOUD_PROJECT" compute health-checks describe "$MASTER_SSL_LB_HEALTH_CHECK" &>/dev/null; then
+    gcloud --project "$GCLOUD_PROJECT" compute health-checks create https "$MASTER_SSL_LB_HEALTH_CHECK" --port "$CONSOLE_PORT" --request-path "/healthz"
 else
-    echo "Health check '${MASTER_HTTPS_LB_HEALTH_CHECK}' already exists"
+    echo "Health check '${MASTER_SSL_LB_HEALTH_CHECK}' already exists"
 fi
 
 # Master backend service
-if ! gcloud --project "$GCLOUD_PROJECT" compute backend-services describe "$MASTER_HTTPS_LB_BACKEND" &>/dev/null; then
-    gcloud --project "$GCLOUD_PROJECT" compute backend-services create "$MASTER_HTTPS_LB_BACKEND" --https-health-checks "$MASTER_HTTPS_LB_HEALTH_CHECK" --port-name "$MASTER_NAMED_PORT_NAME" --protocol "HTTPS" --session-affinity "CLIENT_IP"
-    gcloud --project "$GCLOUD_PROJECT" beta compute backend-services add-backend "$MASTER_HTTPS_LB_BACKEND" --instance-group "$MASTER_INSTANCE_GROUP" --instance-group-zone "$GCLOUD_ZONE"
+if ! gcloud --project "$GCLOUD_PROJECT" compute backend-services describe "$MASTER_SSL_LB_BACKEND" &>/dev/null; then
+    gcloud --project "$GCLOUD_PROJECT" compute backend-services create "$MASTER_SSL_LB_BACKEND" --health-checks "$MASTER_SSL_LB_HEALTH_CHECK" --port-name "$MASTER_NAMED_PORT_NAME" --protocol "SSL"
+    gcloud --project "$GCLOUD_PROJECT" beta compute backend-services add-backend "$MASTER_SSL_LB_BACKEND" --instance-group "$MASTER_INSTANCE_GROUP" --instance-group-zone "$GCLOUD_ZONE"
 else
-    echo "Backend service '${MASTER_HTTPS_LB_BACKEND}' already exists"
+    echo "Backend service '${MASTER_SSL_LB_BACKEND}' already exists"
 fi
 
-# Master URL map
-if ! gcloud --project "$GCLOUD_PROJECT" compute url-maps describe "$MASTER_HTTPS_LB_MAP" &>/dev/null; then
-    gcloud --project "$GCLOUD_PROJECT" compute url-maps create "$MASTER_HTTPS_LB_MAP" --default-service "$MASTER_HTTPS_LB_BACKEND"
+# Master IP
+if ! gcloud --project "$GCLOUD_PROJECT" compute addresses describe "$MASTER_SSL_LB_IP" --global &>/dev/null; then
+    gcloud --project "$GCLOUD_PROJECT" compute addresses create "$MASTER_SSL_LB_IP" --global
 else
-    echo "URL map '${MASTER_HTTPS_LB_MAP}' already exists"
+    echo "IP '${MASTER_SSL_LB_IP}' already exists"
 fi
 
 # Master Certificate
-if ! gcloud --project "$GCLOUD_PROJECT" compute ssl-certificates describe "$MASTER_HTTPS_LB_CERT" &>/dev/null; then
+if ! gcloud --project "$GCLOUD_PROJECT" compute ssl-certificates describe "$MASTER_SSL_LB_CERT" &>/dev/null; then
     if [ -z "$MASTER_HTTPS_KEY_FILE" ] || [ -z "$MASTER_HTTPS_CERT_FILE" ]; then
         KEY='/tmp/ocp-ssl.key'
         CERT='/tmp/ocp-ssl.crt'
@@ -512,34 +507,27 @@ if ! gcloud --project "$GCLOUD_PROJECT" compute ssl-certificates describe "$MAST
         KEY="$MASTER_HTTPS_KEY_FILE"
         CERT="$MASTER_HTTPS_CERT_FILE"
     fi
-    gcloud --project "$GCLOUD_PROJECT" compute ssl-certificates create "$MASTER_HTTPS_LB_CERT" --private-key "$KEY" --certificate "$CERT"
+    gcloud --project "$GCLOUD_PROJECT" compute ssl-certificates create "$MASTER_SSL_LB_CERT" --private-key "$KEY" --certificate "$CERT"
     if [ -z "$MASTER_HTTPS_KEY_FILE" ] || [ -z "$MASTER_HTTPS_CERT_FILE" ]; then
         rm -fv "$KEY" "$CERT"
     fi
 else
-    echo "Certificate '${MASTER_HTTPS_LB_CERT}' already exists"
+    echo "Certificate '${MASTER_SSL_LB_CERT}' already exists"
 fi
 
-# Master proxy target
-if ! gcloud --project "$GCLOUD_PROJECT" compute target-https-proxies describe "$MASTER_HTTPS_LB_TARGET" &>/dev/null; then
-    gcloud --project "$GCLOUD_PROJECT" compute target-https-proxies create "$MASTER_HTTPS_LB_TARGET" --ssl-certificate "$MASTER_HTTPS_LB_CERT" --url-map "$MASTER_HTTPS_LB_MAP"
+# Master ssl proxy target
+if ! gcloud --project "$GCLOUD_PROJECT" compute target-ssl-proxies describe "$MASTER_SSL_LB_TARGET" &>/dev/null; then
+    gcloud --project "$GCLOUD_PROJECT" compute target-ssl-proxies create "$MASTER_SSL_LB_TARGET" --backend-service "$MASTER_SSL_LB_BACKEND" --ssl-certificate "$MASTER_SSL_LB_CERT"
 else
-    echo "Proxy target '${MASTER_HTTPS_LB_TARGET}' already exists"
-fi
-
-# Master IP
-if ! gcloud --project "$GCLOUD_PROJECT" compute addresses describe "$MASTER_HTTPS_LB_IP" --global &>/dev/null; then
-    gcloud --project "$GCLOUD_PROJECT" compute addresses create "$MASTER_HTTPS_LB_IP" --global
-else
-    echo "IP '${MASTER_HTTPS_LB_IP}' already exists"
+    echo "Proxy target '${MASTER_SSL_LB_TARGET}' already exists"
 fi
 
 # Master forwarding rule
-if ! gcloud --project "$GCLOUD_PROJECT" compute forwarding-rules describe "$MASTER_HTTPS_LB_RULE" --global &>/dev/null; then
-    IP=$(gcloud --project "$GCLOUD_PROJECT" compute addresses describe "$MASTER_HTTPS_LB_IP" --global --format='value(address)')
-    gcloud --project "$GCLOUD_PROJECT" compute forwarding-rules create "$MASTER_HTTPS_LB_RULE" --address "$IP" --global --ports "$CONSOLE_PORT" --target-https-proxy "$MASTER_HTTPS_LB_TARGET"
+if ! gcloud --project "$GCLOUD_PROJECT" compute forwarding-rules describe "$MASTER_SSL_LB_RULE" --global &>/dev/null; then
+    IP=$(gcloud --project "$GCLOUD_PROJECT" compute addresses describe "$MASTER_SSL_LB_IP" --global --format='value(address)')
+    gcloud --project "$GCLOUD_PROJECT" compute forwarding-rules create "$MASTER_SSL_LB_RULE" --address "$IP" --global --ports "$CONSOLE_PORT" --target-ssl-proxy "$MASTER_SSL_LB_TARGET"
 else
-    echo "Forwarding rule '${MASTER_HTTPS_LB_RULE}' already exists"
+    echo "Forwarding rule '${MASTER_SSL_LB_RULE}' already exists"
 fi
 
 # Internal master health check
@@ -604,7 +592,7 @@ fi
 
 # DNS record for master lb
 if ! gcloud --project "$GCLOUD_PROJECT" dns record-sets list -z "$DNS_MANAGED_ZONE" --name "$MASTER_DNS_NAME" 2>/dev/null | grep -q "$MASTER_DNS_NAME"; then
-    IP=$(gcloud --project "$GCLOUD_PROJECT" compute addresses describe "$MASTER_HTTPS_LB_IP" --global --format='value(address)')
+    IP=$(gcloud --project "$GCLOUD_PROJECT" compute addresses describe "$MASTER_SSL_LB_IP" --global --format='value(address)')
     gcloud --project "$GCLOUD_PROJECT" dns record-sets transaction start -z "$DNS_MANAGED_ZONE"
     gcloud --project "$GCLOUD_PROJECT" dns record-sets transaction add -z "$DNS_MANAGED_ZONE" --ttl 3600 --name "${MASTER_DNS_NAME}." --type A "$IP"
     gcloud --project "$GCLOUD_PROJECT" dns record-sets transaction execute -z "$DNS_MANAGED_ZONE"
@@ -640,6 +628,30 @@ else
     echo "Bucket '${REGISTRY_BUCKET}' already exists"
 fi
 
+# Configure local SSH so we can connect directly to all instances
+ssh_config_file=~/.ssh/config
+if ! grep -q '# OpenShift on GCE Section' "$ssh_config_file"; then
+    echo -e '\n# OpenShift on GCE Section\n' >> "$ssh_config_file"
+    bastion_data=$(gcloud --project "$GCLOUD_PROJECT" compute instances list --filter='name:bastion' --format='value(EXTERNAL_IP,id)')
+    echo "Host bastion
+    HostName $(echo $bastion_data | cut -d ' ' -f 1)
+    User cloud-user
+    IdentityFile ~/.ssh/google_compute_engine
+    UserKnownHostsFile ~/.ssh/google_compute_known_hosts
+    HostKeyAlias compute.$(echo $bastion_data | cut -d ' ' -f 2)
+    IdentitiesOnly yes
+    CheckHostIP no
+" >> "$ssh_config_file"
+    instances=$(gcloud --project "$GCLOUD_PROJECT" compute instances list --filter='tags.items:ocp' --format='value(name)')
+    for i in $instances; do
+        echo "Host ${i}
+    User cloud-user
+    proxycommand ssh bastion -W %h:%p
+" >> "$ssh_config_file"
+    done
+    echo -e '# End of OpenShift on GCE Section\n' >> "$ssh_config_file"
+fi
+
 # Prepare config file for ansible based on the configuration from this script
 export DNS_DOMAIN \
     OCP_APPS_DNS_NAME \
@@ -661,8 +673,11 @@ gcloud --project "$GCLOUD_PROJECT" compute ssh "cloud-user@${BASTION_INSTANCE}" 
     if ! grep -q \"export GCE_PROJECT=${GCLOUD_PROJECT}\" /etc/profile.d/ocp.sh 2>/dev/null; then
         echo \"export GCE_PROJECT=${GCLOUD_PROJECT}\" >> /etc/profile.d/ocp.sh;
     fi
+    if ! grep -q \"export INVENTORY_IP_TYPE=internal\" /etc/profile.d/ocp.sh 2>/dev/null; then
+        echo \"export INVENTORY_IP_TYPE=internal\" >> /etc/profile.d/ocp.sh;
+    fi
 '";
-gcloud --project "$GCLOUD_PROJECT" compute ssh "cloud-user@${BASTION_INSTANCE}" --zone "$GCLOUD_ZONE" --ssh-flag="-t" --command "bash -xc '
+gcloud --project "$GCLOUD_PROJECT" compute ssh "cloud-user@${BASTION_INSTANCE}" --zone "$GCLOUD_ZONE" --ssh-flag="-t" --command "bash -c '
     if [ ! -d ~/google-cloud-sdk ]; then
         curl -sSL https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-${GOOGLE_CLOUD_SDK_VERSION}-linux-x86_64.tar.gz | tar -xz;
         ~/google-cloud-sdk/bin/gcloud -q components update;

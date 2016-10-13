@@ -65,18 +65,17 @@ NODE_DOCKER_DISK_POSTFIX='-docker'
 NODE_OPENSHIFT_DISK_SIZE='50'
 NODE_OPENSHIFT_DISK_POSTFIX='-openshift'
 
-MASTER_HTTPS_LB_HEALTH_CHECK='master-https-lb-health-check'
-MASTER_HTTPS_LB_BACKEND='master-https-lb-backend'
-MASTER_HTTPS_LB_MAP='master-https-lb-map'
-MASTER_HTTPS_LB_CERT='master-https-lb-cert'
-MASTER_HTTPS_LB_TARGET='master-https-lb-target'
-MASTER_HTTPS_LB_IP='master-https-lb-ip'
-MASTER_HTTPS_LB_RULE='master-https-lb-rule'
-
 MASTER_NETWORK_LB_HEALTH_CHECK='master-network-lb-health-check'
 MASTER_NETWORK_LB_POOL='master-network-lb-pool'
 MASTER_NETWORK_LB_IP='master-network-lb-ip'
 MASTER_NETWORK_LB_RULE='master-network-lb-rule'
+
+MASTER_SSL_LB_HEALTH_CHECK='master-ssl-lb-health-check'
+MASTER_SSL_LB_BACKEND='master-ssl-lb-backend'
+MASTER_SSL_LB_IP='master-ssl-lb-ip'
+MASTER_SSL_LB_CERT='master-ssl-lb-cert'
+MASTER_SSL_LB_TARGET='master-ssl-lb-target'
+MASTER_SSL_LB_RULE='master-ssl-lb-rule'
 
 ROUTER_NETWORK_LB_HEALTH_CHECK='router-network-lb-health-check'
 ROUTER_NETWORK_LB_POOL='router-network-lb-pool'
@@ -87,7 +86,7 @@ REGISTRY_BUCKET="${GCLOUD_PROJECT}-openshift-docker-registry"
 
 TEMP_INSTANCE='ocp-rhel-temp'
 
-GOOGLE_CLOUD_SDK_VERSION='129.0.0'
+GOOGLE_CLOUD_SDK_VERSION='130.0.0'
 
 # Firewall rules in a form:
 # ['name']='parameters for "gcloud compute firewall-rules create"'

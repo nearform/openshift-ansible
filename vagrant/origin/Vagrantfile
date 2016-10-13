@@ -31,6 +31,11 @@ yum -y update
 echo "redhat" | sudo passwd root --stdin
 sudo sed -i 's/PasswordAuthentication no/PasswordAuthentication yes/' /etc/ssh/sshd_config
 sudo service sshd restart
+
+# Vagrant's "change host name" capability for Fedora
+# maps hostname to loopback, conflicting with hostmanager.
+# We must repair /etc/hosts 
+sudo sed -ri 's/127\.0\.0\.1\s.*/127.0.0.1 localhost localhost.localdomain/' /etc/hosts
 SCRIPT
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|

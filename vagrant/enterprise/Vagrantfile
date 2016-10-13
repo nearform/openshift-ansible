@@ -39,8 +39,14 @@ echo -e $GREEN"Trying PoolID: $POOL_ID"$WHITE
 sudo subscription-manager attach --pool=$POOL_ID
 
 sudo subscription-manager repos --disable="*"
-subscription-manager repos --enable="rhel-7-server-rpms" --enable="rhel-7-server-extras-rpms" --enable="rhel-7-server-ose-3.3-rpms"
-yum -y install wget git net-tools bind-utils iptables-services bridge-utils bash-completion
+sudo subscription-manager repos --enable="rhel-7-server-rpms" --enable="rhel-7-server-extras-rpms" --enable="rhel-7-server-ose-3.3-rpms"
+sudo yum -y install wget git net-tools bind-utils iptables-services bridge-utils bash-completion
+
+# Vagrant's "change host name" capability for Fedora
+# maps hostname to loopback, conflicting with hostmanager.
+# We must repair /etc/hosts
+#
+sudo sed -ri 's/127\.0\.0\.1\s.*/127.0.0.1 localhost localhost.localdomain/' /etc/hosts
 SCRIPT
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|

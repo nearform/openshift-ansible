@@ -48,7 +48,7 @@ I think because the vagrant hosts' primary ethernet network card eth0 is that of
 
 Once complete
 
-Logon to https://master1.example.com:8443 as admin/admin, create a project test then
+Logon to https://master1.example.com:8443 as admin/admin123, create a project test then
 
 ssh to master1:
 

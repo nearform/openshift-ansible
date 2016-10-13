@@ -26,7 +26,6 @@ INTEGRATION_START_SEGMENT = 20
 
 $miscellany = <<SCRIPT
 yum -y install wget git net-tools bind-utils iptables-services bridge-utils bash-completion
-sudo cp /vagrant/yum.repos /etc/yum.repos.d/open.repo
 yum clean all ; yum repolist
 yum -y update
 echo "redhat" | sudo passwd root --stdin
@@ -83,7 +82,11 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     #admin1.vm.box_url = centos_box_url
     admin1.vm.network :private_network, ip: "#{NETWORK_BASE}.#{INTEGRATION_START_SEGMENT + 3}"
     admin1.vm.hostname = "admin1.example.com"
-    admin1.vm.provision "shell", inline: "sudo yum -y install atomic-openshift-utils"
+    admin1.vm.provision "shell", inline: "sudo yum -y install https://dl.fedoraproject.org/pub/epel/7/x86_64/e/epel-release-7-8.noarch.rpm"
+    admin1.vm.provision "shell", inline: "sudo sed -i -e \"s/^enabled=1/enabled=0/\" /etc/yum.repos.d/epel.repo"
+    admin1.vm.provision "shell", inline: "sudo yum -y --enablerepo=epel install ansible pyOpenSSL"
+    admin1.vm.provision "shell", inline: "sudo mkdir /root/openshift-ansible"
+    admin1.vm.provision "shell", inline: "sudo git clone https://github.com/openshift/openshift-ansible /root/openshift-ansible"
     admin1.vm.provision "shell", inline: "sudo cp -f /vagrant/etc_ansible_hosts /etc/ansible/hosts"
 
   end

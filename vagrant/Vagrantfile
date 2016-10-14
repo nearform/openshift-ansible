@@ -122,7 +122,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     admin1.vm.provision "shell", inline: "sudo cp -f /vagrant/etc_ansible_hosts /etc/ansible/hosts"
     
     if ENV['DEPLOYMENT_TYPE'] == 'enterprise'
-      admin1.vm.provision "shell", inline: "sed -i \"s/\(deployment_type=\).*\$/\1openshift-enterprise/\" /etc/ansible/hosts"
+      admin1.vm.provision "shell", inline: "echo \"updating deployment type\""
+      admin1.vm.provision "shell", inline: "sudo cp /vagrant/update_deployment_type.sh /root"
+      admin1.vm.provision "shell", inline: "sudo /root/update_deployment_type.sh"
     end
 
   end

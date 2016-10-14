@@ -12,7 +12,7 @@ ansible_ssh_user=root
 # If ansible_ssh_user is not root, ansible_become must be set to true
 #ansible_become=true
 
-deployment_type=openshift-enterprise
+deployment_type=origin
 
 # uncomment the following to enable htpasswd authentication; defaults to DenyAllPasswordIdentityProvider
 openshift_master_identity_providers=[{'name': 'htpasswd_auth', 'login': 'true', 'challenge': 'true', 'kind': 'HTPasswdPasswordIdentityProvider', 'filename': '/etc/origin/master/htpasswd'}]

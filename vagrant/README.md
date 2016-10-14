@@ -48,7 +48,7 @@ or for an Openshift Container Platform install
     export DEPLOYMENT_TYPE=enterprise
     vagrant up (you will be prompted for your Red Hat account details and the sudo account password on the host during this process)
 
-then for either cary on with
+then for either carry on with
 
     vagrant ssh admin1
     su - (when prompted the password is 'redhat')

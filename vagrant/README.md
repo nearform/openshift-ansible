@@ -54,13 +54,13 @@ then for either carry on with
     su - (when prompted the password is 'redhat')
     /vagrant/deploy.sh (when prompted respond with 'yes' and the password for the remote machines is 'redhat')
 
-An ansible playbook will start (this is openshift installing), it uses the etc_ansible_hosts file of the git repo copied to /etc/ansible/hosts.
+An ansible playbook will start (this is openshift installing), it uses the etc_ansible_hosts file of the git repo copied to /etc/ansible/hosts. If installing Openshift Container Platform then (via the DEPLOYMENT_TYPE environment variable) the variable 'deployment_type' in /etc/ansible/hosts is set to 'openshift-enterprise'.
 
 The hosts file creates an install with one master and two nodes. The NFS share gets created on admin1.
 
 The /etc/ansible/hosts file makes use of the 'openshift_ip' property to force the use of the eth1 network interface which is using the 192.168.50.x ip addresses of the vagrant private network.
 
-Once complete
+Once complete AND after confirming that the docker-registry pod is up and running then
 
 Logon to https://master1.example.com:8443 as admin/admin123, create a project test then
 

@@ -36,7 +36,6 @@ When installing Openshift Container Platform the Vagrantfile assumes a Red Hat E
 Installation
 ------------
 
-    export DEPLOYMENT_TYPE=enterprise (if installing Opeshift Container Platform)
     git clone https://github.com/openshift/openshift-ansible-contrib.git
     cd vagrant-openshift-cluster/vagrant
 

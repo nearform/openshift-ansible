@@ -10,7 +10,6 @@ puts %Q{ This machine has the IP '#{localmachineip} and host name '#{hostname}'}
 # Vagrantfile API/syntax version. Don't touch unless you know what you're doing!
 VAGRANTFILE_API_VERSION = '2'
 
-
 # Validate required plugins
 REQUIRED_PLUGINS = %w(vagrant-registration vagrant-hostmanager landrush)
 errors = []
@@ -25,7 +24,12 @@ unless errors.empty?
   fail Vagrant::Errors::VagrantError.new, msg
 end
 
-centos_box_name = 'rhel/7.2'
+if ENV['DEPLOYMENT_TYPE'] == 'enterprise'
+  box_name = 'rhel/7.2'
+else
+  box_name = 'centos/7'
+end
+
 NETWORK_BASE = '192.168.50'
 INTEGRATION_START_SEGMENT = 20
 
@@ -34,18 +38,14 @@ echo "redhat" | sudo passwd root --stdin
 sudo sed -i 's/PasswordAuthentication no/PasswordAuthentication yes/' /etc/ssh/sshd_config
 sudo service sshd restart
 
-POOL_ID=$(sudo subscription-manager list --available | sed -n '/Employee SKU/,/System Type/p' | grep "Pool ID" | tail -1 | cut -d':' -f2 | xargs)
-echo -e $GREEN"Trying PoolID: $POOL_ID"$WHITE
-sudo subscription-manager attach --pool=$POOL_ID
-
-sudo subscription-manager repos --disable="*"
-sudo subscription-manager repos --enable="rhel-7-server-rpms" --enable="rhel-7-server-extras-rpms" --enable="rhel-7-server-ose-3.3-rpms"
+#sudo yum clean all ; yum repolist
+#sudo yum -y update
 sudo yum -y install wget git net-tools bind-utils iptables-services bridge-utils bash-completion
 
 # Vagrant's "change host name" capability for Fedora
 # maps hostname to loopback, conflicting with hostmanager.
 # We must repair /etc/hosts
-#
+
 sudo sed -ri 's/127\.0\.0\.1\s.*/127.0.0.1 localhost localhost.localdomain/' /etc/hosts
 SCRIPT
 
@@ -64,17 +64,19 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.landrush.tld = 'example.com'
   config.landrush.guest_redirect_dns = false  
 
-  # vagrant-registration
-  if ENV.has_key?('SUB_USERNAME') && ENV.has_key?('SUB_PASSWORD')
-    config.registration.username = ENV['SUB_USERNAME']
-    config.registration.password = ENV['SUB_PASSWORD']
+  if ENV['DEPLOYMENT_TYPE'] == 'enterprise'
+    # vagrant-registration
+    if ENV.has_key?('SUB_USERNAME') && ENV.has_key?('SUB_PASSWORD')
+      config.registration.username = ENV['SUB_USERNAME']
+      config.registration.password = ENV['SUB_PASSWORD']
+    end
+    
+    # Proxy Information from environment
+    config.registration.proxy = PROXY = (ENV['PROXY'] || '')
+    config.registration.proxyUser = PROXY_USER = (ENV['PROXY_USER'] || '')
+    config.registration.proxyPassword = PROXY_PASSWORD = (ENV['PROXY_PASSWORD'] || '')
+    config.registration.auto_attach = false
   end
-  
-  # Proxy Information from environment
-  config.registration.proxy = PROXY = (ENV['PROXY'] || '')
-  config.registration.proxyUser = PROXY_USER = (ENV['PROXY_USER'] || '')
-  config.registration.proxyPassword = PROXY_PASSWORD = (ENV['PROXY_PASSWORD'] || '')
-  config.registration.auto_attach = false
 
   config.vm.provider "virtualbox" do |v|
      #v.customize ["setextradata", :id, "VBoxInternal2/SharedFoldersEnableSymlinksCreate//vagrant","1"]
@@ -83,39 +85,53 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   end
 
   config.vm.define :master1 do |master1|
-    master1.vm.box = centos_box_name
+    master1.vm.box = box_name
     #master1.vm.box_url = centos_box_url
     master1.vm.network :private_network, ip: "#{NETWORK_BASE}.#{INTEGRATION_START_SEGMENT}"
     master1.vm.hostname = "master1.example.com"
+    master1.vm.provision "shell", inline: "echo \"installing httpd-tools\""
     master1.vm.provision "shell", inline: "sudo yum -y install httpd-tools"
   end
 
   config.vm.define :node1 do |node1|
-    node1.vm.box = centos_box_name
+    node1.vm.box = box_name
     #node1.vm.box_url = centos_box_url
     node1.vm.network :private_network, ip: "#{NETWORK_BASE}.#{INTEGRATION_START_SEGMENT + 1}"
     node1.vm.hostname = "node1.example.com"
-
   end
  
   config.vm.define :node2 do |node2|
-    node2.vm.box = centos_box_name
+    node2.vm.box = box_name
     #node2.vm.box_url = centos_box_url
     node2.vm.network :private_network, ip: "#{NETWORK_BASE}.#{INTEGRATION_START_SEGMENT + 2}"
     node2.vm.hostname = "node2.example.com"
-
   end
 
   config.vm.define :admin1 do |admin1|
-    admin1.vm.box = centos_box_name
+    admin1.vm.box = box_name
     #admin1.vm.box_url = centos_box_url
     admin1.vm.network :private_network, ip: "#{NETWORK_BASE}.#{INTEGRATION_START_SEGMENT + 3}"
     admin1.vm.hostname = "admin1.example.com"
-    admin1.vm.provision "shell", inline: "sudo yum -y install atomic-openshift-utils"
+
+    if ENV['DEPLOYMENT_TYPE'] == 'enterprise'
+      admin1.vm.provision "shell", path: "enterprise_installer.sh"
+    else
+      admin1.vm.provision "shell", path: "origin_installer.sh"
+    end 
+
     admin1.vm.provision "shell", inline: "sudo cp -f /vagrant/etc_ansible_hosts /etc/ansible/hosts"
+    
+    if ENV['DEPLOYMENT_TYPE'] == 'enterprise'
+      admin1.vm.provision "shell", inline: "sed -i \"s/\(deployment_type=\).*\$/\1openshift-enterprise/\" /etc/ansible/hosts"
+    end
 
   end
 
+  if ENV['DEPLOYMENT_TYPE'] == 'enterprise'
+    config.vm.provision "shell", inline: "echo \"setting up Red Hat subscriptions\""
+    config.vm.provision "shell", path: "repos.sh"
+  end
+  config.vm.provision "shell", inline: "echo \"running miscellany\""
   config.vm.provision "shell", inline: $miscellany
 
 end

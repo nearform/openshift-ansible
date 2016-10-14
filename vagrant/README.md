@@ -31,9 +31,10 @@ https://stomp.colorado.edu/blog/blog/2015/12/24/on-building-red-hat-enterprise-l
 
 The iso image that the vagrant image is created from should be the 'RHEL 7.2 Binary DVD' image on the Red Hat downloads site. The box name I have used in the Vagrantfile is 'rhel/7.2'
 
+When installing Openshift Container Platform the Vagrantfile assumes a Red Hat Employee subscription 'Employee SKU'. If you aren't a Red Hat Employee then simply hard code the Pool ID of the subscription that gives you access to the Openshift Container Platform rpms (this could be a 30 day trial subscription).
+
 Installation
 ------------
-When installing Openshift Container Platform the Vagrantfile assumes a Red Hat Employee subscription 'Employee SKU'. If you aren't a Red Hat Employee then simply hard code the Pool ID of the subscription that gives you access to the Openshift Container Platform rpms (this could be a 30 day trial subscription).
 
     export DEPLOYMENT_TYPE=enterprise (if installing Opeshift Container Platform)
     git clone https://github.com/openshift/openshift-ansible-contrib.git

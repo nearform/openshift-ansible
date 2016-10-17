@@ -7,10 +7,10 @@ nfs
 # Set variables common for all OSEv3 hosts
 [OSEv3:vars]
 # SSH user, this user should allow ssh based auth without requiring a password
-ansible_ssh_user=root
+ansible_ssh_user=vagrant
 
 # If ansible_ssh_user is not root, ansible_become must be set to true
-#ansible_become=true
+ansible_become=true
 
 deployment_type=origin
 
@@ -30,7 +30,7 @@ openshift_hosted_registry_storage_volume_name=registry
 openshift_hosted_registry_storage_volume_size=2Gi
 
 [nfs]
-admin1.example.com
+admin1.example.com ansible_connection=local
 
 # host group for masters
 [masters]
@@ -38,6 +38,7 @@ master1.example.com openshift_ip=192.168.50.20
 
 # host group for nodes, includes region info
 [nodes]
-master1.example.com openshift_node_labels="{'region': 'infra', 'zone': 'default'}" openshift_schedulable=true openshift_ip=192.168.50.20
-node1.example.com openshift_node_labels="{'region': 'primary', 'zone': 'east'}" openshift_ip=192.168.50.21
-node2.example.com openshift_node_labels="{'region': 'primary', 'zone': 'west'}" openshift_ip=192.168.50.22
+master1.example.com openshift_node_labels="{'region': 'infra', 'zone': 'default'}" openshift_schedulable=true openshift_ip=192.168.50.20 ansible_ssh_host=192.168.50.20 ansible_ssh_private_key_file=/vagrant_hidden/machines/master1.example.com/virtualbox/private_key
+node1.example.com openshift_node_labels="{'region': 'primary', 'zone': 'east'}" openshift_ip=192.168.50.21 ansible_ssh_host=192.168.50.21 ansible_ssh_private_key_file=/vagrant_hidden/machines/node1.example.com/virtualbox/private_key
+node2.example.com openshift_node_labels="{'region': 'primary', 'zone': 'west'}" openshift_ip=192.168.50.22 ansible_ssh_host=192.168.50.22 ansible_ssh_private_key_file=/vagrant_hidden/machines/node2.example.com/virtualbox/private_key
+

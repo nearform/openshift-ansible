@@ -33,22 +33,6 @@ end
 NETWORK_BASE = '192.168.50'
 INTEGRATION_START_SEGMENT = 20
 
-$miscellany = <<SCRIPT
-echo "redhat" | sudo passwd root --stdin
-sudo sed -i 's/PasswordAuthentication no/PasswordAuthentication yes/' /etc/ssh/sshd_config
-sudo service sshd restart
-
-#sudo yum clean all ; yum repolist
-#sudo yum -y update
-sudo yum -y install wget git net-tools bind-utils iptables-services bridge-utils bash-completion
-
-# Vagrant's "change host name" capability for Fedora
-# maps hostname to loopback, conflicting with hostmanager.
-# We must repair /etc/hosts
-
-sudo sed -ri 's/127\.0\.0\.1\s.*/127.0.0.1 localhost localhost.localdomain/' /etc/hosts
-SCRIPT
-
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
  
   if Vagrant.has_plugin?("vagrant-cachier")
@@ -75,7 +59,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     config.registration.proxy = PROXY = (ENV['PROXY'] || '')
     config.registration.proxyUser = PROXY_USER = (ENV['PROXY_USER'] || '')
     config.registration.proxyPassword = PROXY_PASSWORD = (ENV['PROXY_PASSWORD'] || '')
-    config.registration.auto_attach = false
+    config.registration.auto_attach = true
   end
 
   config.vm.provider "virtualbox" do |v|
@@ -84,7 +68,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
      v.cpus = 1
   end
 
-  config.vm.define :master1 do |master1|
+  config.vm.define :"master1.example.com" do |master1|
     master1.vm.box = box_name
     #master1.vm.box_url = centos_box_url
     master1.vm.network :private_network, ip: "#{NETWORK_BASE}.#{INTEGRATION_START_SEGMENT}"
@@ -93,25 +77,26 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     master1.vm.provision "shell", inline: "sudo yum -y install httpd-tools"
   end
 
-  config.vm.define :node1 do |node1|
+  config.vm.define :"node1.example.com" do |node1|
     node1.vm.box = box_name
     #node1.vm.box_url = centos_box_url
     node1.vm.network :private_network, ip: "#{NETWORK_BASE}.#{INTEGRATION_START_SEGMENT + 1}"
     node1.vm.hostname = "node1.example.com"
   end
  
-  config.vm.define :node2 do |node2|
+  config.vm.define :"node2.example.com" do |node2|
     node2.vm.box = box_name
     #node2.vm.box_url = centos_box_url
     node2.vm.network :private_network, ip: "#{NETWORK_BASE}.#{INTEGRATION_START_SEGMENT + 2}"
     node2.vm.hostname = "node2.example.com"
   end
 
-  config.vm.define :admin1 do |admin1|
+  config.vm.define :"admin1.example.com" do |admin1|
     admin1.vm.box = box_name
     #admin1.vm.box_url = centos_box_url
     admin1.vm.network :private_network, ip: "#{NETWORK_BASE}.#{INTEGRATION_START_SEGMENT + 3}"
     admin1.vm.hostname = "admin1.example.com"
+    admin1.vm.synced_folder ".vagrant", "/vagrant_hidden", type: "rsync"
 
     if ENV['DEPLOYMENT_TYPE'] == 'enterprise'
       admin1.vm.provision "shell", path: "enterprise_installer.sh"
@@ -119,13 +104,22 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       admin1.vm.provision "shell", path: "origin_installer.sh"
     end 
 
-    admin1.vm.provision "shell", inline: "sudo cp -f /vagrant/etc_ansible_hosts /etc/ansible/hosts"
-    
-    if ENV['DEPLOYMENT_TYPE'] == 'enterprise'
-      admin1.vm.provision "shell", inline: "echo \"updating deployment type\""
-      admin1.vm.provision "shell", inline: "sudo cp /vagrant/update_deployment_type.sh /root"
-      admin1.vm.provision "shell", inline: "sudo /root/update_deployment_type.sh"
+    admin1.vm.provision :ansible_local do |ansible|
+      ansible.verbose        = true
+      ansible.install        = false
+      ansible.limit          = ""
+      ansible.inventory_path = "inventory"
+      if ENV['DEPLOYMENT_TYPE'] == 'enterprise'
+        ansible.playbook = "/usr/share/ansible/openshift-ansible/playbooks/byo/config.yml"
+        ansible.extra_vars = {
+          deployment_type: "openshift-enterprise",
+        }
+      else
+        ansible.playbook = "/home/vagrant/openshift-ansible/playbooks/byo/config.yml"
+      end
     end
+
+    admin1.vm.provision "shell", inline: "ssh -i /vagrant_hidden/machines/master1.example.com/virtualbox/private_key vagrant@master1.example.com sudo htpasswd -b -c /etc/origin/master/htpasswd admin admin123"
 
   end
 
@@ -133,7 +127,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     config.vm.provision "shell", inline: "echo \"setting up Red Hat subscriptions\""
     config.vm.provision "shell", path: "repos.sh"
   end
-  config.vm.provision "shell", inline: "echo \"running miscellany\""
-  config.vm.provision "shell", inline: $miscellany
+  config.vm.provision "shell", inline: "echo \"running install_helper_packages.sh\""
+  config.vm.provision "shell", path: "install_helper_packages.sh"
+  config.vm.provision "shell", inline: "echo \"running fix_hosts_file.sh\""
+  config.vm.provision "shell", path: "fix_hosts_file.sh"
 
 end

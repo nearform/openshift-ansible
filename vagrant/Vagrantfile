@@ -10,8 +10,14 @@ puts %Q{ This machine has the IP '#{localmachineip} and host name '#{hostname}'}
 # Vagrantfile API/syntax version. Don't touch unless you know what you're doing!
 VAGRANTFILE_API_VERSION = '2'
 
-# Validate required plugins
-REQUIRED_PLUGINS = %w(vagrant-registration vagrant-hostmanager landrush)
+deployment_type = ENV['DEPLOYMENT_TYPE'] || 'origin'
+
+if deployment_type == 'enterprise'
+  REQUIRED_PLUGINS = %w(vagrant-registration vagrant-hostmanager landrush)
+else
+  REQUIRED_PLUGINS = %w(vagrant-hostmanager landrush)
+end
+
 errors = []
 
 def message(name)
@@ -24,7 +30,7 @@ unless errors.empty?
   fail Vagrant::Errors::VagrantError.new, msg
 end
 
-if ENV['DEPLOYMENT_TYPE'] == 'enterprise'
+if deployment_type == 'enterprise'
   box_name = 'rhel/7.2'
 else
   box_name = 'centos/7'
@@ -48,7 +54,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.landrush.tld = 'example.com'
   config.landrush.guest_redirect_dns = false  
 
-  if ENV['DEPLOYMENT_TYPE'] == 'enterprise'
+  if deployment_type == 'enterprise'
     # vagrant-registration
     if ENV.has_key?('SUB_USERNAME') && ENV.has_key?('SUB_PASSWORD')
       config.registration.username = ENV['SUB_USERNAME']
@@ -96,7 +102,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     admin1.vm.hostname = "admin1.example.com"
     admin1.vm.synced_folder ".vagrant", "/vagrant_hidden", type: "rsync"
 
-    if ENV['DEPLOYMENT_TYPE'] == 'enterprise'
+    if deployment_type == 'enterprise'
       admin1.vm.provision "shell", path: "enterprise_installer.sh"
     else
       admin1.vm.provision "shell", path: "origin_installer.sh"
@@ -109,9 +115,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     admin1.vm.provision :ansible_local do |ansible|
       ansible.verbose        = true
       ansible.install        = false
-      ansible.limit          = "*"
+      ansible.limit          = ""
       ansible.inventory_path = "inventory"
-      if ENV['DEPLOYMENT_TYPE'] == 'enterprise'
+      if deployment_type == 'enterprise'
         ansible.playbook = "/usr/share/ansible/openshift-ansible/playbooks/byo/config.yml"
         ansible.extra_vars = {
           deployment_type: "openshift-enterprise",
@@ -122,7 +128,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     end
   end
 
-  if ENV['DEPLOYMENT_TYPE'] == 'enterprise'
+  if deployment_type == 'enterprise'
     config.vm.provision "shell", inline: "echo \"setting up Red Hat subscriptions\""
     config.vm.provision "shell", path: "repos.sh"
   end

@@ -190,8 +190,8 @@ function revert {
     fi
 
     # Master backend service
-    if gcloud --project "$GCLOUD_PROJECT" compute backend-services describe "$MASTER_SSL_LB_BACKEND" &>/dev/null; then
-        gcloud -q --project "$GCLOUD_PROJECT" compute backend-services delete "$MASTER_SSL_LB_BACKEND"
+    if gcloud --project "$GCLOUD_PROJECT" beta compute backend-services describe "$MASTER_SSL_LB_BACKEND" &>/dev/null; then
+        gcloud -q --project "$GCLOUD_PROJECT" beta compute backend-services delete "$MASTER_SSL_LB_BACKEND"
     fi
 
     # Master health check
@@ -483,9 +483,9 @@ else
 fi
 
 # Master backend service
-if ! gcloud --project "$GCLOUD_PROJECT" compute backend-services describe "$MASTER_SSL_LB_BACKEND" &>/dev/null; then
-    gcloud --project "$GCLOUD_PROJECT" compute backend-services create "$MASTER_SSL_LB_BACKEND" --health-checks "$MASTER_SSL_LB_HEALTH_CHECK" --port-name "$MASTER_NAMED_PORT_NAME" --protocol "SSL"
-    gcloud --project "$GCLOUD_PROJECT" beta compute backend-services add-backend "$MASTER_SSL_LB_BACKEND" --instance-group "$MASTER_INSTANCE_GROUP" --instance-group-zone "$GCLOUD_ZONE"
+if ! gcloud --project "$GCLOUD_PROJECT" beta compute backend-services describe "$MASTER_SSL_LB_BACKEND" &>/dev/null; then
+    gcloud --project "$GCLOUD_PROJECT" beta compute backend-services create "$MASTER_SSL_LB_BACKEND" --health-checks "$MASTER_SSL_LB_HEALTH_CHECK" --port-name "$MASTER_NAMED_PORT_NAME" --protocol "SSL" --global
+    gcloud --project "$GCLOUD_PROJECT" beta compute backend-services add-backend "$MASTER_SSL_LB_BACKEND" --instance-group "$MASTER_INSTANCE_GROUP" --global --instance-group-zone "$GCLOUD_ZONE"
 else
     echo "Backend service '${MASTER_SSL_LB_BACKEND}' already exists"
 fi
@@ -539,7 +539,7 @@ fi
 
 # Internal master target pool
 if ! gcloud --project "$GCLOUD_PROJECT" compute target-pools describe "$MASTER_NETWORK_LB_POOL" &>/dev/null; then
-    gcloud --project "$GCLOUD_PROJECT" compute target-pools create "$MASTER_NETWORK_LB_POOL" --health-check "$MASTER_NETWORK_LB_HEALTH_CHECK" --region "$GCLOUD_REGION"
+    gcloud --project "$GCLOUD_PROJECT" compute target-pools create "$MASTER_NETWORK_LB_POOL" --http-health-check "$MASTER_NETWORK_LB_HEALTH_CHECK" --region "$GCLOUD_REGION"
     gcloud --project "$GCLOUD_PROJECT" beta compute instance-groups managed set-target-pools "$MASTER_INSTANCE_GROUP" --target-pools "$MASTER_NETWORK_LB_POOL" --zone "$GCLOUD_ZONE"
 else
     echo "Target pool '${MASTER_NETWORK_LB_POOL}' already exists"
@@ -569,7 +569,7 @@ fi
 
 # Router target pool
 if ! gcloud --project "$GCLOUD_PROJECT" compute target-pools describe "$ROUTER_NETWORK_LB_POOL" &>/dev/null; then
-    gcloud --project "$GCLOUD_PROJECT" compute target-pools create "$ROUTER_NETWORK_LB_POOL" --health-check "$ROUTER_NETWORK_LB_HEALTH_CHECK" --region "$GCLOUD_REGION"
+    gcloud --project "$GCLOUD_PROJECT" compute target-pools create "$ROUTER_NETWORK_LB_POOL" --http-health-check "$ROUTER_NETWORK_LB_HEALTH_CHECK" --region "$GCLOUD_REGION"
     gcloud --project "$GCLOUD_PROJECT" beta compute instance-groups managed set-target-pools "$INFRA_NODE_INSTANCE_GROUP" --target-pools "$ROUTER_NETWORK_LB_POOL" --zone "$GCLOUD_ZONE"
 else
     echo "Target pool '${ROUTER_NETWORK_LB_POOL}' already exists"

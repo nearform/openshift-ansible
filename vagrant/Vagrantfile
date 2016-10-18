@@ -73,8 +73,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     #master1.vm.box_url = centos_box_url
     master1.vm.network :private_network, ip: "#{NETWORK_BASE}.#{INTEGRATION_START_SEGMENT}"
     master1.vm.hostname = "master1.example.com"
-    master1.vm.provision "shell", inline: "echo \"installing httpd-tools\""
-    master1.vm.provision "shell", inline: "sudo yum -y install httpd-tools"
   end
 
   config.vm.define :"node1.example.com" do |node1|
@@ -102,12 +100,16 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       admin1.vm.provision "shell", path: "enterprise_installer.sh"
     else
       admin1.vm.provision "shell", path: "origin_installer.sh"
-    end 
+    end
+
+    admin1.vm.provision "shell", inline: "echo \"installing httpd-tools\""
+    admin1.vm.provision "shell", inline: "sudo yum -y install httpd-tools"
+    admin1.vm.provision "shell", path:"htpasswd.sh" 
 
     admin1.vm.provision :ansible_local do |ansible|
       ansible.verbose        = true
       ansible.install        = false
-      ansible.limit          = ""
+      ansible.limit          = "*"
       ansible.inventory_path = "inventory"
       if ENV['DEPLOYMENT_TYPE'] == 'enterprise'
         ansible.playbook = "/usr/share/ansible/openshift-ansible/playbooks/byo/config.yml"
@@ -118,9 +120,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         ansible.playbook = "/home/vagrant/openshift-ansible/playbooks/byo/config.yml"
       end
     end
-
-    admin1.vm.provision "shell", inline: "ssh -i /vagrant_hidden/machines/master1.example.com/virtualbox/private_key vagrant@master1.example.com sudo htpasswd -b -c /etc/origin/master/htpasswd admin admin123"
-
   end
 
   if ENV['DEPLOYMENT_TYPE'] == 'enterprise'

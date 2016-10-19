@@ -130,18 +130,18 @@ function revert {
     fi
 
     # Router forwarding rule
-    if gcloud --project "$GCLOUD_PROJECT" compute forwarding-rules describe "$ROUTER_NETWORK_LB_RULE" &>/dev/null; then
-        gcloud -q --project "$GCLOUD_PROJECT" compute forwarding-rules delete "$ROUTER_NETWORK_LB_RULE"
+    if gcloud --project "$GCLOUD_PROJECT" compute forwarding-rules describe "$ROUTER_NETWORK_LB_RULE" --region "$GCLOUD_REGION" &>/dev/null; then
+        gcloud -q --project "$GCLOUD_PROJECT" compute forwarding-rules delete "$ROUTER_NETWORK_LB_RULE" --region "$GCLOUD_REGION"
     fi
 
     # Router IP
-    if gcloud --project "$GCLOUD_PROJECT" compute addresses describe "$ROUTER_NETWORK_LB_IP" &>/dev/null; then
-        gcloud -q --project "$GCLOUD_PROJECT" compute addresses delete "$ROUTER_NETWORK_LB_IP"
+    if gcloud --project "$GCLOUD_PROJECT" compute addresses describe "$ROUTER_NETWORK_LB_IP" --region "$GCLOUD_REGION" &>/dev/null; then
+        gcloud -q --project "$GCLOUD_PROJECT" compute addresses delete "$ROUTER_NETWORK_LB_IP" --region "$GCLOUD_REGION"
     fi
 
     # Router target pool
-    if gcloud --project "$GCLOUD_PROJECT" compute target-pools describe "$ROUTER_NETWORK_LB_POOL" &>/dev/null; then
-        gcloud -q --project "$GCLOUD_PROJECT" compute target-pools delete "$ROUTER_NETWORK_LB_POOL"
+    if gcloud --project "$GCLOUD_PROJECT" compute target-pools describe "$ROUTER_NETWORK_LB_POOL" --region "$GCLOUD_REGION" &>/dev/null; then
+        gcloud -q --project "$GCLOUD_PROJECT" compute target-pools delete "$ROUTER_NETWORK_LB_POOL" --region "$GCLOUD_REGION"
     fi
 
     # Router health check
@@ -150,18 +150,18 @@ function revert {
     fi
 
     # Internal master forwarding rule
-    if gcloud --project "$GCLOUD_PROJECT" compute forwarding-rules describe "$MASTER_NETWORK_LB_RULE" &>/dev/null; then
-        gcloud -q --project "$GCLOUD_PROJECT" compute forwarding-rules delete "$MASTER_NETWORK_LB_RULE"
+    if gcloud --project "$GCLOUD_PROJECT" compute forwarding-rules describe "$MASTER_NETWORK_LB_RULE" --region "$GCLOUD_REGION" &>/dev/null; then
+        gcloud -q --project "$GCLOUD_PROJECT" compute forwarding-rules delete "$MASTER_NETWORK_LB_RULE" --region "$GCLOUD_REGION"
     fi
 
     # Internal master IP
-    if gcloud --project "$GCLOUD_PROJECT" compute addresses describe "$MASTER_NETWORK_LB_IP" &>/dev/null; then
-        gcloud -q --project "$GCLOUD_PROJECT" compute addresses delete "$MASTER_NETWORK_LB_IP"
+    if gcloud --project "$GCLOUD_PROJECT" compute addresses describe "$MASTER_NETWORK_LB_IP" --region "$GCLOUD_REGION" &>/dev/null; then
+        gcloud -q --project "$GCLOUD_PROJECT" compute addresses delete "$MASTER_NETWORK_LB_IP" --region "$GCLOUD_REGION"
     fi
 
     # Internal master target pool
-    if gcloud --project "$GCLOUD_PROJECT" compute target-pools describe "$MASTER_NETWORK_LB_POOL" &>/dev/null; then
-        gcloud -q --project "$GCLOUD_PROJECT" compute target-pools delete "$MASTER_NETWORK_LB_POOL"
+    if gcloud --project "$GCLOUD_PROJECT" compute target-pools describe "$MASTER_NETWORK_LB_POOL" --region "$GCLOUD_REGION" &>/dev/null; then
+        gcloud -q --project "$GCLOUD_PROJECT" compute target-pools delete "$MASTER_NETWORK_LB_POOL" --region "$GCLOUD_REGION"
     fi
 
     # Internal master health check
@@ -538,7 +538,7 @@ else
 fi
 
 # Internal master target pool
-if ! gcloud --project "$GCLOUD_PROJECT" compute target-pools describe "$MASTER_NETWORK_LB_POOL" &>/dev/null; then
+if ! gcloud --project "$GCLOUD_PROJECT" compute target-pools describe "$MASTER_NETWORK_LB_POOL" --region "$GCLOUD_REGION" &>/dev/null; then
     gcloud --project "$GCLOUD_PROJECT" compute target-pools create "$MASTER_NETWORK_LB_POOL" --http-health-check "$MASTER_NETWORK_LB_HEALTH_CHECK" --region "$GCLOUD_REGION"
     gcloud --project "$GCLOUD_PROJECT" beta compute instance-groups managed set-target-pools "$MASTER_INSTANCE_GROUP" --target-pools "$MASTER_NETWORK_LB_POOL" --zone "$GCLOUD_ZONE"
 else
@@ -546,15 +546,15 @@ else
 fi
 
 # Internal master IP
-if ! gcloud --project "$GCLOUD_PROJECT" compute addresses describe "$MASTER_NETWORK_LB_IP" &>/dev/null; then
+if ! gcloud --project "$GCLOUD_PROJECT" compute addresses describe "$MASTER_NETWORK_LB_IP" --region "$GCLOUD_REGION" &>/dev/null; then
     gcloud --project "$GCLOUD_PROJECT" compute addresses create "$MASTER_NETWORK_LB_IP" --region "$GCLOUD_REGION"
 else
     echo "IP '${MASTER_NETWORK_LB_IP}' already exists"
 fi
 
 # Internal master forwarding rule
-if ! gcloud --project "$GCLOUD_PROJECT" compute forwarding-rules describe "$MASTER_NETWORK_LB_RULE" &>/dev/null; then
-    IP=$(gcloud --project "$GCLOUD_PROJECT" compute addresses describe "$MASTER_NETWORK_LB_IP" --format='value(address)')
+if ! gcloud --project "$GCLOUD_PROJECT" compute forwarding-rules describe "$MASTER_NETWORK_LB_RULE" --region "$GCLOUD_REGION" &>/dev/null; then
+    IP=$(gcloud --project "$GCLOUD_PROJECT" compute addresses describe "$MASTER_NETWORK_LB_IP" --region "$GCLOUD_REGION" --format='value(address)')
     gcloud --project "$GCLOUD_PROJECT" compute forwarding-rules create "$MASTER_NETWORK_LB_RULE" --address "$IP" --region "$GCLOUD_REGION" --target-pool "$MASTER_NETWORK_LB_POOL"
 else
     echo "Forwarding rule '${MASTER_NETWORK_LB_RULE}' already exists"
@@ -568,7 +568,7 @@ else
 fi
 
 # Router target pool
-if ! gcloud --project "$GCLOUD_PROJECT" compute target-pools describe "$ROUTER_NETWORK_LB_POOL" &>/dev/null; then
+if ! gcloud --project "$GCLOUD_PROJECT" compute target-pools describe "$ROUTER_NETWORK_LB_POOL" --region "$GCLOUD_REGION" &>/dev/null; then
     gcloud --project "$GCLOUD_PROJECT" compute target-pools create "$ROUTER_NETWORK_LB_POOL" --http-health-check "$ROUTER_NETWORK_LB_HEALTH_CHECK" --region "$GCLOUD_REGION"
     gcloud --project "$GCLOUD_PROJECT" beta compute instance-groups managed set-target-pools "$INFRA_NODE_INSTANCE_GROUP" --target-pools "$ROUTER_NETWORK_LB_POOL" --zone "$GCLOUD_ZONE"
 else
@@ -576,15 +576,15 @@ else
 fi
 
 # Router IP
-if ! gcloud --project "$GCLOUD_PROJECT" compute addresses describe "$ROUTER_NETWORK_LB_IP" &>/dev/null; then
+if ! gcloud --project "$GCLOUD_PROJECT" compute addresses describe "$ROUTER_NETWORK_LB_IP" --region "$GCLOUD_REGION" &>/dev/null; then
     gcloud --project "$GCLOUD_PROJECT" compute addresses create "$ROUTER_NETWORK_LB_IP" --region "$GCLOUD_REGION"
 else
     echo "IP '${ROUTER_NETWORK_LB_IP}' already exists"
 fi
 
 # Router forwarding rule
-if ! gcloud --project "$GCLOUD_PROJECT" compute forwarding-rules describe "$ROUTER_NETWORK_LB_RULE" &>/dev/null; then
-    IP=$(gcloud --project "$GCLOUD_PROJECT" compute addresses describe "$ROUTER_NETWORK_LB_IP" --format='value(address)')
+if ! gcloud --project "$GCLOUD_PROJECT" compute forwarding-rules describe "$ROUTER_NETWORK_LB_RULE" --region "$GCLOUD_REGION" &>/dev/null; then
+    IP=$(gcloud --project "$GCLOUD_PROJECT" compute addresses describe "$ROUTER_NETWORK_LB_IP" --region "$GCLOUD_REGION" --format='value(address)')
     gcloud --project "$GCLOUD_PROJECT" compute forwarding-rules create "$ROUTER_NETWORK_LB_RULE" --address "$IP" --region "$GCLOUD_REGION" --target-pool "$ROUTER_NETWORK_LB_POOL"
 else
     echo "Forwarding rule '${ROUTER_NETWORK_LB_RULE}' already exists"
@@ -602,7 +602,7 @@ fi
 
 # DNS record for internal master lb
 if ! gcloud --project "$GCLOUD_PROJECT" dns record-sets list -z "$DNS_MANAGED_ZONE" --name "$INTERNAL_MASTER_DNS_NAME" 2>/dev/null | grep -q "$INTERNAL_MASTER_DNS_NAME"; then
-    IP=$(gcloud --project "$GCLOUD_PROJECT" compute addresses describe "$MASTER_NETWORK_LB_IP" --format='value(address)')
+    IP=$(gcloud --project "$GCLOUD_PROJECT" compute addresses describe "$MASTER_NETWORK_LB_IP" --region "$GCLOUD_REGION" --format='value(address)')
     gcloud --project "$GCLOUD_PROJECT" dns record-sets transaction start -z "$DNS_MANAGED_ZONE"
     gcloud --project "$GCLOUD_PROJECT" dns record-sets transaction add -z "$DNS_MANAGED_ZONE" --ttl 3600 --name "${INTERNAL_MASTER_DNS_NAME}." --type A "$IP"
     gcloud --project "$GCLOUD_PROJECT" dns record-sets transaction execute -z "$DNS_MANAGED_ZONE"
@@ -612,7 +612,7 @@ fi
 
 # DNS record for router lb
 if ! gcloud --project "$GCLOUD_PROJECT" dns record-sets list -z "$DNS_MANAGED_ZONE" --name "$OCP_APPS_DNS_NAME" 2>/dev/null | grep -q "$OCP_APPS_DNS_NAME"; then
-    IP=$(gcloud --project "$GCLOUD_PROJECT" compute addresses describe "$ROUTER_NETWORK_LB_IP" --format='value(address)')
+    IP=$(gcloud --project "$GCLOUD_PROJECT" compute addresses describe "$ROUTER_NETWORK_LB_IP" --region "$GCLOUD_REGION" --format='value(address)')
     gcloud --project "$GCLOUD_PROJECT" dns record-sets transaction start -z "$DNS_MANAGED_ZONE"
     gcloud --project "$GCLOUD_PROJECT" dns record-sets transaction add -z "$DNS_MANAGED_ZONE" --ttl 3600 --name "${OCP_APPS_DNS_NAME}." --type A "$IP"
     gcloud --project "$GCLOUD_PROJECT" dns record-sets transaction add -z "$DNS_MANAGED_ZONE" --ttl 3600 --name "*.${OCP_APPS_DNS_NAME}." --type CNAME "${OCP_APPS_DNS_NAME}."

@@ -49,7 +49,7 @@ import click, os, sys, fileinput, json, iptools, ldap
 ### Miscellaneous options
 @click.option('--byo_lb', default='no', help='skip haproxy install when one exists within the environment',
               show_default=True)
-@click.option('--lb_fqdn', default='haproxy-0', help='Used for OpenShift cluster hostname and public hostname',
+@click.option('--lb_host', default='haproxy-0', help='Used for OpenShift cluster hostname and public hostname',
               show_default=True)
 
 @click.option('--byo_nfs', default='no', help='skip nfs install when one exists within the environment',
@@ -64,7 +64,6 @@ import click, os, sys, fileinput, json, iptools, ldap
 @click.help_option('--help', '-h')
 @click.option('-v', '--verbose', count=True)
 @click.option('-t', '--tag', help='Ansible playbook tag for specific parts of playbook')
-@click.option('-l', '--local', is_flag=True,help='Local installation of ansible instead of our container')
 # Create inventory options
 @click.option('--create_inventory', is_flag=True, help='Helper script to create json inventory file and exit')
 @click.option('--master_nodes', default='3', help='Number of master nodes to create', show_default=True)
@@ -100,14 +99,13 @@ def launch_refarch_env(console_port=8443,
                     rhsm_org_id=None,
                     rhsm_pool=None,
                     byo_lb=None,
-                    lb_fqdn=None,
+                    lb_host=None,
                     byo_nfs=None,
                     nfs_registry_host=None,
                     nfs_registry_mountpoint=None,
                     no_confirm=False,
 		    tag=None,
                     verbose=0,
-		    local=None,
 		    create_inventory=None,
 		    master_nodes=None,
 		    infra_nodes=None,
@@ -159,12 +157,12 @@ def launch_refarch_env(console_port=8443,
   tags.append('prod')
 
   if byo_lb == "no":
-      lb_host = lb_fqdn
-      lb_fqdn = lb_host + '.' + public_hosted_zone
+      lb_host = lb_host + '.' + public_hosted_zone
       tags.append('haproxy')
   else:
-  	if lb_fqdn is None:
-  		lb_fqdn = click.prompt("Please enter the load balancer fqdn for installation:")
+  	if lb_host is None:
+  		lb_host = click.prompt("Please enter the load balancer hostname for installation:")
+		lb_host = lb_host + '.' + public_hosted_zone
 
   if create_ose_vars is True:
   	click.echo('Configured OSE variables:')
@@ -219,7 +217,7 @@ def launch_refarch_env(console_port=8443,
 	        elif line.startswith("    wildcard_zone:"):
         	        print "    wildcard_zone: " + app_dns_prefix + "." + public_hosted_zone
 	        elif line.startswith("    load_balancer_hostname:"):
-        	        print "    load_balancer_hostname: " + lb_host + "." + public_hosted_zone
+        	        print "    load_balancer_hostname: " + lb_host
         	else:
                 	print line,
 	 
@@ -234,10 +232,10 @@ def launch_refarch_env(console_port=8443,
   	click.echo('\tbyo_nfs: %s' % byo_nfs)
 	if byo_nfs == "no":
   		click.echo('\tnfs_host: %s' % nfs_host)
-	  	click.echo('\tbyo_lb: %s' % byo_lb)
+	click.echo('\tbyo_lb: %s' % byo_lb)
 	if byo_lb == "no":
   		click.echo('\tlb_host: %s' % lb_host)
-	  	click.echo('\tvm_ipaddr_start: %s' % vm_ipaddr_start)
+	click.echo('\tvm_ipaddr_start: %s' % vm_ipaddr_start)
 	click.echo("")
 	if not no_confirm:
     		click.confirm('Continue using these values?', abort=True)	
@@ -264,26 +262,35 @@ def launch_refarch_env(console_port=8443,
 
 	support_list = []
 	if byo_nfs == "no":
-		d['host_inventory'][nfs_host] = {}
-        	d['host_inventory'][nfs_host]['guestname'] = nfs_host
-		d['host_inventory'][nfs_host]['ip4addr'] = ip4addr[0]
-	        d['host_inventory'][nfs_host]['tag'] = "infra-nfs"
+		if ose_hostname_prefix is not None:
+                        nfs_name=ose_hostname_prefix+"nfs-0"
+                else:
+                        nfs_name="nfs-0"
+		d['host_inventory'][nfs_name] = {}
+        	d['host_inventory'][nfs_name]['guestname'] = nfs_name
+		d['host_inventory'][nfs_name]['ip4addr'] = ip4addr[0]
+	        d['host_inventory'][nfs_name]['tag'] = "infra-nfs"
         	d['infrastructure_hosts']["nfs_server"] = {}
-	        d['infrastructure_hosts']["nfs_server"]['guestname'] = nfs_host
+	        d['infrastructure_hosts']["nfs_server"]['guestname'] = nfs_name
         	d['infrastructure_hosts']["nfs_server"]['tag'] = "infra-nfs"
-	        support_list.append(nfs_host)
-        	bind_entry.append(nfs_host + "		A       " + ip4addr[0])
+	        support_list.append(nfs_name)
+        	bind_entry.append(nfs_name + "		A       " + ip4addr[0])
 	        del ip4addr[0]
+
 	if byo_lb == "no":
-	        d['host_inventory'][lb_host] = {}
-        	d['host_inventory'][lb_host]['guestname'] = lb_host
-	        d['host_inventory'][lb_host]['ip4addr'] = wild_ip
-       		d['host_inventory'][lb_host]['tag'] = "loadbalancer"
+		if ose_hostname_prefix is not None:
+                        lb_name=ose_hostname_prefix+"haproxy-0"
+                else:
+                        lb_name="haproxy-0"
+	        d['host_inventory'][lb_name] = {}
+        	d['host_inventory'][lb_name]['guestname'] = lb_name
+	        d['host_inventory'][lb_name]['ip4addr'] = wild_ip
+       		d['host_inventory'][lb_name]['tag'] = "loadbalancer"
 	        d['infrastructure_hosts']["haproxy"] = {}
-        	d['infrastructure_hosts']["haproxy"]['guestname'] = lb_host
+        	d['infrastructure_hosts']["haproxy"]['guestname'] = lb_name
 	        d['infrastructure_hosts']["haproxy"]['tag'] = "loadbalancer"
-        	support_list.append(lb_host)
-	        bind_entry.append(lb_host + "		A       " + wild_ip)
+        	support_list.append(lb_name)
+	        bind_entry.append(lb_name + "		A       " + wild_ip)
 
 	master_list = []
 	d['production_hosts'] = {}
@@ -371,7 +378,7 @@ def launch_refarch_env(console_port=8443,
 	  click.echo('\trhsm_org_id: rhsm_org_id')
 
   click.echo('\tbyo_lb: %s' % byo_lb)
-  click.echo('\tlb_fqdn: %s' % lb_fqdn)
+  click.echo('\tlb_host: %s' % lb_host)
   click.echo('\tbyo_nfs: %s' % byo_nfs)
   click.echo('\tnfs_registry_host: %s' % nfs_registry_host)
   click.echo('\tnfs_registry_mountpoint: %s' % nfs_registry_mountpoint)
@@ -421,11 +428,11 @@ def launch_refarch_env(console_port=8443,
     if tag:
 	tags = tag
     
-    if local:
-	command='ansible-playbook'
-    else:
-	command='docker run -t --rm --volume `pwd`:/opt/ansible:z -v ~/.ssh:/root/.ssh:z -v /tmp:/tmp:z --net=host ansible:2.2-latest'
-
+    #if local:
+	#command='ansible-playbook'
+    #else:
+    #	command='docker run -t --rm --volume `pwd`:/opt/ansible:z -v ~/.ssh:/root/.ssh:z -v /tmp:/tmp:z --net=host ansible:2.2-latest'
+    command='ansible-playbook'
     command=command + ' --extra-vars "@./infrastructure.json" --tags %s -e \'vcenter_host=%s \
     vcenter_username=%s \
     vcenter_password=%s \
@@ -446,7 +453,7 @@ def launch_refarch_env(console_port=8443,
     rhsm_activation_key=%s \
     rhsm_org_id=%s \
     rhsm_pool=%s \
-    lb_fqdn=%s \
+    lb_host=%s \
     nfs_registry_host=%s \
     nfs_registry_mountpoint=%s \' %s' % ( tags,
 		    vcenter_host,
@@ -469,7 +476,7 @@ def launch_refarch_env(console_port=8443,
                     rhsm_activation_key,
                     rhsm_org_id,
 		    rhsm_pool,
-                    lb_fqdn,
+                    lb_host,
                     nfs_registry_host,
                     nfs_registry_mountpoint,
                     playbook)

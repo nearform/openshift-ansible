@@ -7,13 +7,14 @@
     guest: "{{ item.value.guestname }}"
     cluster: "{{ vcenter_cluster}}"
     resource_pool: "{{ vcenter_resource_pool }}"
+    validate_certs: False
     from_template: yes
     template_src: "{{vcenter_template_name}}"
     vm_extra_config:
       notes: "{{ item.value.tag }}"
       folder: "{{ vcenter_folder }}"
   with_dict: "{{infrastructure_hosts}}"
-  when: item.value.guestname == 'nfs-0'
+  when: "'nfs' in item.value.guestname"
 
 - name: Get facts of NFS VM
   vsphere_guest:

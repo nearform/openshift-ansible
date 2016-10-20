@@ -149,19 +149,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
           ansible_become: true,
           ansible_ssh_user: 'vagrant',
           deployment_type: "#{deployment_type}",
-          openshift_master_identity_providers: [
-            {
-              name: 'htpasswd_auth',
-              login: 'true',
-              challenge: 'true',
-              kind: 'HTPasswdPasswordIdentityProvider',
-              filename: '/etc/origin/master/htpasswd'
-            }
-          ],
-          openshift_master_htpasswd_users: {
-            # admin: admin123
-            admin: '$2y$11$jJioXC3WgyRq.FVy1vqtfuywDwEZp18d9Kkqb4MgFVzlgCGQNwy36',
-          },
+          openshift_master_identity_providers: "[{'name': 'htpasswd_auth', 'login': 'true', 'challenge': 'true', 'kind': 'HTPasswdPasswordIdentityProvider', 'filename': '/etc/origin/master/htpasswd'}]",
+          openshift_master_htpasswd_users: "{'admin': '$2y$11$jJioXC3WgyRq.FVy1vqtfuywDwEZp18d9Kkqb4MgFVzlgCGQNwy36'}",
           openshift_master_default_subdomain: 'apps.example.com',
           osm_default_node_selector: 'region=infra',
           openshift_hosted_registry_selector: 'region=infra',
@@ -181,30 +170,21 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       ansible.host_vars = {
         master1:  {
           openshift_ip: '192.168.50.20',
-          openshift_node_labels: {
-            region: 'infra',
-            zone: 'default'
-          },
+          openshift_node_labels: "\"{'region': 'infra', 'zone': 'default'}\"",
           openshift_schedulable: true,
           ansible_host: '192.168.50.20',
           ansible_ssh_private_key_file: "/home/vagrant/.ssh/master1.key"
         },
         node1: {
           openshift_ip: '192.168.50.21',
-          openshift_node_labels: {
-            region: 'primary',
-            zone: 'east'
-          },
+          openshift_node_labels: "\"{'region': 'primary', 'zone': 'east'}\"",
           openshift_schedulable: true,
           ansible_host: '192.168.50.21',
           ansible_ssh_private_key_file: "/home/vagrant/.ssh/node1.key"
         },
         node2: {
           openshift_ip: '192.168.50.22',
-          openshift_node_labels: {
-            region: 'primary',
-            zone: 'west'
-          },
+          openshift_node_labels: "\"{'region': 'primary', 'zone': 'west'}\"",
           openshift_schedulable: true,
           ansible_host: '192.168.50.22',
           ansible_ssh_private_key_file: "/home/vagrant/.ssh/node2.key"

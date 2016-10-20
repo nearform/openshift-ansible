@@ -1,0 +1,10 @@
+---
+
+- name: Install the required rpms
+  yum: name=NetworkManager state=latest
+
+- name: Start NetworkManager
+  service:
+    name: NetworkManager
+    state: started
+    enabled: true

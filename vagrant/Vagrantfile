@@ -44,9 +44,9 @@ INTEGRATION_START_SEGMENT = 20
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
-  if Vagrant.has_plugin?("vagrant-cachier")
-    config.cache.scope = :machine
-  end
+#  if Vagrant.has_plugin?("vagrant-cachier")
+#    config.cache.scope = :machine
+#  end
 
   config.hostmanager.enabled = true
   config.hostmanager.manage_host = true
@@ -134,7 +134,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     SHELL
 
     admin1.vm.provision :ansible_local do |ansible|
-      ansible.verbose        = '-vvvv'
+      ansible.verbose        = true
       ansible.install        = false
       ansible.limit          = "OSEv3:localhost"
       if deployment_type == 'openshift-enterprise'
@@ -146,6 +146,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         OSEv3: ["master1", "node1", "node2"],
         'OSEv3:children': ["masters", "nodes", "etcd", "nfs"],
         'OSEv3:vars': {
+          ansible_become: true,
           deployment_type: "#{deployment_type}",
           openshift_master_identity_providers: [
             {

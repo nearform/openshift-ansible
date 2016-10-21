@@ -12,6 +12,7 @@ VAGRANTFILE_API_VERSION = '2'
 
 deployment_type = ENV['DEPLOYMENT_TYPE'] || 'origin'
 origin_os = ENV['ORIGIN_OS'] || 'centos'
+rhsm_pool = ENV['RHSM_POOL'] || 'Employee SKU'
 
 if deployment_type == 'openshift-enterprise'
   REQUIRED_PLUGINS = %w(vagrant-registration vagrant-hostmanager landrush)
@@ -76,7 +77,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     v.memory = 1024
     v.cpus = 1
     override.vm.box = box_name
-    override.vm.synced_folder '.', '/vagrant'
     provider_name = 'virtualbox'
   end
 
@@ -85,11 +85,12 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     libvirt.memory = 1024
     libvirt.driver = 'kvm'
     override.vm.box = box_name
-    override.vm.synced_folder ".", "/vagrant", type: "nfs"
     provider_name = 'libvirt'
   end
 
   config.vm.synced_folder '.', '/home/vagrant/sync', disabled: true
+  config.vm.synced_folder ".", "/vagrant", type: "rsync"
+  config.vm.synced_folder ".vagrant", "/vagrant_hidden", type: "rsync"
 
   config.vm.define "master1" do |master1|
     master1.vm.network :private_network, ip: "#{NETWORK_BASE}.#{INTEGRATION_START_SEGMENT}"
@@ -111,114 +112,84 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     admin1.vm.hostname = "admin1.example.com"
 
     if deployment_type == 'openshift-enterprise'
-      config.vm.provision "shell", inline: <<-SHELL
-        sudo yum -y install atomic-openshift-utils
-      SHELL
+      config_playbook = "/usr/share/ansible/openshift-ansible/playbooks/byo/config.yml"
     else
-      config.vm.provision "shell", inline: <<-SHELL
-        rm -rf openshift-ansible || true
-        git clone https://github.com/openshift/openshift-ansible
-        sudo yum -y install https://dl.fedoraproject.org/pub/epel/7/x86_64/e/epel-release-7-8.noarch.rpm
-        sudo sed -i -e "s/^enabled=1/enabled=0/" /etc/yum.repos.d/epel.repo
-        sudo yum -y --enablerepo=epel install ansible pyOpenSSL
-      SHELL
+      config_playbook = "/home/vagrant/openshift-ansible/playbooks/byo/config.yml"
     end
 
-    config.vm.provision "shell", inline: <<-SHELL
-      pushd /home/vagrant/.ssh
-      for key in `find /vagrant/.vagrant/machines -name private_key`; do
-        machine=$(echo $key | cut -d '/' -f 5)
-        ln -s $key $machine.key
-      done
-      popd
-    SHELL
+    ansible_groups = {
+      OSEv3: ["master1", "node1", "node2"],
+      'OSEv3:children': ["masters", "nodes", "etcd", "nfs"],
+      'OSEv3:vars': {
+        ansible_become: true,
+        ansible_ssh_user: 'vagrant',
+        deployment_type: deployment_type,
+        openshift_master_identity_providers: "[{'name': 'htpasswd_auth', 'login': 'true', 'challenge': 'true', 'kind': 'HTPasswdPasswordIdentityProvider', 'filename': '/etc/origin/master/htpasswd'}]",
+        openshift_master_htpasswd_users: "{'admin': '$2y$11$jJioXC3WgyRq.FVy1vqtfuywDwEZp18d9Kkqb4MgFVzlgCGQNwy36'}",
+        openshift_master_default_subdomain: 'apps.example.com',
+        osm_default_node_selector: 'region=primary',
+        openshift_hosted_registry_selector: 'region=infra',
+        openshift_hosted_registry_replicas: 1,
+        openshift_hosted_registry_storage_kind: 'nfs',
+        openshift_hosted_registry_storage_access_modes: ['ReadWriteMany'],
+        openshift_hosted_registry_storage_host: 'admin1.example.com',
+        openshift_hosted_registry_storage_nfs_directory: '/srv/nfs',
+        openshift_hosted_registry_storage_volume_name: 'registry',
+        openshift_hosted_registry_storage_volume_size: '2Gi',
+        rhsm_user: "#{ENV.fetch('SUB_USERNAME', '')}",
+        rhsm_password: "#{ENV.fetch('SUB_PASSWORD', '')}",
+        rhsm_pool: rhsm_pool,
+      },
+      etcd: ["master1"],
+      nfs: ["admin1"],
+      masters: ["master1"],
+      nodes: ["master1", "node1", "node2"],
+    }
+
+    ansible_host_vars = {
+      master1:  {
+        openshift_ip: '192.168.50.20',
+        openshift_node_labels: "\"{'region': 'infra', 'zone': 'default'}\"",
+        openshift_schedulable: true,
+        ansible_host: '192.168.50.20',
+        ansible_ssh_private_key_file: "/home/vagrant/.ssh/master1.key"
+      },
+      node1: {
+        openshift_ip: '192.168.50.21',
+        openshift_node_labels: "\"{'region': 'primary', 'zone': 'east'}\"",
+        openshift_schedulable: true,
+        ansible_host: '192.168.50.21',
+        ansible_ssh_private_key_file: "/home/vagrant/.ssh/node1.key"
+      },
+      node2: {
+        openshift_ip: '192.168.50.22',
+        openshift_node_labels: "\"{'region': 'primary', 'zone': 'west'}\"",
+        openshift_schedulable: true,
+        ansible_host: '192.168.50.22',
+        ansible_ssh_private_key_file: "/home/vagrant/.ssh/node2.key"
+      },
+      admin1: {
+        ansible_connection: 'local',
+        deployment_type: deployment_type
+      }
+    }
+
+    admin1.vm.provision :ansible_local do |ansible|
+      ansible.verbose        = true
+      ansible.install        = true
+      ansible.limit          = 'OSEv3:localhost'
+      ansible.playbook       = 'install.yaml'
+      ansible.groups = ansible_groups
+      ansible.host_vars = ansible_host_vars
+    end
 
     admin1.vm.provision :ansible_local do |ansible|
       ansible.verbose        = true
       ansible.install        = false
       ansible.limit          = "OSEv3:localhost"
-      if deployment_type == 'openshift-enterprise'
-        ansible.playbook = "/usr/share/ansible/openshift-ansible/playbooks/byo/config.yml"
-      else
-        ansible.playbook = "/home/vagrant/openshift-ansible/playbooks/byo/config.yml"
-      end
-      ansible.groups = {
-        OSEv3: ["master1", "node1", "node2"],
-        'OSEv3:children': ["masters", "nodes", "etcd", "nfs"],
-        'OSEv3:vars': {
-          ansible_become: true,
-          ansible_ssh_user: 'vagrant',
-          deployment_type: "#{deployment_type}",
-          openshift_master_identity_providers: "[{'name': 'htpasswd_auth', 'login': 'true', 'challenge': 'true', 'kind': 'HTPasswdPasswordIdentityProvider', 'filename': '/etc/origin/master/htpasswd'}]",
-          openshift_master_htpasswd_users: "{'admin': '$2y$11$jJioXC3WgyRq.FVy1vqtfuywDwEZp18d9Kkqb4MgFVzlgCGQNwy36'}",
-          openshift_master_default_subdomain: 'apps.example.com',
-          osm_default_node_selector: 'region=primary',
-          openshift_hosted_registry_selector: 'region=infra',
-          openshift_hosted_registry_replicas: 1,
-          openshift_hosted_registry_storage_kind: 'nfs',
-          openshift_hosted_registry_storage_access_modes: ['ReadWriteMany'],
-          openshift_hosted_registry_storage_host: 'admin1.example.com',
-          openshift_hosted_registry_storage_nfs_directory: '/srv/nfs',
-          openshift_hosted_registry_storage_volume_name: 'registry',
-          openshift_hosted_registry_storage_volume_size: '2Gi',
-
-        },
-        etcd: ["master1"],
-        masters: ["master1"],
-        nodes: ["master1", "node1", "node2"],
-      }
-      ansible.host_vars = {
-        master1:  {
-          openshift_ip: '192.168.50.20',
-          openshift_node_labels: "\"{'region': 'infra', 'zone': 'default'}\"",
-          openshift_schedulable: true,
-          ansible_host: '192.168.50.20',
-          ansible_ssh_private_key_file: "/home/vagrant/.ssh/master1.key"
-        },
-        node1: {
-          openshift_ip: '192.168.50.21',
-          openshift_node_labels: "\"{'region': 'primary', 'zone': 'east'}\"",
-          openshift_schedulable: true,
-          ansible_host: '192.168.50.21',
-          ansible_ssh_private_key_file: "/home/vagrant/.ssh/node1.key"
-        },
-        node2: {
-          openshift_ip: '192.168.50.22',
-          openshift_node_labels: "\"{'region': 'primary', 'zone': 'west'}\"",
-          openshift_schedulable: true,
-          ansible_host: '192.168.50.22',
-          ansible_ssh_private_key_file: "/home/vagrant/.ssh/node2.key"
-        },
-        admin1: {
-          ansible_connection: 'local'
-        }
-      }
+      ansible.playbook = config_playbook
+      ansible.groups = ansible_groups
+      ansible.host_vars = ansible_host_vars
     end
   end
-
-
-  if deployment_type == 'openshift-enterprise'
-    subscription_steps = <<-SUB_STEPS
-      echo "Setting up Red Hat subscriptions"
-      POOL_ID=$(sudo subscription-manager list --available | sed -n '/Employee SKU/,/System Type/p' | grep "Pool ID" | tail -1 | cut -d':' -f2 | xargs)
-      echo -e $GREEN"Trying PoolID: $POOL_ID"$WHITE
-      sudo subscription-manager attach --pool=$POOL_ID
-      sudo subscription-manager repos --disable="*"
-      sudo subscription-manager repos --enable="rhel-7-server-rpms" --enable="rhel-7-server-extras-rpms" --enable="rhel-7-server-ose-3.3-rpms"
-    SUB_STEPS
-  else
-    subscription_steps = ''
-  end
-
-  config.vm.provision "shell", inline: <<-SHELL
-    #{subscription_steps}
-
-    sudo yum -y install git bash-completion
-
-    # Vagrant's "change host name" capability for Fedora
-    # maps hostname to loopback, conflicting with hostmanager.
-    # We must repair /etc/hosts
-    sudo sed -i '/127\.0\.0\.1\s.*example.*/d' /etc/hosts
-  SHELL
-
 end

@@ -22,6 +22,8 @@ import sys
               show_default=True)
 @click.option('--node-instance-type', default='t2.medium', help='ec2 instance type',
               show_default=True)
+@click.option('--bastion-instance-type', default='t2.micro', help='ec2 instance type',
+              show_default=True)
 @click.option('--keypair', help='ec2 keypair name',
               show_default=True)
 @click.option('--create-key', default='no', help='Create SSH keypair',
@@ -73,6 +75,7 @@ def launch_refarch_env(region=None,
                     no_confirm=False,
                     master_instance_type=None,
                     node_instance_type=None,
+                    bastion_instance_type=None,
                     keypair=None,
                     create_key=None,
                     key_path=None,
@@ -149,6 +152,7 @@ def launch_refarch_env(region=None,
   click.echo('\tregion: %s' % region)
   click.echo('\tmaster_instance_type: %s' % master_instance_type)
   click.echo('\tnode_instance_type: %s' % node_instance_type)
+  click.echo('\tbastion_instance_type: %s' % bastion_instance_type)
   click.echo('\tkeypair: %s' % keypair)
   click.echo('\tcreate_key: %s' % create_key)
   click.echo('\tkey_path: %s' % key_path)
@@ -212,6 +216,7 @@ def launch_refarch_env(region=None,
     bastion_sg=%s \
     master_instance_type=%s \
     node_instance_type=%s \
+    bastion_instance_type=%s \
     public_hosted_zone=%s \
     wildcard_zone=%s \
     console_port=%s \
@@ -236,6 +241,7 @@ def launch_refarch_env(region=None,
                     bastion_sg,
                     master_instance_type,
                     node_instance_type,
+                    bastion_instance_type,
                     public_hosted_zone,
                     wildcard_zone,
                     console_port,

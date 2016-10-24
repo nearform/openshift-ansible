@@ -16,8 +16,8 @@ Pre-requisites
 --------------
 
 * (If intending to install Openshift Container Platform then) a Red Hat Account is required so that the VM can be registered via subscription manager.
-* Vagrant installed ( I run with 1.7.4 which is a bit old)
-* VirtualBox installed ( I run with 5.0.14 which is also a bit old)
+* Vagrant
+* VirtualBox or Libvirt (--provider=libvirt)
 
 Install the following vagrant plugins:
 
@@ -31,7 +31,13 @@ https://stomp.colorado.edu/blog/blog/2015/12/24/on-building-red-hat-enterprise-l
 
 The iso image that the vagrant image is created from should be the 'RHEL 7.2 Binary DVD' image on the Red Hat downloads site. The box name I have used in the Vagrantfile is 'rhel/7.2'
 
-When installing Openshift Container Platform the Vagrantfile assumes a Red Hat Employee subscription 'Employee SKU'. If you aren't a Red Hat Employee then simply hard code the Pool ID of the subscription that gives you access to the Openshift Container Platform rpms (this could be a 30 day trial subscription).
+When installing Openshift Container Platform the Vagrantfile assumes a Red Hat Employee subscription 'Employee SKU'. If you aren't a Red Hat Employee then simply override with your pool id of the subscription that gives you access to the Openshift Container Platform rpms (this could be a 30 day trial subscription).
+
+    export RHSM_POOL=<our pool id>
+    
+The OS for the origin install defaults to centos but can be overridden by the following environment variable
+
+    export ORIGIN_OS=<desired OS>
 
 Installation
 ------------
@@ -45,20 +51,16 @@ then for an Origin install
 
 or for an Openshift Container Platform install
 
-    export DEPLOYMENT_TYPE=enterprise
+    export DEPLOYMENT_TYPE=openshift-enterprise
+    export SUB_USERNAME=<Red Hat Username>
+    export SUB_PASSWORD=<Red Hat Password>
     vagrant up (you will be prompted for your Red Hat account details and the sudo account password on the host during this process)
 
-then for either carry on with
+Two ansible playbooks will start on admin1 after it has booted. The first playbook bootstraps the pre-requisites for the Openshift install. The second playbook is the actual Openshift install. The inventory for the Openshift install is declared inline in the Vagrantfile.
 
-    vagrant ssh admin1
-    su - (when prompted the password is 'redhat')
-    /vagrant/deploy.sh (when prompted respond with 'yes' and the password for the remote machines is 'redhat')
+The install comprises one master and two nodes. The NFS share gets created on admin1.
 
-An ansible playbook will start (this is openshift installing), it uses the etc_ansible_hosts file of the git repo copied to /etc/ansible/hosts. If installing Openshift Container Platform then (via the DEPLOYMENT_TYPE environment variable) the variable 'deployment_type' in /etc/ansible/hosts is set to 'openshift-enterprise'.
-
-The hosts file creates an install with one master and two nodes. The NFS share gets created on admin1.
-
-The /etc/ansible/hosts file makes use of the 'openshift_ip' property to force the use of the eth1 network interface which is using the 192.168.50.x ip addresses of the vagrant private network.
+The inventory makes use of the 'openshift_ip' property to force the use of the eth1 network interface which is using the 192.168.50.x ip addresses of the vagrant private network.
 
 Once complete AND after confirming that the docker-registry pod is up and running then
 
@@ -99,13 +101,3 @@ and that /etc/resolv.conf has an entry
 
     # Added by landrush, a vagrant plugin 
     nameserver 127.0.0.1
-
-  
-
-
-
-
-
-
-  
-

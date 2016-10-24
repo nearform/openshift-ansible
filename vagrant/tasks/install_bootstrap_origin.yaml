@@ -7,7 +7,8 @@
     dest: ~/openshift-ansible
     force: yes
     update: yes
-  become: no
+  become: yes
+  become_user: vagrant
 - package:
     name: https://dl.fedoraproject.org/pub/epel/7/x86_64/e/epel-release-7-8.noarch.rpm
     state: present

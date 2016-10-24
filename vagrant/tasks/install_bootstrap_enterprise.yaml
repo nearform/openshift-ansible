@@ -1,4 +1,4 @@
 ---
 - package:
-    name: openshift-ansible-utils
+    name: atomic-openshift-utils
     state: present

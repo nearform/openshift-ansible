@@ -1,0 +1,4 @@
+---
+- package:
+    name: openshift-ansible-utils
+    state: present

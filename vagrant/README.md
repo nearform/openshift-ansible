@@ -33,7 +33,7 @@ The iso image that the vagrant image is created from should be the 'RHEL 7.2 Bin
 
 When installing Openshift Container Platform the Vagrantfile assumes a Red Hat Employee subscription 'Employee SKU'. If you aren't a Red Hat Employee then simply override with your pool id of the subscription that gives you access to the Openshift Container Platform rpms (this could be a 30 day trial subscription).
 
-    export RHSM_POOL=<our pool id>
+    export RHSM_POOL=<pool id>
     
 The OS for the origin install defaults to centos but can be overridden by the following environment variable
 

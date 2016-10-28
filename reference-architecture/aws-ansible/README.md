@@ -22,6 +22,7 @@ $ yum -y install atomic-openshift-utils \
                  git \
                  ansible-2.2.0-0.5.prerelease.el7.noarch \
                  python-netaddr \
+                 python2-boto3 \
                  python-httplib2
 ```
 
@@ -32,7 +33,7 @@ The playbooks in the repository also have the ability to configure CentOS or RHE
 $ rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
 $ yum -y install python-pip git python2-boto \ 
                  python-netaddr python-httplib2 python-devel \
-                 gcc libffi-devel openssl-devel
+                 gcc libffi-devel openssl-devel python2-boto3
 $ pip install git+https://github.com/ansible/ansible.git@stable-2.2
 $ mkdir -p /usr/share/ansible/openshift-ansible
 $ git clone https://github.com/openshift/openshift-ansible.git /usr/share/ansible/openshift-ansible
@@ -111,3 +112,25 @@ If installing OpenShift Container Platform or OpenShift Origin into an existing 
 ```
 ./ose-on-aws.py --create-vpc=no --byo-bastion=yes --keypair=OSE-key --public-hosted-zone=sysdeseng.com --deployment-type=origin --ami=ami-6d1c2007 --bastion-sg=sg-a32fa3
 ```
+
+## Multiple OpenShift deployments
+The same greenfield and brownfield deployment steps can be used to launch another instance of the reference architecture environment. When launching a new environment ensure that the variable stack-name is changed. If the variable is not changed the currently deployed environment may be changed.
+
+**OpenShift Container Platform**
+```
+./ose-on-aws.py --rhsm-user=rh-user --public-hosted-zone=rcook-aws.sysdeseng.com --keypair=OSE-key --rhsm-pool="Red Hat OpenShift Container Platform, Standard, 2-Core" --keypair=OSE-key --rhsm-password=password --stack-name=prod
+```
+
+**OpenShift Origin**
+```
+./ose-on-aws.py --keypair=OSE-key --public-hosted-zone=sysdeseng.com --deployment-type=origin --ami=ami-6d1c2007 --stack-name=prod
+```
+
+## Teardown
+
+A playbook is included to remove the s3 bucket and cloudformation. The parameter ci=true should not be used unless there is 100% certanty that all unattached EBS volumes can be removed.
+
+```
+ansible-playook -i inventory/aws/hosts -e 'region=us-east-1 stack_name=openshift-infra ci=false' playbooks/teardown.yaml
+``` 
+A registered domain must be added to Route53 as a Hosted Zone before installation.  This registered domain can be purchased through AWS.

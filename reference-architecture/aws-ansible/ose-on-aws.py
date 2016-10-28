@@ -8,6 +8,8 @@ import sys
 @click.command()
 
 ### Cluster options
+@click.option('--stack-name', default='openshift-infra', help='Cloudformation stack name. Must be unique',
+              show_default=True)
 @click.option('--console-port', default='443', type=click.IntRange(1,65535), help='OpenShift web console port',
               show_default=True)
 @click.option('--deployment-type', default='openshift-enterprise', help='OpenShift deployment type',
@@ -21,6 +23,8 @@ import sys
 @click.option('--master-instance-type', default='m4.large', help='ec2 instance type',
               show_default=True)
 @click.option('--node-instance-type', default='t2.medium', help='ec2 instance type',
+              show_default=True)
+@click.option('--app-instance-type', default='t2.medium', help='ec2 instance type',
               show_default=True)
 @click.option('--bastion-instance-type', default='t2.micro', help='ec2 instance type',
               show_default=True)
@@ -65,16 +69,20 @@ import sys
               show_default=True)
 @click.option('--containerized', default='False', help='Containerized installation of OpenShift',
               show_default=True)
+@click.option('--s3-bucket-name', help='Bucket name for S3 for registry')
+@click.option('--s3-username', help='S3 user for registry access')
 @click.option('--no-confirm', is_flag=True,
               help='Skip confirmation prompt')
 @click.help_option('--help', '-h')
 @click.option('-v', '--verbose', count=True)
 
 def launch_refarch_env(region=None,
+                    stack_name=None,
                     ami=None,
                     no_confirm=False,
                     master_instance_type=None,
                     node_instance_type=None,
+                    app_instance_type=None,
                     bastion_instance_type=None,
                     keypair=None,
                     create_key=None,
@@ -97,11 +105,20 @@ def launch_refarch_env(region=None,
                     rhsm_password=None,
                     rhsm_pool=None,
                     containerized=None,
+                    s3_bucket_name=None,
+                    s3_username=None,
                     verbose=0):
 
   # Need to prompt for the R53 zone:
   if public_hosted_zone is None:
     public_hosted_zone = click.prompt('Hosted DNS zone for accessing the environment')
+
+
+  if s3_bucket_name is None:
+    s3_bucket_name = stack_name + '-ocp-registry-' + public_hosted_zone.split('.')[0]
+
+  if s3_username is None:
+    s3_username = stack_name + '-s3-openshift-user'
 
   # Create ssh key pair in AWS if none is specified
   if create_key in 'yes' and key_path in 'no':
@@ -148,10 +165,12 @@ def launch_refarch_env(region=None,
 
   # Display information to the user about their choices
   click.echo('Configured values:')
+  click.echo('\tstack_name: %s' % stack_name)
   click.echo('\tami: %s' % ami)
   click.echo('\tregion: %s' % region)
   click.echo('\tmaster_instance_type: %s' % master_instance_type)
   click.echo('\tnode_instance_type: %s' % node_instance_type)
+  click.echo('\tapp_instance_type: %s' % app_instance_type)
   click.echo('\tbastion_instance_type: %s' % bastion_instance_type)
   click.echo('\tkeypair: %s' % keypair)
   click.echo('\tcreate_key: %s' % create_key)
@@ -175,6 +194,8 @@ def launch_refarch_env(region=None,
   click.echo('\trhsm_password: *******')
   click.echo('\trhsm_pool: %s' % rhsm_pool)
   click.echo('\tcontainerized: %s' % containerized)
+  click.echo('\ts3_bucket_name: %s' % s3_bucket_name)
+  click.echo('\ts3_username: %s' % s3_username)
   click.echo("")
 
   if not no_confirm:
@@ -200,6 +221,7 @@ def launch_refarch_env(region=None,
     os.system(command)
 
     command='ansible-playbook -i inventory/aws/hosts -e \'region=%s \
+    stack_name=%s \
     ami=%s \
     keypair=%s \
     create_key=%s \
@@ -216,6 +238,7 @@ def launch_refarch_env(region=None,
     bastion_sg=%s \
     master_instance_type=%s \
     node_instance_type=%s \
+    app_instance_type=%s \
     bastion_instance_type=%s \
     public_hosted_zone=%s \
     wildcard_zone=%s \
@@ -224,7 +247,10 @@ def launch_refarch_env(region=None,
     rhsm_user=%s \
     rhsm_password=%s \
     rhsm_pool=%s \
-    containerized=%s \' %s' % (region,
+    containerized=%s \
+    s3_bucket_name=%s \
+    s3_username=%s \' %s' % (region,
+                    stack_name,
                     ami,
                     keypair,
                     create_key,
@@ -241,6 +267,7 @@ def launch_refarch_env(region=None,
                     bastion_sg,
                     master_instance_type,
                     node_instance_type,
+                    app_instance_type,
                     bastion_instance_type,
                     public_hosted_zone,
                     wildcard_zone,
@@ -250,6 +277,8 @@ def launch_refarch_env(region=None,
                     rhsm_password,
                     rhsm_pool,
                     containerized,
+                    s3_bucket_name,
+                    s3_username,
                     playbook)
 
     if verbose > 0:

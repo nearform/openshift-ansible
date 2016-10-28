@@ -8,6 +8,12 @@
       "Type": "String",
       "Default": "ose-on-aws"
     },
+    "S3BucketName": {
+      "Type": "String"
+    },
+    "S3User": {
+      "Type": "String"
+    },
     "MasterApiPort": {
       "Type": "Number"
     },
@@ -835,6 +841,12 @@
         "Roles": [ { "Ref": "NodePolicy" } ]
       }
     },
+    "RegistryBucket": {
+    "Type": "AWS::S3::Bucket",
+    "Properties" : {
+       "BucketName": { "Ref": "S3BucketName"}
+                   }
+     },
     "Route53Records": {
       "Type": "AWS::Route53::RecordSetGroup",
       "DependsOn": [
@@ -930,8 +942,8 @@
           "ImageId" : {"Ref": "AmiId"},
           "UserData": {"Ref": "BastionUserData"},
           "KeyName" : {"Ref": "KeyName"},
-	      "InstanceType": {"Ref": "BastionInstanceType"},
-		  "SecurityGroupIds": [{ "Fn::GetAtt" : ["BastionSg", "GroupId"] }],
+	  "InstanceType": {"Ref": "BastionInstanceType"},
+          "SecurityGroupIds": [{ "Fn::GetAtt" : ["BastionSg", "GroupId"] }],
           "SubnetId" : {"Ref": "PublicSubnet1"},
           "Tags": [
             { "Key": "Name",
@@ -1316,6 +1328,44 @@
           }
          ]
      }
-   }
+   },
+    "S3UserName" : {
+      "Type" : "AWS::IAM::User",
+      "Properties" : {
+        "Path" : "/",
+        "UserName": { "Ref": "S3User" },
+        "Policies" : [ {
+          "PolicyName" : "accessalls3",
+          "PolicyDocument" : {
+            "Version": "2012-10-17",
+            "Statement" : [ {
+              "Effect" : "Allow",
+              "Action" : [ "s3:*" ],
+              "Resource": "*"
+            } ]
+          }
+        } ]
+      }
+    },
+    "CFNKeys" : {
+      "Type" : "AWS::IAM::AccessKey",
+      "Properties" : {
+        "UserName" : { "Ref": "S3UserName" }
+      }
+    }
+  },
+  "Outputs" : {
+    "S3UserAccessId" : {
+      "Value" : { "Ref" : "CFNKeys" },
+      "Description" : "AWSAccessKeyId of user"
+    },
+    "S3UserSecretKey" : {
+      "Value" : { "Fn::GetAtt" : ["CFNKeys", "SecretAccessKey"]},
+      "Description" : "AWSSecretKey of new S3"
+    },
+    "S3Bucket" : {
+      "Value" : { "Ref" : "RegistryBucket"},
+      "Description" : "Name of S3 bucket"
+    }
  }
 }

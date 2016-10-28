@@ -1,7 +1,7 @@
 ---
 - name: Create Greenfield Infrastructure
   cloudformation:
-    stack_name: "OpenShift-Infra"
+    stack_name: "{{ stack_name }}"
     state: "present"
     region: "{{ region }}"
     template: "roles/cloudformation-infra/files/greenfield.json"
@@ -46,11 +46,13 @@
       NodeRootVolType: gp2
       NodeDockerVolSize: "{{ docker_storage }}"
       NodeDockerVolType: gp2
+      S3BucketName: "{{ s3_bucket_name }}"
+      S3User: "{{ s3_username }}"
   when: create_vpc == "yes"
 
 - name: Create Brownfield Infrastructure
   cloudformation:
-    stack_name: "OpenShift-Infra-Brownfield"
+    stack_name: "{{ stack_name }}-brownfield"
     state: "present"
     region: "{{ region }}"
     template: "roles/cloudformation-infra/files/brownfield.json"
@@ -97,11 +99,13 @@
       NodeRootVolType: gp2
       NodeDockerVolSize: "{{ docker_storage }}"
       NodeDockerVolType: gp2
+      S3BucketName: "{{ s3_bucket_name }}"
+      S3User: "{{ s3_username }}"
   when: create_vpc == "no" and byo_bastion == "no"
 
 - name: Create Brownfield Infrastructure with existing bastion
   cloudformation:
-    stack_name: "OpenShift-Infra-Brownfield-wo-bastion"
+    stack_name: "{{ stack_name }}-brownfield-wo-bastion"
     state: "present"
     region: "{{ region }}"
     template: "roles/cloudformation-infra/files/brownfield-byo-bastion.json"
@@ -146,11 +150,13 @@
       NodeRootVolType: gp2
       NodeDockerVolSize: "{{ docker_storage }}"
       NodeDockerVolType: gp2
+      S3BucketName: "{{ s3_bucket_name }}"
+      S3User: "{{ s3_username }}"
   when: create_vpc == "no" and byo_bastion == "yes"
 
 - name: Add App Node 
   cloudformation:
-    stack_name: "{{ shortname }}"
+    stack_name: "{{ stack_name }}-{{ shortname }}"
     state: "present"
     region: "{{ region }}"
     template: "roles/cloudformation-infra/files/add-node.json"
@@ -175,7 +181,7 @@
 
 - name: Add Infra Node 
   cloudformation:
-    stack_name: "{{ shortname }}"
+    stack_name: "{{ stack_name }}-{{ shortname }}"
     state: "present"
     region: "{{ region }}"
     template: "roles/cloudformation-infra/files/add-infra-node.json"

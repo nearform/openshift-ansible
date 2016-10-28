@@ -1,5 +1,4 @@
 ---
-
 - name: Get current Ansible version on local host
   command: command ansible --version
   register: local_ansible_version

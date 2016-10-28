@@ -1,11 +1,12 @@
 - hosts: localhost
   connection: local
-  gather_facts: no
+  gather_facts: yes 
   become: no
   vars_files:
       - vars/main.yaml
   roles:
       # Group systems
+      - cfn-outputs
       - instance-groups
       
 - hosts: localhost
@@ -39,16 +40,6 @@
       
 - include: openshift-setup.yaml
 
-- hosts: localhost
-  connection: local
-  gather_facts: yes
-  become: no
-  vars_files:
-      - vars/main.yaml
-  roles:
-      - s3-registry-user
-      - s3-registry-bucket
-      
 - hosts: primary_master
   gather_facts: no 
   become: yes

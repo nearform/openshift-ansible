@@ -50,6 +50,7 @@ import sys
 @click.option('--node-type', default='app', help='Specify the node label (example: infra or app)',
               show_default=True)
 @click.option('--infra-elb-name', help='Specify the name of the ELB used for the router and registry')
+@click.option('--existing-stack', help='Specify the name of the existing CloudFormation stack')
 @click.option('--no-confirm', is_flag=True,
               help='Skip confirmation prompt')
 @click.help_option('--help', '-h')
@@ -76,6 +77,7 @@ def launch_refarch_env(region=None,
                     node_type=None,
                     iam_role=None,
                     infra_elb_name=None,
+                    existing_stack=None,
                     verbose=0):
 
   # Need to prompt for the R53 zone:
@@ -94,14 +96,12 @@ def launch_refarch_env(region=None,
   if shortname is None:
     shortname = click.prompt('Hostname of newly created system')
 
- # If no keypair is not specified fail:
-  if keypair is None and create_key in 'no':
-    click.echo('A SSH keypair must be specified or created')
-    sys.exit(1)
+  if existing_stack is None:
+    existing_stack = click.prompt('Specify the name of the existing CloudFormation stack')
 
- # Name the keypair if a path is defined
-  if keypair is None and create_key in 'yes':
-    keypair = click.prompt('Specify a name for the keypair')
+ # If no keypair is specified fail:
+  if keypair is None:
+    keypair = click.prompt('A SSH keypair must be specified or created')
 
  # If no subnets are defined prompt:
   if subnet_id is None:
@@ -124,6 +124,11 @@ def launch_refarch_env(region=None,
   # Ask for ELB if new node is infra
   if node_type in 'infra' and infra_elb_name is None:
 	  infra_elb_name = click.prompt("Specify the ELB Name used by the router and registry?")
+
+  # Hidden facts for infrastructure.yaml
+  create_key = "no"
+  create_vpc = "no"
+  add_node = "yes"
 
   # Display information to the user about their choices
   click.echo('Configured values:')
@@ -148,6 +153,7 @@ def launch_refarch_env(region=None,
   click.echo('\tnode_type: %s' % node_type)
   click.echo('\tiam_role: %s' % iam_role)
   click.echo('\tinfra_elb_name: %s' % infra_elb_name)
+  click.echo('\texisting_stack: %s' % existing_stack)
   click.echo("")
 
   if not no_confirm:
@@ -176,8 +182,6 @@ def launch_refarch_env(region=None,
     ami=%s \
     keypair=%s \
     add_node=yes \
-    create_key=no \
-    create_vpc=no \
     subnet_id=%s \
     node_sg=%s \
     infra_sg=%s \
@@ -195,7 +199,10 @@ def launch_refarch_env(region=None,
     node_type=%s \
     iam_role=%s \
     key_path=/dev/null \
-    infra_elb_name=%s \' %s' % (region,
+    infra_elb_name=%s \
+    create_key=%s \
+    create_vpc=%s \
+    stack_name=%s \' %s' % (region,
                     ami,
                     keypair,
                     subnet_id,
@@ -215,6 +222,9 @@ def launch_refarch_env(region=None,
                     node_type,
                     iam_role,
                     infra_elb_name,
+                    create_key,
+                    create_vpc,
+                    existing_stack,
                     playbook)
 
     if verbose > 0:

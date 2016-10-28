@@ -1,21 +1,12 @@
 ---
-- name: Remove policy used for user
-  iam_policy:
-    iam_name: "{{ s3_username }}"
-    iam_type: user
-    policy_name: S3FullAccess
+- name: Force remove s3 bucket
+  s3_bucket:
+    name: "{{ s3_bucket_name }}"
     state: absent
-    region: "{{ region }}"
-  ignore_errors: true
-- name: Remove S3 OpenShift registry user
-  iam:
-    iam_type: user
-    name: "{{ s3_username }}"
-    state: absent
-  ignore_errors: true
+    force: yes
 - name: Remove Cloudformation
   cloudformation:
-    stack_name: "OpenShift-Infra"
+    stack_name: "{{ stack_name }}"
     state: absent
     template: roles/cloudformation-infra/files/greenfield.json
     region: "{{ region }}"

@@ -7,10 +7,10 @@ storage:
   cache:
     layerinfo: inmemory
   s3:
-    accesskey: "{{ hostvars['localhost']['s3user_id'] }}"
-    secretkey: "{{ hostvars['localhost']['s3user_secret'] }}"
-    region: {{ region }}
-    bucket: "{{ hostvars['localhost']['s3_bucket'] }}"
+    accesskey: "{{ hostvars['localhost']['s3user_id'] }}" 
+    secretkey: "{{ hostvars['localhost']['s3user_secret'] }}" 
+    region: "{{ region }}"
+    bucket: "{{ hostvars['localhost']['s3_bucket_name'] }}"
     encrypt: true
     secure: true
     v4auth: true

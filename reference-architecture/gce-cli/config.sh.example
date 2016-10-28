@@ -19,15 +19,16 @@ DNS_DOMAIN='ocp.example.com'
 # Name of the DNS zone in the Google Cloud DNS. If empty, it will be created
 DNS_DOMAIN_NAME='ocp-example-com'
 # DNS name for the Master service
-MASTER_DNS_NAME='master.ocp.example.com'
+MASTER_DNS_NAME="master.${DNS_DOMAIN}"
 # Internal DNS name for the Master service
-INTERNAL_MASTER_DNS_NAME='internal-master.ocp.example.com'
+INTERNAL_MASTER_DNS_NAME="internal.${DNS_DOMAIN}"
 # Domain name for the OpenShift applications
-OCP_APPS_DNS_NAME='apps.ocp.example.com'
+OCP_APPS_DNS_NAME="apps.${DNS_DOMAIN}"
 # Paths on the local system for the certificate files. If empty, self-signed
 # certificate will be generated
-MASTER_HTTPS_CERT_FILE="${HOME}/Downloads/master.ose.example.com.pem"
-MASTER_HTTPS_KEY_FILE="${HOME}/Downloads/master.ose.example.com.key"
+MASTER_HTTPS_CERT_FILE="${HOME}/master.${DNS_DOMAIN}.pem"
+MASTER_HTTPS_KEY_FILE="${HOME}/master.${DNS_DOMAIN}.key"
+
 
 # OpenShift Identity providers. This is Google oauth example (hosted_domain is optional and restricts login to users only from the specified domain)
 OCP_IDENTITY_PROVIDERS='[ {"name": "google", "kind": "GoogleIdentityProvider", "login": "true", "challenge": "false", "mapping_method": "claim", "client_id": "xxx-yyy.apps.googleusercontent.com", "client_secret": "zzz", "hosted_domain": "example.com"} ]'
@@ -82,6 +83,7 @@ ROUTER_NETWORK_LB_POOL='router-network-lb-pool'
 ROUTER_NETWORK_LB_IP='router-network-lb-ip'
 ROUTER_NETWORK_LB_RULE='router-network-lb-rule'
 
+IMAGE_BUCKET="${GCLOUD_PROJECT}-rhel-guest-raw-image"
 REGISTRY_BUCKET="${GCLOUD_PROJECT}-openshift-docker-registry"
 
 TEMP_INSTANCE='ocp-rhel-temp'

@@ -312,7 +312,6 @@ if ! gcloud --project "$GCLOUD_PROJECT" compute images describe "$RHEL_IMAGE_GCE
     qemu-img convert -p -S 4096 -f qcow2 -O raw "$RHEL_IMAGE_PATH" disk.raw
     echo 'Creating archive of raw image:'
     tar -Szcvf "${RHEL_IMAGE}.tar.gz" disk.raw
-    #bucket='gs://ocp-rhel-guest-raw-image'
     bucket="gs://${IMAGE_BUCKET}"
     gsutil ls -p "$GCLOUD_PROJECT" "$bucket" &>/dev/null || gsutil mb -p "$GCLOUD_PROJECT" -l "$GCLOUD_REGION" "$bucket"
     gsutil ls -p "$GCLOUD_PROJECT" "${bucket}/${RHEL_IMAGE}.tar.gz" &>/dev/null || gsutil cp "${RHEL_IMAGE}.tar.gz" "$bucket"

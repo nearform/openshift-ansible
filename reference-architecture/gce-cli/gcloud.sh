@@ -312,7 +312,7 @@ if ! gcloud --project "$GCLOUD_PROJECT" compute images describe "$RHEL_IMAGE_GCE
     qemu-img convert -p -S 4096 -f qcow2 -O raw "$RHEL_IMAGE_PATH" disk.raw
     echo 'Creating archive of raw image:'
     tar -Szcvf "${RHEL_IMAGE}.tar.gz" disk.raw
-    bucket='gs://ocp-rhel-guest-raw-image'
+    bucket="gs://${IMAGE_BUCKET}"
     gsutil ls -p "$GCLOUD_PROJECT" "$bucket" &>/dev/null || gsutil mb -p "$GCLOUD_PROJECT" -l "$GCLOUD_REGION" "$bucket"
     gsutil ls -p "$GCLOUD_PROJECT" "${bucket}/${RHEL_IMAGE}.tar.gz" &>/dev/null || gsutil cp "${RHEL_IMAGE}.tar.gz" "$bucket"
     gcloud --project "$GCLOUD_PROJECT" compute images create "$RHEL_IMAGE_GCE" --source-uri "${bucket}/${RHEL_IMAGE}.tar.gz"
@@ -341,6 +341,10 @@ done
 # Create SSH key for GCE
 if [ ! -f ~/.ssh/google_compute_engine ]; then
     ssh-keygen -t rsa -f ~/.ssh/google_compute_engine -C cloud-user -N ''
+    SSH_AGENT_PID=${SSH_AGENT_PID:-}
+    if [ -z $SSH_AGENT_PID ]; then
+        eval $(ssh-agent -s)
+    fi
     ssh-add ~/.ssh/google_compute_engine
 fi
 
@@ -638,6 +642,7 @@ fi
 
 # Configure local SSH so we can connect directly to all instances
 ssh_config_file=~/.ssh/config
+touch $ssh_config_file
 sed -i '/^# OpenShift on GCE Section$/,/^# End of OpenShift on GCE Section$/d' "$ssh_config_file"
 echo -e '# OpenShift on GCE Section\n' >> "$ssh_config_file"
 bastion_data=$(gcloud --project "$GCLOUD_PROJECT" compute instances list --filter='name:bastion' --format='value(EXTERNAL_IP,id)')

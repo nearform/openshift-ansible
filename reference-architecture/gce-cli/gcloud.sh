@@ -93,7 +93,7 @@ if [ -z "$OCP_APPS_DNS_NAME" ]; then
 fi
 
 # Check $MASTER_HTTPS_CERT_FILE and $MASTER_HTTPS_KEY_FILE
-if [ -z "$MASTER_HTTPS_CERT_FILE" ] || [ -z "$MASTER_HTTPS_KEY_FILE" ]; then
+if [ -z "${MASTER_HTTPS_CERT_FILE:-}" ] || [ -z "${MASTER_HTTPS_KEY_FILE:-}" ]; then
     echo '$MASTER_HTTPS_CERT_FILE or $MASTER_HTTPS_KEY_FILE variable is empty - self-signed certificate will be generated'
 fi
 
@@ -199,22 +199,16 @@ function revert {
         gcloud -q --project "$GCLOUD_PROJECT" compute health-checks delete "$MASTER_SSL_LB_HEALTH_CHECK"
     fi
 
-    # Additional disks for instances for docker storage
-    instances=$(gcloud --project "$GCLOUD_PROJECT" compute instances list --filter='tags.items:ocp' --format='value(name)')
+    # Additional disks for node instances for docker and openshift storage
+    instances=$(gcloud --project "$GCLOUD_PROJECT" compute instances list --filter='tags.items:ocp-node OR tags.items:ocp-infra-node' --format='value(name)')
     for i in $instances; do
         docker_disk="${i}${NODE_DOCKER_DISK_POSTFIX}"
+        openshift_disk="${i}${NODE_OPENSHIFT_DISK_POSTFIX}"
         instance_zone=$(gcloud --project "$GCLOUD_PROJECT" compute instances list --filter="name:${i}" --format='value(zone)')
         if gcloud --project "$GCLOUD_PROJECT" compute disks describe "$docker_disk" --zone "$instance_zone" &>/dev/null; then
             gcloud --project "$GCLOUD_PROJECT" compute instances detach-disk "${i}" --disk "$docker_disk" --zone "$instance_zone"
             gcloud -q --project "$GCLOUD_PROJECT" compute disks delete "$docker_disk" --zone "$instance_zone"
         fi
-    done
-
-    # Additional disks for node instances for openshift storage
-    instances=$(gcloud --project "$GCLOUD_PROJECT" compute instances list --filter='tags.items:ocp-node OR tags.items:ocp-infra-node' --format='value(name)')
-    for i in $instances; do
-        openshift_disk="${i}${NODE_OPENSHIFT_DISK_POSTFIX}"
-        instance_zone=$(gcloud --project "$GCLOUD_PROJECT" compute instances list --filter="name:${i}" --format='value(zone)')
         if gcloud --project "$GCLOUD_PROJECT" compute disks describe "$openshift_disk" --zone "$instance_zone" &>/dev/null; then
             gcloud --project "$GCLOUD_PROJECT" compute instances detach-disk "${i}" --disk "$openshift_disk" --zone "$instance_zone"
             gcloud -q --project "$GCLOUD_PROJECT" compute disks delete "$openshift_disk" --zone "$instance_zone"
@@ -316,7 +310,7 @@ if ! gcloud --project "$GCLOUD_PROJECT" compute images describe "$RHEL_IMAGE_GCE
     gsutil ls -p "$GCLOUD_PROJECT" "$bucket" &>/dev/null || gsutil mb -p "$GCLOUD_PROJECT" -l "$GCLOUD_REGION" "$bucket"
     gsutil ls -p "$GCLOUD_PROJECT" "${bucket}/${RHEL_IMAGE}.tar.gz" &>/dev/null || gsutil cp "${RHEL_IMAGE}.tar.gz" "$bucket"
     gcloud --project "$GCLOUD_PROJECT" compute images create "$RHEL_IMAGE_GCE" --source-uri "${bucket}/${RHEL_IMAGE}.tar.gz"
-    gsutil rm -r "$bucket"
+    gsutil -m rm -r "$bucket"
     rm -f disk.raw "${RHEL_IMAGE}.tar.gz"
 else
     echo "Image '${RHEL_IMAGE_GCE}' already exists"
@@ -341,8 +335,7 @@ done
 # Create SSH key for GCE
 if [ ! -f ~/.ssh/google_compute_engine ]; then
     ssh-keygen -t rsa -f ~/.ssh/google_compute_engine -C cloud-user -N ''
-    SSH_AGENT_PID=${SSH_AGENT_PID:-}
-    if [ -z $SSH_AGENT_PID ]; then
+    if [ -z "${SSH_AGENT_PID:-}" ]; then
         eval $(ssh-agent -s)
     fi
     ssh-add ~/.ssh/google_compute_engine
@@ -461,10 +454,11 @@ else
     echo "Instance group '${MASTER_INSTANCE_GROUP}' already exists"
 fi
 
-# Attach additional disks to instances for docker storage
-instances=$(gcloud --project "$GCLOUD_PROJECT" compute instances list --filter='tags.items:ocp' --format='value(name)')
+# Attach additional disks to node instances for docker and openshift storage
+instances=$(gcloud --project "$GCLOUD_PROJECT" compute instances list --filter='tags.items:ocp-node OR tags.items:ocp-infra-node' --format='value(name)')
 for i in $instances; do
     docker_disk="${i}${NODE_DOCKER_DISK_POSTFIX}"
+    openshift_disk="${i}${NODE_OPENSHIFT_DISK_POSTFIX}"
     instance_zone=$(gcloud --project "$GCLOUD_PROJECT" compute instances list --filter="name:${i}" --format='value(zone)')
     if ! gcloud --project "$GCLOUD_PROJECT" compute disks describe "$docker_disk" --zone "$instance_zone" &>/dev/null; then
         gcloud --project "$GCLOUD_PROJECT" compute disks create "$docker_disk" --zone "$instance_zone" --size "$NODE_DOCKER_DISK_SIZE" --type "pd-ssd"
@@ -472,13 +466,6 @@ for i in $instances; do
     else
         echo "Disk '${docker_disk}' already exists"
     fi
-done
-
-# Attach additional disks to node instances for openshift storage
-instances=$(gcloud --project "$GCLOUD_PROJECT" compute instances list --filter='tags.items:ocp-node OR tags.items:ocp-infra-node' --format='value(name)')
-for i in $instances; do
-    openshift_disk="${i}${NODE_OPENSHIFT_DISK_POSTFIX}"
-    instance_zone=$(gcloud --project "$GCLOUD_PROJECT" compute instances list --filter="name:${i}" --format='value(zone)')
     if ! gcloud --project "$GCLOUD_PROJECT" compute disks describe "$openshift_disk" --zone "$instance_zone" &>/dev/null; then
         gcloud --project "$GCLOUD_PROJECT" compute disks create "$openshift_disk" --zone "$instance_zone" --size "$NODE_OPENSHIFT_DISK_SIZE" --type "pd-ssd"
         gcloud --project "$GCLOUD_PROJECT" compute instances attach-disk "${i}" --disk "$openshift_disk" --zone "$instance_zone"
@@ -511,7 +498,7 @@ fi
 
 # Master Certificate
 if ! gcloud --project "$GCLOUD_PROJECT" compute ssl-certificates describe "$MASTER_SSL_LB_CERT" &>/dev/null; then
-    if [ -z "$MASTER_HTTPS_KEY_FILE" ] || [ -z "$MASTER_HTTPS_CERT_FILE" ]; then
+    if [ -z "${MASTER_HTTPS_KEY_FILE:-}" ] || [ -z "${MASTER_HTTPS_CERT_FILE:-}" ]; then
         KEY='/tmp/ocp-ssl.key'
         CERT='/tmp/ocp-ssl.crt'
         openssl req -x509 -nodes -days 3650 -newkey rsa:2048 -subj "/C=US/L=Raleigh/O=${DNS_DOMAIN}/CN=${MASTER_DNS_NAME}" -keyout "$KEY" -out "$CERT"
@@ -520,7 +507,7 @@ if ! gcloud --project "$GCLOUD_PROJECT" compute ssl-certificates describe "$MAST
         CERT="$MASTER_HTTPS_CERT_FILE"
     fi
     gcloud --project "$GCLOUD_PROJECT" compute ssl-certificates create "$MASTER_SSL_LB_CERT" --private-key "$KEY" --certificate "$CERT"
-    if [ -z "$MASTER_HTTPS_KEY_FILE" ] || [ -z "$MASTER_HTTPS_CERT_FILE" ]; then
+    if [ -z "${MASTER_HTTPS_KEY_FILE:-}" ] || [ -z "${MASTER_HTTPS_CERT_FILE:-}" ]; then
         rm -fv "$KEY" "$CERT"
     fi
 else
@@ -567,7 +554,7 @@ fi
 # Internal master forwarding rule
 if ! gcloud --project "$GCLOUD_PROJECT" compute forwarding-rules describe "$MASTER_NETWORK_LB_RULE" --region "$GCLOUD_REGION" &>/dev/null; then
     IP=$(gcloud --project "$GCLOUD_PROJECT" compute addresses describe "$MASTER_NETWORK_LB_IP" --region "$GCLOUD_REGION" --format='value(address)')
-    gcloud --project "$GCLOUD_PROJECT" compute forwarding-rules create "$MASTER_NETWORK_LB_RULE" --address "$IP" --region "$GCLOUD_REGION" --target-pool "$MASTER_NETWORK_LB_POOL"
+    gcloud --project "$GCLOUD_PROJECT" compute forwarding-rules create "$MASTER_NETWORK_LB_RULE" --address "$IP" --ports "$CONSOLE_PORT" --region "$GCLOUD_REGION" --target-pool "$MASTER_NETWORK_LB_POOL"
 else
     echo "Forwarding rule '${MASTER_NETWORK_LB_RULE}' already exists"
 fi
@@ -597,7 +584,7 @@ fi
 # Router forwarding rule
 if ! gcloud --project "$GCLOUD_PROJECT" compute forwarding-rules describe "$ROUTER_NETWORK_LB_RULE" --region "$GCLOUD_REGION" &>/dev/null; then
     IP=$(gcloud --project "$GCLOUD_PROJECT" compute addresses describe "$ROUTER_NETWORK_LB_IP" --region "$GCLOUD_REGION" --format='value(address)')
-    gcloud --project "$GCLOUD_PROJECT" compute forwarding-rules create "$ROUTER_NETWORK_LB_RULE" --address "$IP" --region "$GCLOUD_REGION" --target-pool "$ROUTER_NETWORK_LB_POOL"
+    gcloud --project "$GCLOUD_PROJECT" compute forwarding-rules create "$ROUTER_NETWORK_LB_RULE" --address "$IP" --ports '80-443' --region "$GCLOUD_REGION" --target-pool "$ROUTER_NETWORK_LB_POOL"
 else
     echo "Forwarding rule '${ROUTER_NETWORK_LB_RULE}' already exists"
 fi

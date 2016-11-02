@@ -21,14 +21,13 @@ DNS_DOMAIN_NAME='ocp-example-com'
 # DNS name for the Master service
 MASTER_DNS_NAME="master.${DNS_DOMAIN}"
 # Internal DNS name for the Master service
-INTERNAL_MASTER_DNS_NAME="internal.${DNS_DOMAIN}"
+INTERNAL_MASTER_DNS_NAME="internal-master.${DNS_DOMAIN}"
 # Domain name for the OpenShift applications
 OCP_APPS_DNS_NAME="apps.${DNS_DOMAIN}"
 # Paths on the local system for the certificate files. If empty, self-signed
 # certificate will be generated
 MASTER_HTTPS_CERT_FILE="${HOME}/master.${DNS_DOMAIN}.pem"
 MASTER_HTTPS_KEY_FILE="${HOME}/master.${DNS_DOMAIN}.key"
-
 
 # OpenShift Identity providers. This is Google oauth example (hosted_domain is optional and restricts login to users only from the specified domain)
 OCP_IDENTITY_PROVIDERS='[ {"name": "google", "kind": "GoogleIdentityProvider", "login": "true", "challenge": "false", "mapping_method": "claim", "client_id": "xxx-yyy.apps.googleusercontent.com", "client_secret": "zzz", "hosted_domain": "example.com"} ]'
@@ -88,7 +87,7 @@ REGISTRY_BUCKET="${GCLOUD_PROJECT}-openshift-docker-registry"
 
 TEMP_INSTANCE='ocp-rhel-temp'
 
-GOOGLE_CLOUD_SDK_VERSION='131.0.0'
+GOOGLE_CLOUD_SDK_VERSION='132.0.0'
 
 # Firewall rules in a form:
 # ['name']='parameters for "gcloud compute firewall-rules create"'

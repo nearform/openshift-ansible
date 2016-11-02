@@ -199,22 +199,16 @@ function revert {
         gcloud -q --project "$GCLOUD_PROJECT" compute health-checks delete "$MASTER_SSL_LB_HEALTH_CHECK"
     fi
 
-    # Additional disks for instances for docker storage
-    instances=$(gcloud --project "$GCLOUD_PROJECT" compute instances list --filter='tags.items:ocp' --format='value(name)')
+    # Additional disks for node instances for docker and openshift storage
+    instances=$(gcloud --project "$GCLOUD_PROJECT" compute instances list --filter='tags.items:ocp-node OR tags.items:ocp-infra-node' --format='value(name)')
     for i in $instances; do
         docker_disk="${i}${NODE_DOCKER_DISK_POSTFIX}"
+        openshift_disk="${i}${NODE_OPENSHIFT_DISK_POSTFIX}"
         instance_zone=$(gcloud --project "$GCLOUD_PROJECT" compute instances list --filter="name:${i}" --format='value(zone)')
         if gcloud --project "$GCLOUD_PROJECT" compute disks describe "$docker_disk" --zone "$instance_zone" &>/dev/null; then
             gcloud --project "$GCLOUD_PROJECT" compute instances detach-disk "${i}" --disk "$docker_disk" --zone "$instance_zone"
             gcloud -q --project "$GCLOUD_PROJECT" compute disks delete "$docker_disk" --zone "$instance_zone"
         fi
-    done
-
-    # Additional disks for node instances for openshift storage
-    instances=$(gcloud --project "$GCLOUD_PROJECT" compute instances list --filter='tags.items:ocp-node OR tags.items:ocp-infra-node' --format='value(name)')
-    for i in $instances; do
-        openshift_disk="${i}${NODE_OPENSHIFT_DISK_POSTFIX}"
-        instance_zone=$(gcloud --project "$GCLOUD_PROJECT" compute instances list --filter="name:${i}" --format='value(zone)')
         if gcloud --project "$GCLOUD_PROJECT" compute disks describe "$openshift_disk" --zone "$instance_zone" &>/dev/null; then
             gcloud --project "$GCLOUD_PROJECT" compute instances detach-disk "${i}" --disk "$openshift_disk" --zone "$instance_zone"
             gcloud -q --project "$GCLOUD_PROJECT" compute disks delete "$openshift_disk" --zone "$instance_zone"
@@ -461,10 +455,11 @@ else
     echo "Instance group '${MASTER_INSTANCE_GROUP}' already exists"
 fi
 
-# Attach additional disks to instances for docker storage
-instances=$(gcloud --project "$GCLOUD_PROJECT" compute instances list --filter='tags.items:ocp' --format='value(name)')
+# Attach additional disks to node instances for docker and openshift storage
+instances=$(gcloud --project "$GCLOUD_PROJECT" compute instances list --filter='tags.items:ocp-node OR tags.items:ocp-infra-node' --format='value(name)')
 for i in $instances; do
     docker_disk="${i}${NODE_DOCKER_DISK_POSTFIX}"
+    openshift_disk="${i}${NODE_OPENSHIFT_DISK_POSTFIX}"
     instance_zone=$(gcloud --project "$GCLOUD_PROJECT" compute instances list --filter="name:${i}" --format='value(zone)')
     if ! gcloud --project "$GCLOUD_PROJECT" compute disks describe "$docker_disk" --zone "$instance_zone" &>/dev/null; then
         gcloud --project "$GCLOUD_PROJECT" compute disks create "$docker_disk" --zone "$instance_zone" --size "$NODE_DOCKER_DISK_SIZE" --type "pd-ssd"
@@ -472,13 +467,6 @@ for i in $instances; do
     else
         echo "Disk '${docker_disk}' already exists"
     fi
-done
-
-# Attach additional disks to node instances for openshift storage
-instances=$(gcloud --project "$GCLOUD_PROJECT" compute instances list --filter='tags.items:ocp-node OR tags.items:ocp-infra-node' --format='value(name)')
-for i in $instances; do
-    openshift_disk="${i}${NODE_OPENSHIFT_DISK_POSTFIX}"
-    instance_zone=$(gcloud --project "$GCLOUD_PROJECT" compute instances list --filter="name:${i}" --format='value(zone)')
     if ! gcloud --project "$GCLOUD_PROJECT" compute disks describe "$openshift_disk" --zone "$instance_zone" &>/dev/null; then
         gcloud --project "$GCLOUD_PROJECT" compute disks create "$openshift_disk" --zone "$instance_zone" --size "$NODE_OPENSHIFT_DISK_SIZE" --type "pd-ssd"
         gcloud --project "$GCLOUD_PROJECT" compute instances attach-disk "${i}" --disk "$openshift_disk" --zone "$instance_zone"

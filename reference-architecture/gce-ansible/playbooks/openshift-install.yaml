@@ -4,7 +4,7 @@
   roles:
     - instance-groups
 
-- hosts: cluster_hosts
+- hosts: schedulable_nodes
   gather_facts: no
   roles:
     - docker-storage-setup

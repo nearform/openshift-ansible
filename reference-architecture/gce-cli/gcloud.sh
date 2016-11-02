@@ -555,7 +555,7 @@ fi
 # Internal master forwarding rule
 if ! gcloud --project "$GCLOUD_PROJECT" compute forwarding-rules describe "$MASTER_NETWORK_LB_RULE" --region "$GCLOUD_REGION" &>/dev/null; then
     IP=$(gcloud --project "$GCLOUD_PROJECT" compute addresses describe "$MASTER_NETWORK_LB_IP" --region "$GCLOUD_REGION" --format='value(address)')
-    gcloud --project "$GCLOUD_PROJECT" compute forwarding-rules create "$MASTER_NETWORK_LB_RULE" --address "$IP" --region "$GCLOUD_REGION" --target-pool "$MASTER_NETWORK_LB_POOL"
+    gcloud --project "$GCLOUD_PROJECT" compute forwarding-rules create "$MASTER_NETWORK_LB_RULE" --address "$IP" --ports "$CONSOLE_PORT" --region "$GCLOUD_REGION" --target-pool "$MASTER_NETWORK_LB_POOL"
 else
     echo "Forwarding rule '${MASTER_NETWORK_LB_RULE}' already exists"
 fi
@@ -585,7 +585,7 @@ fi
 # Router forwarding rule
 if ! gcloud --project "$GCLOUD_PROJECT" compute forwarding-rules describe "$ROUTER_NETWORK_LB_RULE" --region "$GCLOUD_REGION" &>/dev/null; then
     IP=$(gcloud --project "$GCLOUD_PROJECT" compute addresses describe "$ROUTER_NETWORK_LB_IP" --region "$GCLOUD_REGION" --format='value(address)')
-    gcloud --project "$GCLOUD_PROJECT" compute forwarding-rules create "$ROUTER_NETWORK_LB_RULE" --address "$IP" --region "$GCLOUD_REGION" --target-pool "$ROUTER_NETWORK_LB_POOL"
+    gcloud --project "$GCLOUD_PROJECT" compute forwarding-rules create "$ROUTER_NETWORK_LB_RULE" --address "$IP" --ports '80-443' --region "$GCLOUD_REGION" --target-pool "$ROUTER_NETWORK_LB_POOL"
 else
     echo "Forwarding rule '${ROUTER_NETWORK_LB_RULE}' already exists"
 fi

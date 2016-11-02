@@ -93,7 +93,7 @@ if [ -z "$OCP_APPS_DNS_NAME" ]; then
 fi
 
 # Check $MASTER_HTTPS_CERT_FILE and $MASTER_HTTPS_KEY_FILE
-if [ -z "$MASTER_HTTPS_CERT_FILE" ] || [ -z "$MASTER_HTTPS_KEY_FILE" ]; then
+if [ -z "${MASTER_HTTPS_CERT_FILE:-}" ] || [ -z "${MASTER_HTTPS_KEY_FILE:-}" ]; then
     echo '$MASTER_HTTPS_CERT_FILE or $MASTER_HTTPS_KEY_FILE variable is empty - self-signed certificate will be generated'
 fi
 
@@ -499,7 +499,7 @@ fi
 
 # Master Certificate
 if ! gcloud --project "$GCLOUD_PROJECT" compute ssl-certificates describe "$MASTER_SSL_LB_CERT" &>/dev/null; then
-    if [ -z "$MASTER_HTTPS_KEY_FILE" ] || [ -z "$MASTER_HTTPS_CERT_FILE" ]; then
+    if [ -z "${MASTER_HTTPS_KEY_FILE:-}" ] || [ -z "${MASTER_HTTPS_CERT_FILE:-}" ]; then
         KEY='/tmp/ocp-ssl.key'
         CERT='/tmp/ocp-ssl.crt'
         openssl req -x509 -nodes -days 3650 -newkey rsa:2048 -subj "/C=US/L=Raleigh/O=${DNS_DOMAIN}/CN=${MASTER_DNS_NAME}" -keyout "$KEY" -out "$CERT"
@@ -508,7 +508,7 @@ if ! gcloud --project "$GCLOUD_PROJECT" compute ssl-certificates describe "$MAST
         CERT="$MASTER_HTTPS_CERT_FILE"
     fi
     gcloud --project "$GCLOUD_PROJECT" compute ssl-certificates create "$MASTER_SSL_LB_CERT" --private-key "$KEY" --certificate "$CERT"
-    if [ -z "$MASTER_HTTPS_KEY_FILE" ] || [ -z "$MASTER_HTTPS_CERT_FILE" ]; then
+    if [ -z "${MASTER_HTTPS_KEY_FILE:-}" ] || [ -z "${MASTER_HTTPS_CERT_FILE:-}" ]; then
         rm -fv "$KEY" "$CERT"
     fi
 else

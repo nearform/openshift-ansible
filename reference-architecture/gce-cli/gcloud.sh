@@ -310,7 +310,7 @@ if ! gcloud --project "$GCLOUD_PROJECT" compute images describe "$RHEL_IMAGE_GCE
     gsutil ls -p "$GCLOUD_PROJECT" "$bucket" &>/dev/null || gsutil mb -p "$GCLOUD_PROJECT" -l "$GCLOUD_REGION" "$bucket"
     gsutil ls -p "$GCLOUD_PROJECT" "${bucket}/${RHEL_IMAGE}.tar.gz" &>/dev/null || gsutil cp "${RHEL_IMAGE}.tar.gz" "$bucket"
     gcloud --project "$GCLOUD_PROJECT" compute images create "$RHEL_IMAGE_GCE" --source-uri "${bucket}/${RHEL_IMAGE}.tar.gz"
-    gsutil rm -r "$bucket"
+    gsutil -m rm -r "$bucket"
     rm -f disk.raw "${RHEL_IMAGE}.tar.gz"
 else
     echo "Image '${RHEL_IMAGE_GCE}' already exists"
@@ -335,8 +335,7 @@ done
 # Create SSH key for GCE
 if [ ! -f ~/.ssh/google_compute_engine ]; then
     ssh-keygen -t rsa -f ~/.ssh/google_compute_engine -C cloud-user -N ''
-    SSH_AGENT_PID=${SSH_AGENT_PID:-}
-    if [ -z $SSH_AGENT_PID ]; then
+    if [ -z "${SSH_AGENT_PID:-}" ]; then
         eval $(ssh-agent -s)
     fi
     ssh-add ~/.ssh/google_compute_engine

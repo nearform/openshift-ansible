@@ -3,7 +3,7 @@ bastion_instance_type: t2.micro
 docker_storage: 25
 etcd_storage: 25
 emptydir_storage: 50
-vpc_prefix: ose-multi-az-vpc
+vpc_prefix: "ose-multi-az-vpc-{{ stack_name }}"
 public_subnet_prefix: OSE-Public-Subnet
 private_subnet_prefix: OSE-Private-Subnet
 cidr_block: 10.20.0.0/16

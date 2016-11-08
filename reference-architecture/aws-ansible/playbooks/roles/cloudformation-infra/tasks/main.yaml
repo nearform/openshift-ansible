@@ -41,7 +41,7 @@
       NodeEmptyVolSize: "{{ emptydir_storage }}"
       NodeEmptyVolType: gp2
       NodeUserData: "{{ lookup('file', 'user_data_node.yml') | b64encode }}"
-      AppNodeInstanceType: "{{ node_instance_type }}"
+      AppNodeInstanceType: "{{ app_instance_type }}"
       NodeRootVolSize: 15
       NodeRootVolType: gp2
       NodeDockerVolSize: "{{ docker_storage }}"
@@ -94,7 +94,7 @@
       NodeEmptyVolSize: "{{ emptydir_storage }}"
       NodeEmptyVolType: gp2
       NodeUserData: "{{ lookup('file', 'user_data_node.yml') | b64encode }}"
-      AppNodeInstanceType: "{{ node_instance_type }}"
+      AppNodeInstanceType: "{{ app_instance_type }}"
       NodeRootVolSize: 15
       NodeRootVolType: gp2
       NodeDockerVolSize: "{{ docker_storage }}"
@@ -145,7 +145,7 @@
       NodeEmptyVolSize: "{{ emptydir_storage }}"
       NodeEmptyVolType: gp2
       NodeUserData: "{{ lookup('file', 'user_data_node.yml') | b64encode }}"
-      AppNodeInstanceType: "{{ node_instance_type }}"
+      AppNodeInstanceType: "{{ app_instance_type }}"
       NodeRootVolSize: 15
       NodeRootVolType: gp2
       NodeDockerVolSize: "{{ docker_storage }}"

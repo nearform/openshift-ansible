@@ -10,7 +10,7 @@ The repository contains Ansible playbooks which deploy 3 Masters in different av
 A registered domain must be added to Route53 as a Hosted Zone before installation.  This registered domain can be purchased through AWS.
 
 ### Deploying OpenShift Container Platform
-The code in this repository handles all of the AWS specific components except for the installation of OpenShift. We rely on the OpenShift playbooks from the openshift-ansible-playbooks rpm. You will need the rpm installed on the workstation before using ose-on-aws.py.
+The code in this repository handles all of the AWS specific components except for the installation of OpenShift. We rely on the OpenShift playbooks from the openshift-ansible-playbooks rpm. You will need the rpm installed on the workstation before using ose-on-aws.py. Do not perform the following within a container as errors have been found when attempting to run subscription-manager. It is advised to use a VM or bare metal installation of RHEL.
 
 ```
 $ subscription-manager repos --enable rhel-7-server-optional-rpms
@@ -27,7 +27,7 @@ $ yum -y install atomic-openshift-utils \
 ```
 
 ### Deploying OpenShift Origin
-The playbooks in the repository also have the ability to configure CentOS or RHEL instances to prepare for the installation of Origin. Due to the OpenShift playbooks not being available in RPM format outside of a OpenShift Container Platform subscription the openshift-ansible repository must be cloned.
+The playbooks in the repository also have the ability to configure CentOS or RHEL instances to prepare for the installation of Origin. Due to the OpenShift playbooks not being available in RPM format outside of a OpenShift Container Platform subscription the openshift-ansible repository must be cloned. At this time, the following cannot be performed within a container due to known issues that have been found while running openshift-ansible in a container. It is advised to use a virtual or bare metal machine.
 
 ```
 $ rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
@@ -40,7 +40,7 @@ $ git clone https://github.com/openshift/openshift-ansible.git /usr/share/ansibl
 ```
 
 ## Usage
-The Ansible script will launch infrastructure and flow straight into installing the OpenShift application and components.
+It is advised to not run the ose-on-aws.py from a container. The ose-on-aws.py script will launch infrastructure and flow straight into installing the OpenShift application and components.
 
 ### Before Launching the Ansible script
 Due to the installations use of a bastion server the ssh config must be modified.

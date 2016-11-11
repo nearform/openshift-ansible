@@ -27,7 +27,7 @@ $ yum -y install atomic-openshift-utils \
 ```
 
 ### Deploying OpenShift Origin
-The playbooks in the repository also have the ability to configure CentOS or RHEL instances to prepare for the installation of Origin. Due to the OpenShift playbooks not being available in RPM format outside of a OpenShift Container Platform subscription the openshift-ansible repository must be cloned. Do not peform the following within a container as errors have been found while running openshift-ansible in a container. It is adviced to use a VM or an OS installed on bare metal.
+The playbooks in the repository also have the ability to configure CentOS or RHEL instances to prepare for the installation of Origin. Due to the OpenShift playbooks not being available in RPM format outside of a OpenShift Container Platform subscription the openshift-ansible repository must be cloned. At this time, the following cannot be performed within a container due to known issues that have been found while running openshift-ansible in a container. It is advised to use a a virtual or bare metal machine.
 
 ```
 $ rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm

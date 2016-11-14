@@ -7,8 +7,6 @@
   package: name="{{ item }}" state=latest
   with_items:
   - NetworkManager
-  - iptables-services
-
 
 - name: Start NetworkManager
   service:
@@ -17,12 +15,7 @@
     enabled: true
   with_items:
   - NetworkManager
-  - iptables-services
 
-  when: not openshift.common.is_atomic | bool
-
-- name: Install the required rpms
-  package: name=* state=latest
   when: not openshift.common.is_atomic | bool
 
 - name: Make directory due to using AWS intance roles

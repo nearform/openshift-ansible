@@ -15,7 +15,6 @@
     enabled: true
   with_items:
   - NetworkManager
-
   when: not openshift.common.is_atomic | bool
 
 - name: Make directory due to using AWS intance roles

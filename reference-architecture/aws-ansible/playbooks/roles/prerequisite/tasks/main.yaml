@@ -4,12 +4,23 @@
     role: common
 
 - name: Install the required rpms
-  package: name=NetworkManager state=latest
-  when: not openshift.common.is_atomic | bool
+  package: name="{{ item }}" state=latest
+  with_items:
+  - NetworkManager
+  - iptables-services
+
 
 - name: Start NetworkManager
   service:
-    name: NetworkManager
+    name: "{{ item }}"
     state: started
     enabled: true
+  with_items:
+  - NetworkManager
+  - iptables-services
+
+  when: not openshift.common.is_atomic | bool
+
+- name: Install the required rpms
+  package: name=* state=latest
   when: not openshift.common.is_atomic | bool

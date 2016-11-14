@@ -14,13 +14,12 @@ The code in this repository handles all of the AWS specific components except fo
 
 ```
 $ subscription-manager repos --enable rhel-7-server-optional-rpms
-$ subscription-manager repos --enable rhel-7-server-ose-3.2-rpms
 $ subscription-manager repos --enable rhel-7-server-ose-3.3-rpms
 $ rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
 $ yum -y install atomic-openshift-utils \
                  python2-boto \
                  git \
-                 ansible-2.2.0-0.5.prerelease.el7.noarch \
+                 ansible-2.2.0.0-3.el7.noarch \
                  python-netaddr \
                  python2-boto3 \
                  python-httplib2
@@ -31,7 +30,7 @@ The playbooks in the repository also have the ability to configure CentOS or RHE
 
 ```
 $ rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
-$ yum -y install python-pip git python2-boto \ 
+$ yum -y install python-pip git python2-boto \
                  python-netaddr python-httplib2 python-devel \
                  gcc libffi-devel openssl-devel python2-boto3
 $ pip install git+https://github.com/ansible/ansible.git@stable-2.2

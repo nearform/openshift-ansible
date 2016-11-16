@@ -651,6 +651,7 @@ instances=$(gcloud --project "$GCLOUD_PROJECT" compute instances list --filter='
 for i in $instances; do
     echo "Host ${i}
     User cloud-user
+    IdentityFile ~/.ssh/google_compute_engine
     proxycommand ssh bastion -W %h:%p
 " >> "$ssh_config_file"
 done

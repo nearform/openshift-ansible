@@ -1,5 +1,7 @@
-# The Reference Architecture Bash Script
-The bash script provided in this repository will create the infrastructure required to install OpenShift. Once the infrastructure is deployed, the Ansible playbooks in gce-ansible directory will deploy OpenShift and the required components.
+# The Reference Architecture Script
+The bash script provided in this repository will create the infrastructure required to install OpenShift and once the infrastructure is deployed, Ansible playbooks in gce-ansible directory are called from the bastion instance in GCE to automatically deploy OpenShift and all required components.
+
+Complete documentation for this script can be found in [reference architecture](https://access.redhat.com/articles/2751521).
 
 ## Usage
 
@@ -9,19 +11,39 @@ Described usage is for RHEL 7 based operating system.
 
 Installation of gcloud utility is interactive, usually you will want to answer positively to asked questions.
 ```
-yum install curl python which
+sudo yum install curl python which tar qemu-img openssl gettext git
 curl https://sdk.cloud.google.com | bash
 exec -l $SHELL
 gcloud components install beta
 gcloud init
 ```
 
+Note: you need to have GNU tar, BSD version won't work.
+
+### Clone this repository
+
+Now clone this repository to your local directory and copy the `config.sh.example` file to `config.sh`
+
+```
+git clone https://github.com/openshift/openshift-ansible-contrib.git
+cd openshift-ansible-contrib/reference-architecture/gce-cli
+cp config.sh.example config.sh
+```
+
 ### Setting variables
 
-Variables can be set to customize the OpenShift infrastructure. All available variables can be found in the `config.sh.example` file. In the first part of that file you can find essential variables which need to be modified (like credentials for Red Hat account). In the second part of the file all default values are available, which can be optionally tweaked. Copy and update the `config.sh.example` file to `config.sh` before executing the `gcloud.sh` script.
+Variables can be set to customize the OpenShift infrastructure. All available variables can be found in the `config.sh` file. In the first part of that file you can find essential variables which need to be modified (like credentials for Red Hat account and DNS). In the second part of the file all default values are available, which can be optionally tweaked.
 
 ### Launching the Bash script
 
 ```
 ./gcloud.sh
+```
+
+### Tearing down the infrastructure
+
+If you want to tear down the infrastructure to start over with differrent settings, or just to clean up the resources, you can use `--revert` option:
+
+```
+./gcloud.sh --revert
 ```

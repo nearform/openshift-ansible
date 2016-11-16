@@ -65,3 +65,11 @@ SSHPrivate Data - Base64 Encoded id_rsa - cat ~/.ssh/id_rsa | base64 | pbcopy
 ------
 
 This template deploys a RedHat Openshift Enterprise cluster on Azure.
+
+Attribution:
+Thanks to:
+Daniel Falkner - Microsoft Germany - For original templates
+Harold Wong<Harold.Wong@microsoft.com> for his great support.
+
+For full commit history: Please see - https://github.com/glennswest/azure-openshift
+

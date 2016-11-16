@@ -32,6 +32,8 @@ DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 source "${DIR}/config.sh"
 
+ssh_config_file=~/.ssh/config
+
 function echoerr {
     cat <<< "$@" 1>&2;
 }
@@ -282,6 +284,9 @@ function revert {
     if gcloud --project "$GCLOUD_PROJECT" compute images describe "$RHEL_IMAGE_GCE" &>/dev/null; then
         gcloud -q --project "$GCLOUD_PROJECT" compute images delete "$RHEL_IMAGE_GCE"
     fi
+
+    # Remove configuration from local ~/.ssh/config file
+    sed -i '/^# OpenShift on GCE Section$/,/^# End of OpenShift on GCE Section$/d' "$ssh_config_file"
 }
 
 # Support the revert option
@@ -628,7 +633,6 @@ else
 fi
 
 # Configure local SSH so we can connect directly to all instances
-ssh_config_file=~/.ssh/config
 touch "$ssh_config_file"
 chmod 600 "$ssh_config_file"
 sed -i '/^# OpenShift on GCE Section$/,/^# End of OpenShift on GCE Section$/d' "$ssh_config_file"

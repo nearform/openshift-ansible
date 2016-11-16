@@ -629,7 +629,8 @@ fi
 
 # Configure local SSH so we can connect directly to all instances
 ssh_config_file=~/.ssh/config
-touch $ssh_config_file
+touch "$ssh_config_file"
+chmod 600 "$ssh_config_file"
 sed -i '/^# OpenShift on GCE Section$/,/^# End of OpenShift on GCE Section$/d' "$ssh_config_file"
 echo -e '# OpenShift on GCE Section\n' >> "$ssh_config_file"
 bastion_data=$(gcloud --project "$GCLOUD_PROJECT" compute instances list --filter='name:bastion' --format='value(EXTERNAL_IP,id)')

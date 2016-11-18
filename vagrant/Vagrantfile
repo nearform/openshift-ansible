@@ -95,21 +95,25 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.define "master1" do |master1|
     master1.vm.network :private_network, ip: "#{NETWORK_BASE}.#{INTEGRATION_START_SEGMENT}"
     master1.vm.hostname = "master1.example.com"
+    master1.hostmanager.aliases = %w(master1)
   end
 
   config.vm.define "node1" do |node1|
     node1.vm.network :private_network, ip: "#{NETWORK_BASE}.#{INTEGRATION_START_SEGMENT + 1}"
     node1.vm.hostname = "node1.example.com"
+    node1.hostmanager.aliases = %w(node1)
   end
 
   config.vm.define "node2" do |node2|
     node2.vm.network :private_network, ip: "#{NETWORK_BASE}.#{INTEGRATION_START_SEGMENT + 2}"
     node2.vm.hostname = "node2.example.com"
+    node2.hostmanager.aliases = %w(node2)
   end
 
   config.vm.define "admin1" do |admin1|
     admin1.vm.network :private_network, ip: "#{NETWORK_BASE}.#{INTEGRATION_START_SEGMENT + 3}"
     admin1.vm.hostname = "admin1.example.com"
+    admin1.hostmanager.aliases = %w(admin1)
 
     if deployment_type == 'openshift-enterprise'
       config_playbook = "/usr/share/ansible/openshift-ansible/playbooks/byo/config.yml"

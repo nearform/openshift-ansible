@@ -2,7 +2,7 @@
 ### CONFIG ###
 
 # Path to a RHEL image on local machine, downloaded from Red Hat Customer Portal
-RHEL_IMAGE_PATH="${HOME}/Downloads/rhel-guest-image-7.2-20160302.0.x86_64.qcow2"
+RHEL_IMAGE_PATH="${HOME}/Downloads/rhel-guest-image-7.3-35.x86_64.qcow2"
 
 # Username and password for Red Hat Customer Portal
 RH_USERNAME='user@example.com'
@@ -87,7 +87,7 @@ REGISTRY_BUCKET="${GCLOUD_PROJECT}-openshift-docker-registry"
 
 TEMP_INSTANCE='ocp-rhel-temp'
 
-GOOGLE_CLOUD_SDK_VERSION='132.0.0'
+GOOGLE_CLOUD_SDK_VERSION='134.0.0'
 
 # Firewall rules in a form:
 # ['name']='parameters for "gcloud compute firewall-rules create"'

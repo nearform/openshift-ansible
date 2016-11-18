@@ -32,6 +32,8 @@ DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 source "${DIR}/config.sh"
 
+ssh_config_file=~/.ssh/config
+
 function echoerr {
     cat <<< "$@" 1>&2;
 }
@@ -282,6 +284,9 @@ function revert {
     if gcloud --project "$GCLOUD_PROJECT" compute images describe "$RHEL_IMAGE_GCE" &>/dev/null; then
         gcloud -q --project "$GCLOUD_PROJECT" compute images delete "$RHEL_IMAGE_GCE"
     fi
+
+    # Remove configuration from local ~/.ssh/config file
+    sed -i '/^# OpenShift on GCE Section$/,/^# End of OpenShift on GCE Section$/d' "$ssh_config_file"
 }
 
 # Support the revert option
@@ -628,8 +633,8 @@ else
 fi
 
 # Configure local SSH so we can connect directly to all instances
-ssh_config_file=~/.ssh/config
-touch $ssh_config_file
+touch "$ssh_config_file"
+chmod 600 "$ssh_config_file"
 sed -i '/^# OpenShift on GCE Section$/,/^# End of OpenShift on GCE Section$/d' "$ssh_config_file"
 echo -e '# OpenShift on GCE Section\n' >> "$ssh_config_file"
 bastion_data=$(gcloud --project "$GCLOUD_PROJECT" compute instances list --filter='name:bastion' --format='value(EXTERNAL_IP,id)')
@@ -646,6 +651,7 @@ instances=$(gcloud --project "$GCLOUD_PROJECT" compute instances list --filter='
 for i in $instances; do
     echo "Host ${i}
     User cloud-user
+    IdentityFile ~/.ssh/google_compute_engine
     proxycommand ssh bastion -W %h:%p
 " >> "$ssh_config_file"
 done

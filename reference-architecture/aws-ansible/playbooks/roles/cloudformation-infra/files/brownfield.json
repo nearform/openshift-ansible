@@ -347,6 +347,16 @@
         "IpProtocol": "tcp",
         "FromPort": "10250",
         "ToPort": "10250",
+        "SourceSecurityGroupId": { "Fn::GetAtt": [ "MasterSG", "GroupId" ] }
+      }
+    },
+    "NodeIngressNodeKubelet": {
+      "Type": "AWS::EC2::SecurityGroupIngress",
+      "Properties":{
+        "GroupId": { "Fn::GetAtt": [ "NodeSG", "GroupId" ] },
+        "IpProtocol": "tcp",
+        "FromPort": "10250",
+        "ToPort": "10250",
         "SourceSecurityGroupId": { "Fn::GetAtt": [ "NodeSG", "GroupId" ] }
       }
     },

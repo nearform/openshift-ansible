@@ -1,0 +1,153 @@
+== Scripted Installation of OpenShift on OpenStack.
+
+The scripts presented here match those in https://access.redhat.com/articles/2743631[Red Hat OpenShift Container Platform 3 on Red Hat OpenStack Platform 8] reference architecture document.  These script fragments are intended to demonstrate the steps needed to deploy OCP on OSP, but they are not the recommended method for doing so.  Production deployment should be done using the https://github.com/openshift/openshift-on-openstack[OpenShift on OpenStack] Heat templates and the https://github.com/openshift/openshift-ansible[OpenShift Ansible] playbooks.
+
+The documentation here does not provide comprehensive usage
+instructions for these script fragments.  The scripts are meant to be
+used in conjunction with the reference architecture document above.
+
+These scripts are offered as-is, and no warranty is implied or offered.
+
+=== Prerequisites
+
+To use these scripts require a DNS server running BIND.
+It must have a delegated sub-domain for the OpenShift service.  In
+these examples that subdomain is `osp3.example.com`. Adjust this for
+the target environment.  The subdomain must allow dynamic updates using
+`nsupdate`. The process requires a copy of the `rndc.key`
+from the BIND server to allow updates.
+
+The scripts expect a pre-existing `haproxy` proxy server. The user
+must have a key-based SSH passwordless access to the proxy server.
+The user account on the proxy server must have the ability to execute
+commands as root via `sudo`
+
+The `MASTER_DNS_NAME` and `APPS_DNS_SUFFIX` values below must each be
+a domain name that refers to the IP address of the haproxy server.
+
+The `APP_DNS_SUFFIX` domain name is a _wildcard record_.  The hostname
+portion is an asterisk (*).  This will match any name in that
+subdomain.
+
+.Proxy DNS Records 
+----
+proxy.ocp3.example.com.	300 IN	A	10.19.XX.XX
+devs.ocp3.example.com. 300 IN	A	10.19.XX.XX
+*.apps.ocp3.example.com.	300 IN	A	10.19.XX.XX
+----
+
+A RHEL 7 image must be provisioned into Glance.  Note the
+`GLANCE_IMAGE` name below.
+
+There must be an LDAP or Active Directory server available.  There
+must be a user and password that can bind to the LDAP server to enable
+authentication.
+
+=== Deployment Parameters
+
+These scripts make use of a set of enviroment variables to control the
+deployment process. The values listed below must be set in the
+caller's environment before invoking the first script.  You can write
+them into a file and then `source` them into the environment.
+
+.Define Installation Variables
+----
+# Software Version Override
+export GLANCE_IMAGE=rhel73
+export OCP_VERSION=3.3
+export OSP_VERSION=8
+
+# Infrastructure
+export NAMESERVER=10.19.X.X
+export OCP3_DOMAIN=ocp3.example.com
+
+# Generate DNS
+export OCP3_DNS_SERVER=10.19.X.X
+export OCP3_DNS_UPDATE_KEY=/home/testuser/keys/ns1.ose3.key
+
+# Generate haproxy
+export HAPROXY_HOST=ocp3-proxy.example.com
+export HAPROXY_KEY=/home/testuser/keys/services_rsa
+
+# Bastion access
+export BASTION_HOST=bastion.ocp3
+export BASTION_KEY=/home/testuser/keys/ocp3_rsa
+
+export MASTER_DNS_NAME=devs.ocp3.example.com
+export APPS_DNS_SUFFIX=apps.ocp3.example.com
+
+export LDAP_BIND_DN=cn=openshift,cn=users,dc=example,dc=com
+export LDAP_BIND_PASSWORD=password
+export LDAP_URL=ldap://ad1.example.com:389/cn=users,dc=example,dc=com?sAMAccountName
+----
+
+
+=== Red Hat Software Credentials
+
+This procedure requires a valid set of Red Hat Access credentials and a
+subscription pool which contains the OCP and OSP repositories for the
+selected versions.
+
+Each host must be registered to receive software from the Red Hat RPM
+repositories. 
+
+* `rhel-7-server-ose-${OCP_VERSION}-rpms`
+* `rhel-7-server-openstack-${OSP_VERSION}-rpms`
+* `rhel-7-server-openstack-${OSP_VERSION}-director-rpms`
+
+.rnh_credentials
+----
+export RHN_USERNAME=<username>
+export RHN_PASSWORD=<password>
+export RHN_POOL_ID=<pool id>
+export OCP_VERSION=3.3
+# Uncomment to use development version (unsupported)
+#export OCP_ANSIBLE_GIT_REPO=http://github.com/openshift/openshift-ansible.git
+#export OCP_ANSIBLE_ROOT=/home/cloud-user
+----
+
+=== Creating the Infrastructure
+
+The first script creates the network and VMs that will make up the
+OpenShift cluster.
+
+.Create OSP Infrastructure
+----
+sh ./infrastructure.sh
+----
+
+This creates the bastion host, master, infrastructure node and app
+node VMs. This includes updating the DNS and haproxy configurations.
+
+//.Update External Infrastructure Configuration
+//sh ./generate_dns_updates.sh
+//sh ./generate_haproxy_conf.sh
+//----
+
+=== Prepare the host instances
+
+This step initializes and customizes the instances for OpenShift
+installation via Ansible.
+
+First it configures the bastion host; registering for software repos,
+installing Ansible and other tools.  Then it repeats the process with
+all of the OpenShift VMs from the bastion host.
+
+.Stage Bastion and VM Configuration Scripts
+----
+sh ./prepare_bastion.sh
+sh ./prepare_instances.sh
+----
+
+The final step is to run the OpenShift Ansible installer.  This script
+generates the Ansible input files, pushes them to the bastion host and
+executes the installation process.
+
+.Install and Configure OpenShift
+----
+sh ./install_openshift.sh
+----
+
+
+When this is complete and sucessful users will be able to browse to
+the OpenShift service masters through the load balancer.

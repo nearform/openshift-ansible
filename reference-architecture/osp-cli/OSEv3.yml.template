@@ -1,0 +1,36 @@
+deployment_type: openshift-enterprise
+osm_default_subdomain: apps.ocp3.example.com
+
+openshift_override_hostname_check: true
+openshift_use_openshift_sdn: false
+openshift_set_node_ip: true
+openshift_use_flannel: true
+openshift_use_dnsmasq: false
+flannel_interface: eth1
+
+openshift_cloudprovider_kind: openstack
+openshift_cloudprovider_openstack_auth_url: http://10.0.0.1:5000/v2.0
+openshift_cloudprovider_openstack_username: <username>
+openshift_cloudprovider_openstack_password: <password>
+openshift_cloudprovider_openstack_tenant_name: <tenant name>
+openshift_cloudprovider_openstack_region: RegionOne
+
+openshift_master_cluster_hostname: devs.ocp3.example.com
+openshift_master_cluster_public_hostname: devs.ocp3.example.com
+openshift_master_cluster_method: native
+
+openshift_master_identity_providers:
+  - name: ldap_auth
+    kind: LDAPPasswordIdentityProvider
+    challenge: true
+    login: true
+    bindDN: cn=openshift,cn=users,dc=example,dc=com
+    bindPassword: password
+    ca: ''
+    insecure: True
+    url: ldap://ad1.example.com:389/cn=users,dc=example,dc=com?sAMAccountName
+    attributes:
+      id: ['dn']
+      email: ['mail']
+      name: ['cn']
+      preferredUsername: ['sAMAccountName']

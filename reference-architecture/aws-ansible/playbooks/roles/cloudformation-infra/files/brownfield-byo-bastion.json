@@ -407,8 +407,8 @@
       "Properties":{
         "GroupId": { "Fn::GetAtt": [ "MasterSG", "GroupId" ] },
         "IpProtocol": "tcp",
-        "FromPort": { "Ref": "24224" },
-        "ToPort": { "Ref": "24224" },
+        "FromPort": "24224",
+        "ToPort": "24224",
         "SourceSecurityGroupId": { "Fn::GetAtt": [ "NodeSG", "GroupId" ] }
       }
     },
@@ -417,8 +417,8 @@
       "Properties":{
         "GroupId": { "Fn::GetAtt": [ "MasterSG", "GroupId" ] },
         "IpProtocol": "udp",
-        "FromPort": { "Ref": "24224" },
-        "ToPort": { "Ref": "24224" },
+        "FromPort": "24224",
+        "ToPort": "24224",
         "SourceSecurityGroupId": { "Fn::GetAtt": [ "NodeSG", "GroupId" ] }
       }
     },

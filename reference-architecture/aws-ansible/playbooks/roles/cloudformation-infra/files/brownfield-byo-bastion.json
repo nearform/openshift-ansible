@@ -392,6 +392,26 @@
         "SourceSecurityGroupId": { "Fn::GetAtt": [ "NodeSG", "GroupId" ] }
       }
     },
+    "LoggingTCP": {
+      "Type": "AWS::EC2::SecurityGroupIngress",
+      "Properties":{
+        "GroupId": { "Fn::GetAtt": [ "MasterSG", "GroupId" ] },
+        "IpProtocol": "tcp",
+        "FromPort": { "Ref": "24224" },
+        "ToPort": { "Ref": "24224" },
+        "SourceSecurityGroupId": { "Fn::GetAtt": [ "NodeSG", "GroupId" ] }
+      }
+    },
+    "LoggingUDP": {
+      "Type": "AWS::EC2::SecurityGroupIngress",
+      "Properties":{
+        "GroupId": { "Fn::GetAtt": [ "MasterSG", "GroupId" ] },
+        "IpProtocol": "udp",
+        "FromPort": { "Ref": "24224" },
+        "ToPort": { "Ref": "24224" },
+        "SourceSecurityGroupId": { "Fn::GetAtt": [ "NodeSG", "GroupId" ] }
+      }
+    },
     "MasterIngressMastersAPITCP": {
       "Type": "AWS::EC2::SecurityGroupIngress",
       "Properties":{

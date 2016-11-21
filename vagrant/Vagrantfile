@@ -15,17 +15,21 @@ origin_os = ENV['ORIGIN_OS'] || 'centos'
 rhsm_pool = ENV['RHSM_POOL'] || 'Employee SKU'
 sync_type = ENV['SYNC_TYPE'] || ''
 
-if deployment_type == 'openshift-enterprise'
-  REQUIRED_PLUGINS = %w(vagrant-registration vagrant-hostmanager landrush)
-else
-  REQUIRED_PLUGINS = %w(vagrant-hostmanager landrush)
-end
-
-errors = []
+REQUIRED_PLUGINS = %w(vagrant-hostmanager)
+SUGGESTED_PLUGINS = %w(vagrant-sshfs landrush)
 
 def message(name)
   "#{name} plugin is not installed, run `vagrant plugin install #{name}` to install it."
 end
+
+SUGGESTED_PLUGINS.each { |plugin| print("note: " + message(plugin) + "\n") unless Vagrant.has_plugin?(plugin) }
+
+if deployment_type == 'openshift-enterprise'
+  REQUIRED_PLUGINS.push('vagrant-registration')
+end
+
+errors = []
+
 # Validate and collect error message if plugin is not installed
 REQUIRED_PLUGINS.each { |plugin| errors << message(plugin) unless Vagrant.has_plugin?(plugin) }
 unless errors.empty?
@@ -64,9 +68,11 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.hostmanager.ignore_private_ip = false
 #  config.hostmanager.include_offline = true
 
-  config.landrush.enabled = true
-  config.landrush.tld = 'example.com'
-  config.landrush.guest_redirect_dns = false
+  if Vagrant.has_plugin?('landrush')
+    config.landrush.enabled = true
+    config.landrush.tld = 'example.com'
+    config.landrush.guest_redirect_dns = false
+  end
 
   if deployment_type == 'openshift-enterprise'
     # vagrant-registration

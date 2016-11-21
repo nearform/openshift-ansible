@@ -41,7 +41,7 @@
       clientSecret: 72b36e28221c1b93089ecf72f1a19963a8532b06 
       organizations:
       - openshift
-    osm_use_cockpit: false
+    osm_use_cockpit: true
     containerized: false
     openshift_hosted_registry_storage_kind: object
     openshift_hosted_registry_storage_provider: s3

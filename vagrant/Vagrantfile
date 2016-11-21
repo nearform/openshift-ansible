@@ -195,7 +195,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       ansible.verbose        = true
       ansible.install        = true
       ansible.limit          = 'OSEv3:localhost'
-      ansible.provisioning_path = '/home/vagrant/sync'
+      ansible.provisioning_path = '/home/vagrant/sync/vagrant'
       ansible.playbook       = '/home/vagrant/sync/vagrant/install.yaml'
       ansible.groups = ansible_groups
       ansible.host_vars = ansible_host_vars
@@ -205,7 +205,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       ansible.verbose        = true
       ansible.install        = false
       ansible.limit          = "OSEv3:localhost"
-      ansible.provisioning_path = '/home/vagrant/sync'
+      ansible.provisioning_path = '/home/vagrant/sync/vagrant'
       ansible.playbook = config_playbook
       ansible.groups = ansible_groups
       ansible.host_vars = ansible_host_vars

@@ -98,6 +98,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     provider_name = 'libvirt'
   end
 
+  # Suppress the default sync in both CentOS base and CentOS Atomic Host
+  config.vm.synced_folder '.', '/vagrant', disabled: true
   config.vm.synced_folder '.', '/home/vagrant/sync', disabled: true
 
   config.vm.define "master1" do |master1|

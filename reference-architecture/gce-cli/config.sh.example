@@ -1,6 +1,8 @@
 
 ### CONFIG ###
 
+DEPLOYMENT_TYPE=openshift-enterprise
+
 # Path to a RHEL image on local machine, downloaded from Red Hat Customer Portal
 RHEL_IMAGE_PATH="${HOME}/Downloads/rhel-guest-image-7.2-20160302.0.x86_64.qcow2"
 

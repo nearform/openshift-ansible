@@ -42,7 +42,8 @@ export DNS_DOMAIN \
     REGISTRY_BUCKET \
     GCLOUD_PROJECT \
     OCP_NETWORK \
-    OCP_IDENTITY_PROVIDERS
+    OCP_IDENTITY_PROVIDERS \
+    DEPLOYMENT_TYPE
 envsubst < "${DIR}/ansible-config.yml.tpl" > "${DIR}/working/ansible-config.yml"
 
 export GCE_PROJECT=${GCLOUD_PROJECT}

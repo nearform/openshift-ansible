@@ -561,7 +561,7 @@ fi
 # Router target pool
 if ! gcloud --project "$GCLOUD_PROJECT" compute target-pools describe "$ROUTER_NETWORK_LB_POOL" --region "$GCLOUD_REGION" &>/dev/null; then
     gcloud --project "$GCLOUD_PROJECT" compute target-pools create "$ROUTER_NETWORK_LB_POOL" --http-health-check "$ROUTER_NETWORK_LB_HEALTH_CHECK" --region "$GCLOUD_REGION"
-    gcloud --project "$GCLOUD_PROJECT" beta compute instance-groups managed set-target-pools "$INFRA_NODE_INSTANCE_GROUP" --target-pools "$ROUTER_NETWORK_LB_POOL" --zone "$GCLOUD_ZONE"
+    gcloud --project "$GCLOUD_PROJECT" beta compute instance-groups managed set-target-pools "${ROUTER_NETWORK_TARGET_INSTANCE_GROUP:-$INFRA_NODE_INSTANCE_GROUP}" --target-pools "$ROUTER_NETWORK_LB_POOL" --zone "$GCLOUD_ZONE"
 else
     echo "Target pool '${ROUTER_NETWORK_LB_POOL}' already exists"
 fi

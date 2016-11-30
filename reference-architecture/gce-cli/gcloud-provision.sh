@@ -170,6 +170,11 @@ function revert {
     if gcloud --project "$GCLOUD_PROJECT" compute http-health-checks describe "$MASTER_NETWORK_LB_HEALTH_CHECK" &>/dev/null; then
         gcloud -q --project "$GCLOUD_PROJECT" compute http-health-checks delete "$MASTER_NETWORK_LB_HEALTH_CHECK"
     fi
+
+    # Internal master health check
+    if gcloud --project "$GCLOUD_PROJECT" compute https-health-checks describe "$MASTER_NETWORK_LB_HEALTH_CHECK" &>/dev/null; then
+        gcloud -q --project "$GCLOUD_PROJECT" compute https-health-checks delete "$MASTER_NETWORK_LB_HEALTH_CHECK"
+    fi
     ) &
 
     (
@@ -400,7 +405,7 @@ fi
 # Create Master instance group
 if ! gcloud --project "$GCLOUD_PROJECT" beta compute instance-groups managed describe "$MASTER_INSTANCE_GROUP" --zone "$GCLOUD_ZONE" &>/dev/null; then
     gcloud --project "$GCLOUD_PROJECT" beta compute instance-groups managed create "$MASTER_INSTANCE_GROUP" --zone "$GCLOUD_ZONE" --template "$MASTER_INSTANCE_TEMPLATE" --size "$MASTER_INSTANCE_GROUP_SIZE"
-    gcloud --project "$GCLOUD_PROJECT" beta compute instance-groups managed set-named-ports "$MASTER_INSTANCE_GROUP" --zone "$GCLOUD_ZONE" --named-ports "${MASTER_NAMED_PORT_NAME}:${CONSOLE_PORT}"
+    gcloud --project "$GCLOUD_PROJECT" beta compute instance-groups managed set-named-ports "$MASTER_INSTANCE_GROUP" --zone "$GCLOUD_ZONE" --named-ports "${MASTER_NAMED_PORT_NAME}:${INTERNAL_CONSOLE_PORT}"
 else
     echo "Instance group '${MASTER_INSTANCE_GROUP}' already exists"
 fi
@@ -469,7 +474,7 @@ for i in `jobs -p`; do wait $i; done
 # Master health check
 (
 if ! gcloud --project "$GCLOUD_PROJECT" compute health-checks describe "$MASTER_SSL_LB_HEALTH_CHECK" &>/dev/null; then
-    gcloud --project "$GCLOUD_PROJECT" compute health-checks create https "$MASTER_SSL_LB_HEALTH_CHECK" --port "$CONSOLE_PORT" --request-path "/healthz"
+    gcloud --project "$GCLOUD_PROJECT" compute health-checks create https "$MASTER_SSL_LB_HEALTH_CHECK" --port "$INTERNAL_CONSOLE_PORT" --request-path "/healthz"
 else
     echo "Health check '${MASTER_SSL_LB_HEALTH_CHECK}' already exists"
 fi

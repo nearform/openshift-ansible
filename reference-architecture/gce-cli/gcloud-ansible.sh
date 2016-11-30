@@ -38,13 +38,16 @@ export DNS_DOMAIN \
     MASTER_DNS_NAME \
     INTERNAL_MASTER_DNS_NAME \
     CONSOLE_PORT \
+    INTERNAL_CONSOLE_PORT \
     INFRA_NODE_INSTANCE_GROUP_SIZE \
     REGISTRY_BUCKET \
     GCLOUD_PROJECT \
     OCP_NETWORK \
-    OCP_IDENTITY_PROVIDERS \
-    DEPLOYMENT_TYPE
+    OCP_IDENTITY_PROVIDERS
 envsubst < "${DIR}/ansible-config.yml.tpl" > "${DIR}/working/ansible-config.yml"
+if [[ -n "${ADDITIONAL_ANSIBLE_CONFIG-}" ]]; then
+    cat "${ADDITIONAL_ANSIBLE_CONFIG}" >> "${DIR}/working/ansible-config.yml"
+fi
 
 export GCE_PROJECT=${GCLOUD_PROJECT}
 export GCE_ZONE=${GCLOUD_ZONE}

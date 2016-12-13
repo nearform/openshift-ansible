@@ -18,7 +18,6 @@ When creating the Red Hat OpenShift Container Platform on Azure, you will need a
     <img src="http://armviz.io/visualizebutton.png"/>
 </a>
 
-[Experimental Additional Functions](addfunctions.md)
 
 ## Parameters
 

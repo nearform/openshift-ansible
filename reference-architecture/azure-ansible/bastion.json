@@ -205,19 +205,6 @@
               "priority" : 1000,
               "direction" : "Inbound"
             }
-          },
-          {
-            "name" : "default-allow-openshift-cockpit",
-            "properties" : {
-              "protocol" : "Tcp",
-              "sourcePortRange" : "*",
-              "destinationPortRange" : "9090",
-              "sourceAddressPrefix" : "*",
-              "destinationAddressPrefix" : "*",
-              "access" : "Allow",
-              "priority" : 2000,
-              "direction" : "Inbound"
-            }
           }
         ]
       }

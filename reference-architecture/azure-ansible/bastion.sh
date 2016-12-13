@@ -102,6 +102,8 @@ openshift_master_identity_providers=[{'name': 'htpasswd_auth', 'login': 'true', 
 openshift_router_selector='region=infra'
 openshift_registry_selector='region=infra'
 
+# Select default nodes for projects
+osm_default_node_selector="region=primary"
 ansible_become=yes
 ansible_ssh_user=${AUSERNAME}
 remote_user=${AUSERNAME}

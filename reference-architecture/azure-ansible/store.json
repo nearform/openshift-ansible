@@ -20,7 +20,7 @@
     "sshKeyData" : {
       "type" : "string",
       "metadata" : {
-        "description" : "SSH rsa public key file as a string."
+        "description" : "SSH RSA public key file as a string."
       }
     },
     "baseTemplateUrl" : {
@@ -35,7 +35,7 @@
     "sshPrivateData" : {
       "type" : "string",
       "metadata" : {
-        "description" : "SSH rsa private key file as a base64 string."
+        "description" : "SSH RSA private key file as a base64 string."
       }
     }
   },

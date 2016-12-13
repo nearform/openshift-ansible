@@ -10,7 +10,7 @@ ssh-keygen -t rsa
 3. At this point you will be prompted:
 
 ```bash
-Generating public/private rsa key pair.
+Generating public/private RSA key pair.
 Enter file in which to save the key (/Users/test/.ssh/id_rsa):
 Created directory '/Users/test/.ssh'.
 Enter passphrase (empty for no passphrase):

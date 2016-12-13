@@ -22,7 +22,7 @@ When creating the Red Hat OpenShift Container Platform on Azure, you will need a
 
 ## Parameters
 
-For OsX:
+For macOS:
 
 1. SSHKeyData - Public Key - Copy/Paste from .ssh/id_rsa.pub - pbcopy < ~/.ssh/id_rsa.pub
 

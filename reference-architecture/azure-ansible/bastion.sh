@@ -154,7 +154,7 @@ cat <<EOF > /home/${AUSERNAME}/subscribe.yml
 ---
 - hosts: all
   vars:
-    description: "Subscribe OSE"
+    description: "Subscribe OCP"
   tasks:
   - name: wait for .updateok
     wait_for: path=/root/.updateok
@@ -189,11 +189,11 @@ cat <<EOF > /home/${AUSERNAME}/subscribe.yml
     shell: subscription-manager repos --enable="rhel-7-server-rpms"
   - name: enable extras repos
     shell: subscription-manager repos --enable="rhel-7-server-extras-rpms"
-  - name: enable ose repos
+  - name: enable OCP repos
     shell: subscription-manager repos --enable="rhel-7-server-ose-3.3-rpms"
   - name: install the latest version of PyYAML
     yum: name=PyYAML state=latest
-  - name: Install the ose client
+  - name: Install the OCP client
     yum: name=atomic-openshift-clients state=latest
   - name: Update all hosts
     command: yum -y update
@@ -219,7 +219,7 @@ EOF
 cat <<EOF > /home/${AUSERNAME}/setupiscsi.yml
 - hosts: all
   vars:
-    description: "Subscribe OSE"
+    description: "Subscribe OCP"
   tasks:
   - name: Install iscsi initiator utils
     yum: name=iscsi-initiator-utils state=latest

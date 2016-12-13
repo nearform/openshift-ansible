@@ -1,6 +1,6 @@
 # Red Hat OpenShift Container Platform on Azure
 
-## SSH Key Generation - Linux/Centos/Fedora
+## SSH Key Generation - Linux/CentOS/Fedora
 1. Open the Terminal in the Application/Utilities folder.
 ![Terminal ScreenShot][terminal]
 2. Enter the commands:

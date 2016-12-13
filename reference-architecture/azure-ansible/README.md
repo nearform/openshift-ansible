@@ -30,7 +30,7 @@ For macOS:
 
 3. SSHPrivate Data - Base64 Encoded id_rsa - cat ~/.ssh/id_rsa | base64 | pbcopy
 
-For RHEL/Fedora/Centos:
+For RHEL/Fedora/CentOS:
 
 1. SSHKeyData - Public Key - Copy/Paste from .ssh/id_rsa.pub - xclip -selection clipboard < ~/.ssh/id_rsa.pub
 

@@ -1,6 +1,6 @@
 # Red Hat OpenShift Container Platform on Azure
 
-## SSH Key Generation - Linux/Centos/Fedora
+## SSH Key Generation - Linux/CentOS/Fedora
 1. Go to bash/command line/terminal on your client device.
 2. Enter the commands:
 ```bash

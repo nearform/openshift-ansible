@@ -103,7 +103,7 @@ openshift_router_selector='role=infra'
 openshift_registry_selector='role=infra'
 
 # Select default nodes for projects
-osm_default_node_selector="role=primary"
+osm_default_node_selector="role=app"
 ansible_become=yes
 ansible_ssh_user=${AUSERNAME}
 remote_user=${AUSERNAME}
@@ -134,7 +134,7 @@ master3
 master1 openshift_node_labels="{'role':'master','zone':'default'}"
 master2 openshift_node_labels="{'role':'master','zone':'default'}"
 master3 openshift_node_labels="{'role':'master','zone':'default'}"
-node[01:${NODECOUNT}] openshift_node_labels="{'role': 'primary', 'zone': 'default'}"
+node[01:${NODECOUNT}] openshift_node_labels="{'role': 'app', 'zone': 'default'}"
 infranode1 openshift_node_labels="{'role': 'infra', 'zone': 'default'}"
 infranode2 openshift_node_labels="{'role': 'infra', 'zone': 'default'}"
 infranode3 openshift_node_labels="{'role': 'infra', 'zone': 'default'}"
@@ -143,7 +143,7 @@ infranode3 openshift_node_labels="{'role': 'infra', 'zone': 'default'}"
 master1 openshift_node_labels="{'role':'master','zone':'default'}"
 master2 openshift_node_labels="{'role':'master','zone':'default'}"
 master3 openshift_node_labels="{'role':'master','zone':'default'}"
-node[01:${NODECOUNT}] openshift_node_labels="{'role': 'primary', 'zone': 'default'}"
+node[01:${NODECOUNT}] openshift_node_labels="{'role': 'app', 'zone': 'default'}"
 
 [misc]
 store1

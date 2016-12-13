@@ -99,11 +99,11 @@ deployment_type=openshift-enterprise
 openshift_master_identity_providers=[{'name': 'htpasswd_auth', 'login': 'true', 'challenge': 'true', 'kind': 'HTPasswdPasswordIdentityProvider', 'filename': '/etc/origin/master/htpasswd'}]
 
 # default selectors for router and registry services
-openshift_router_selector='region=infra'
-openshift_registry_selector='region=infra'
+openshift_router_selector='role=infra'
+openshift_registry_selector='role=infra'
 
 # Select default nodes for projects
-osm_default_node_selector="region=primary"
+osm_default_node_selector="role=primary"
 ansible_become=yes
 ansible_ssh_user=${AUSERNAME}
 remote_user=${AUSERNAME}
@@ -131,19 +131,19 @@ master2
 master3
 
 [nodes]
-master1 openshift_node_labels="{'region':'master','zone':'default'}"
-master2 openshift_node_labels="{'region':'master','zone':'default'}"
-master3 openshift_node_labels="{'region':'master','zone':'default'}"
-node[01:${NODECOUNT}] openshift_node_labels="{'region': 'primary', 'zone': 'default'}"
-infranode1 openshift_node_labels="{'region': 'infra', 'zone': 'default'}"
-infranode2 openshift_node_labels="{'region': 'infra', 'zone': 'default'}"
-infranode3 openshift_node_labels="{'region': 'infra', 'zone': 'default'}"
+master1 openshift_node_labels="{'role':'master','zone':'default'}"
+master2 openshift_node_labels="{'role':'master','zone':'default'}"
+master3 openshift_node_labels="{'role':'master','zone':'default'}"
+node[01:${NODECOUNT}] openshift_node_labels="{'role': 'primary', 'zone': 'default'}"
+infranode1 openshift_node_labels="{'role': 'infra', 'zone': 'default'}"
+infranode2 openshift_node_labels="{'role': 'infra', 'zone': 'default'}"
+infranode3 openshift_node_labels="{'role': 'infra', 'zone': 'default'}"
 
 [quotanodes]
-master1 openshift_node_labels="{'region':'master','zone':'default'}"
-master2 openshift_node_labels="{'region':'master','zone':'default'}"
-master3 openshift_node_labels="{'region':'master','zone':'default'}"
-node[01:${NODECOUNT}] openshift_node_labels="{'region': 'primary', 'zone': 'default'}"
+master1 openshift_node_labels="{'role':'master','zone':'default'}"
+master2 openshift_node_labels="{'role':'master','zone':'default'}"
+master3 openshift_node_labels="{'role':'master','zone':'default'}"
+node[01:${NODECOUNT}] openshift_node_labels="{'role': 'primary', 'zone': 'default'}"
 
 [misc]
 store1
@@ -272,8 +272,8 @@ ansible-playbook  /home/${AUSERNAME}/subscribe.yml
 echo "${RESOURCEGROUP} Bastion Host is starting ansible BYO" | mail -s "${RESOURCEGROUP} Bastion BYO Install" ${RHNUSERNAME} || true
 ansible-playbook  /usr/share/ansible/openshift-ansible/playbooks/byo/config.yml < /dev/null &> byo.out
 
-# ssh gwest@master1 oadm registry --selector=region=infra
-# ssh gwest@master1 oadm router --selector=region=infra
+# ssh gwest@master1 oadm registry --selector=role=infra
+# ssh gwest@master1 oadm router --selector=role=infra
 wget http://master1:8443/api > healtcheck.out
 ansible-playbook /home/${AUSERNAME}/quota.yml
 ansible-playbook /home/${AUSERNAME}/postinstall.yml

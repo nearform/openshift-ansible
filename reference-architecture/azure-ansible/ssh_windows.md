@@ -13,7 +13,7 @@ In Windows, use PuTTYgen to generate your public and private keys.
 
 4. Save the public and private keys by clicking the Save public key and Save private key buttons.
 
-5. You will need the private and public keys for the Openshift Install.
+5. You will need the private and public keys for the Open Shift Install.
 
 
 [PuTTYgen]:  https://github.com/openshift/openshift-ansible-contrib/raw/master/reference-architecture/azure-ansible/images/puttygen.png

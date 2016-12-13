@@ -41,11 +41,11 @@ For RHEL/Fedora/CentOS:
 
 | Name| Type           | Description |
 | ------------- | ------------- | ------------- |
-| adminUsername  | String       | Username for SSH Login and Openshift Webconsole |
-|  adminPassword | SecureString | Password for the Openshift Webconsole |
+| adminUsername  | String       | Username for SSH Login and OpenShift Webconsole |
+|  adminPassword | SecureString | Password for the OpenShift Webconsole |
 | sshKeyData     | String       | Public SSH Key for the Virtual Machines |
-| masterDnsName  | String       | DNS Prefix for the Openshift Master / Webconsole |
-| numberOfNodes  | Integer      | Number of Openshift Nodes to create |
+| masterDnsName  | String       | DNS Prefix for the OpenShift Master / Webconsole |
+| numberOfNodes  | Integer      | Number of OpenShift Nodes to create |
 | masterVMSize | String | The size of the Master Virtual Machine |
 | infranodeVMSize| String | The size of the Infranode Virtual Machine |
 | nodeVMSize| String | The size of the each Node Virtual Machine |
@@ -54,13 +54,13 @@ For RHEL/Fedora/CentOS:
 
 | Name| Type           | Description |
 | ------------- | ------------- | ------------- |
-| openshift Webconsole | String       | URL of the Openshift Webconsole |
-| openshift Master ssh |String | SSH String to Login at the Master |
-| openshift Router Public IP | String       | Router Public IP. Needed if you want to create your own Wildcard DNS |
+| OpenShift Webconsole | String       | URL of the OpenShift Webconsole |
+| OpenShift Master ssh |String | SSH String to Login at the Master |
+| OpenShift Router Public IP | String       | Router Public IP. Needed if you want to create your own Wildcard DNS |
 
 ------
 
-This template deploys Red Hat Openshift on Azure.
+This template deploys Red Hat OpenShift on Azure.
 
 Attribution:
 

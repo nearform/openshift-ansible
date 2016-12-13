@@ -64,7 +64,7 @@ if [ $# -eq 0 ]; then
    echo "    volgroup is the volgroup as created by vgcreate"
    echo "    size - example 1G"
    echo "    count - Optional - Number of luns to create"
-   echo " $OSEUSERNAME should be set to the Openshift User Name"
+   echo " $OSEUSERNAME should be set to the OpenShift User Name"
    exit 0
    fi
 # Call ourselves recursively to do repeats
@@ -176,7 +176,7 @@ mkdir /home/${USERNAME}/.kube
 cp /tmp/kube-config /home/${USERNAME}/.kube/config
 chown --recursive ${USERNAME} /home/${USERNAME}/.kube
 rm -f /tmp/kube-config
-./ose_pvcreate_lun vg1 10 20 
-./ose_pvcreate_lun vg1 50 4 
-./ose_pvcreate_lun vg1 1 400 
+./ose_pvcreate_lun vg1 10 20
+./ose_pvcreate_lun vg1 50 4
+./ose_pvcreate_lun vg1 1 400
 systemctl restart target.service

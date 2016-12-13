@@ -6,13 +6,13 @@
       "type" : "string",
       "minLength" : 1,
       "metadata" : {
-        "description" : "User name for the Virtual Machine and Openshift Webconsole."
+        "description" : "User name for the Virtual Machine and OpenShift Webconsole."
       }
     },
     "adminPassword" : {
       "type" : "securestring",
       "metadata" : {
-        "description" : "User password for the Openshift Webconsole"
+        "description" : "User password for the OpenShift Webconsole"
       }
     },
     "sshKeyData" : {
@@ -34,7 +34,7 @@
       "minValue" : 3,
       "maxValue" : 30,
       "metadata" : {
-        "description" : "Number of Openshift Nodes to deploy (max 30)"
+        "description" : "Number of OpenShift Nodes to deploy (max 30)"
       }
     },
     "image" : {

@@ -70,7 +70,7 @@ chmod +x /root/setup_ssmtp.sh
 
 echo "${RESOURCEGROUP} Bastion Host is starting software update" | mail -s "${RESOURCEGROUP} Bastion Software Install" ${RHNUSERNAME} || true
 # Continue Setting Up Bastion
-subscription-manager unregister 
+subscription-manager unregister
 yum -y remove RHEL7
 rm -f /etc/yum.repos.d/rh-cloud.repo
 # Found that wildcard disable not working all the time - make sure
@@ -106,8 +106,8 @@ ansible_become=yes
 ansible_ssh_user=${AUSERNAME}
 remote_user=${AUSERNAME}
 
-openshift_master_default_subdomain=${ROUTEREXTIP}.xip.io 
-openshift_use_dnsmasq=False
+openshift_master_default_subdomain=${ROUTEREXTIP}.xip.io
+openshift_use_dnsmasq=True
 openshift_public_hostname=${RESOURCEGROUP}.trafficmanager.net
 
 openshift_master_cluster_method=native
@@ -129,18 +129,18 @@ master2
 master3
 
 [nodes]
-master1 openshift_node_labels="{'region':'master','zone':'default'}" 
-master2 openshift_node_labels="{'region':'master','zone':'default'}" 
-master3 openshift_node_labels="{'region':'master','zone':'default'}" 
+master1 openshift_node_labels="{'region':'master','zone':'default'}"
+master2 openshift_node_labels="{'region':'master','zone':'default'}"
+master3 openshift_node_labels="{'region':'master','zone':'default'}"
 node[01:${NODECOUNT}] openshift_node_labels="{'region': 'primary', 'zone': 'default'}"
 infranode1 openshift_node_labels="{'region': 'infra', 'zone': 'default'}"
 infranode2 openshift_node_labels="{'region': 'infra', 'zone': 'default'}"
 infranode3 openshift_node_labels="{'region': 'infra', 'zone': 'default'}"
 
 [quotanodes]
-master1 openshift_node_labels="{'region':'master','zone':'default'}" 
-master2 openshift_node_labels="{'region':'master','zone':'default'}" 
-master3 openshift_node_labels="{'region':'master','zone':'default'}" 
+master1 openshift_node_labels="{'region':'master','zone':'default'}"
+master2 openshift_node_labels="{'region':'master','zone':'default'}"
+master3 openshift_node_labels="{'region':'master','zone':'default'}"
 node[01:${NODECOUNT}] openshift_node_labels="{'region': 'primary', 'zone': 'default'}"
 
 [misc]
@@ -168,7 +168,7 @@ cat <<EOF > /home/${AUSERNAME}/subscribe.yml
     shell: subscription-manager unregister
     ignore_errors: yes
   - name: register hosts
-    shell: subscription-manager register --username ${RHNUSERNAME} --password ${RHNPASSWORD} 
+    shell: subscription-manager register --username ${RHNUSERNAME} --password ${RHNPASSWORD}
     register: task_result
     until: task_result.rc == 0
     retries: 10
@@ -182,7 +182,7 @@ cat <<EOF > /home/${AUSERNAME}/subscribe.yml
     delay: 30
     ignore_errors: yes
   - name: disable all repos
-    shell: subscription-manager repos --disable="*" 
+    shell: subscription-manager repos --disable="*"
   - name: enable rhel7 repo
     shell: subscription-manager repos --enable="rhel-7-server-rpms"
   - name: enable extras repos
@@ -301,7 +301,7 @@ control_path = ~/.ansible/cp/ssh%%h-%%p-%%r
 ssh_args = -o ControlMaster=auto -o ControlPersist=600s -o ControlPath=~/.ansible/cp-%h-%p-%r
 EOF
 chown ${AUSERNAME} /home/${AUSERNAME}/.ansible.cfg
-  
+
 cat <<EOF > /root/.ansible.cfg
 [defaults]
 remote_tmp     = ~/.ansible/tmp
@@ -321,4 +321,3 @@ chmod 755 /home/${AUSERNAME}/openshift-install.sh
 echo "${RESOURCEGROUP} Bastion Host is starting Openshift Install" | mail -s "${RESOURCEGROUP} Bastion Openshift Install Starting" ${RHNUSERNAME} || true
 /home/${AUSERNAME}/openshift-install.sh &> /home/${AUSERNAME}/openshift-install.out &
 exit 0
-

@@ -83,20 +83,7 @@ subscription-manager repos     --enable="rhel-7-server-rpms"     --enable="rhel-
 subscription-manager repos     --enable="rhel-7-server-ose-3.3-rpms"
 yum -y install atomic-openshift-utils
 yum -y install git net-tools bind-utils iptables-services bridge-utils bash-completion httpd-tools
-yum -y install docker
 touch /root/.updateok
-sed -i -e "s#^OPTIONS='--selinux-enabled'#OPTIONS='--selinux-enabled --insecure-registry 172.30.0.0/16'#" /etc/sysconfig/docker
-                                                                                         
-cat <<EOF > /etc/sysconfig/docker-storage-setup
-DEVS=/dev/sdc
-VG=docker-vg
-EOF
-
-docker-storage-setup                                                                                                                                    
-systemctl enable docker
-systemctl start docker
-
-
 cat <<EOF > /etc/ansible/hosts
 [OSEv3:children]
 masters

@@ -236,7 +236,7 @@
       }
     },
     "sshPrivateData" : {
-      "type" : "string",
+      "type" : "securestring",
       "metadata" : {
         "description" : "SSH RSA private key file as a base64 string."
       }

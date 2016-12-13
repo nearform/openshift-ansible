@@ -44,7 +44,7 @@
       ],
       "defaultValue" : "rhel",
       "metadata" : {
-        "description" : "OS to use.Redhat Enterprise Linux"
+        "description" : "OS to use.Red Hat Enterprise Linux"
       }
     },
     "masterVMSize" : {
@@ -219,20 +219,20 @@
       "type" : "string",
       "minLength" : 1,
       "metadata" : {
-        "description" : "Redhat Subscription User Name or Email Address"
+        "description" : "Red Hat Subscription User Name or Email Address"
       }
     },
     "RHNPassword" : {
       "type" : "securestring",
       "metadata" : {
-        "description" : "Redhat Subscription Password"
+        "description" : "Red Hat Subscription Password"
       }
     },
     "SubscriptionPoolId" : {
       "type" : "string",
       "minLength" : 1,
       "metadata" : {
-        "description" : "Pool ID of the redhat subscritpion to use"
+        "description" : "Pool ID of the Red Hat subscritpion to use"
       }
     },
     "sshPrivateData" : {
@@ -277,7 +277,7 @@
     "nodeSubnetRef" : "[concat(variables('vnetId'), '/subnets/', variables('nodesubnetName'))]",
     "masterSubnetRef" : "[concat(variables('vnetId'), '/subnets/', variables('mastersubnetName'))]",
     "rhel" : {
-      "publisher" : "RedHat",
+      "publisher" : "Redhat",
       "offer" : "RHEL",
       "sku" : "7.3",
       "version" : "latest"

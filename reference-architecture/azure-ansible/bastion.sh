@@ -272,8 +272,6 @@ ansible-playbook  /home/${AUSERNAME}/subscribe.yml
 echo "${RESOURCEGROUP} Bastion Host is starting ansible BYO" | mail -s "${RESOURCEGROUP} Bastion BYO Install" ${RHNUSERNAME} || true
 ansible-playbook  /usr/share/ansible/openshift-ansible/playbooks/byo/config.yml < /dev/null &> byo.out
 
-# ssh gwest@master1 oadm registry --selector=role=infra
-# ssh gwest@master1 oadm router --selector=role=infra
 wget http://master1:8443/api > healtcheck.out
 ansible-playbook /home/${AUSERNAME}/quota.yml
 ansible-playbook /home/${AUSERNAME}/postinstall.yml

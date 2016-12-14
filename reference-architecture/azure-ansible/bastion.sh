@@ -65,7 +65,7 @@ root:\${1}@gmail.com:smtp.gmail.com:587
 EOFZ
 EOF
 chmod +x /root/setup_ssmtp.sh
-# Continue even if ssmtp.sh script errors out 
+# Continue even if ssmtp.sh script errors out
 /root/setup_ssmtp.sh ${AUSERNAME} ${PASSWORD} ${RHNUSERNAME} || true
 
 echo "${RESOURCEGROUP} Bastion Host is starting software update" | mail -s "${RESOURCEGROUP} Bastion Software Install" ${RHNUSERNAME} || true
@@ -160,9 +160,9 @@ cat <<EOF > /home/${AUSERNAME}/subscribe.yml
     wait_for: path=/root/.updateok
   - name: check connection
     ping:
-  - name: Get rid of rhui repos
+  - name: Get rid of RHUI repos
     file: path=/etc/yum.repos.d/rh-cloud.repo state=absent
-  - name: Get rid of rhui Load balancers
+  - name: Get rid of RHUI Load balancers
     file: path=/etc/yum.repos.d/rhui-load-balancers state=absent
   - name: remove the RHUI package
     yum: name=RHEL7 state=absent

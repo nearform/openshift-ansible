@@ -225,7 +225,7 @@ cat <<EOF > /home/${AUSERNAME}/setupiscsi.yml
     yum: name=iscsi-initiator-utils state=latest
   - name: add new initiator name
     lineinfile: dest=/etc/iscsi/initiatorname.iscsi create=yes regexp="InitiatorName=*" line="InitiatorName=iqn.2016-02.local.azure.nodes" state=present
-  - name: restart iscsid service
+  - name: restart iSCSI service
     shell: systemctl restart iscsi
     ignore_errors: yes
   - name: Enable iSCSI

@@ -221,20 +221,20 @@ cat <<EOF > /home/${AUSERNAME}/setupiscsi.yml
   vars:
     description: "Subscribe OCP"
   tasks:
-  - name: Install iscsi initiator utils
+  - name: Install iSCSI initiator utils
     yum: name=iscsi-initiator-utils state=latest
   - name: add new initiator name
     lineinfile: dest=/etc/iscsi/initiatorname.iscsi create=yes regexp="InitiatorName=*" line="InitiatorName=iqn.2016-02.local.azure.nodes" state=present
   - name: restart iscsid service
     shell: systemctl restart iscsi
     ignore_errors: yes
-  - name: Enable Iscsi
+  - name: Enable iSCSI
     shell: systemctl enable iscsi
     ignore_errors: yes
-  - name: Start iScsi Initiator  Service
+  - name: Start iSCSI Initiator  Service
     shell: systemctl start iscsi
     ignore_errors: yes
-  - name: Discover Devices on Iscsi  All Hosts
+  - name: Discover Devices on iSCSI  All Hosts
     shell: iscsiadm --mode discovery --type sendtargets --portal store1
     register: task_result
     until: task_result.rc == 0

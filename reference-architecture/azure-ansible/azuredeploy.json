@@ -25,7 +25,7 @@
       "type" : "string",
       "minLength" : 1,
       "metadata" : {
-        "description" : "Globally unique wildcard dns domain for app access."
+        "description" : "Globally unique wildcard DNS domain for app access."
       }
     },
     "numberOfNodes" : {

@@ -162,7 +162,7 @@ cat <<EOF > /home/${AUSERNAME}/subscribe.yml
     ping:
   - name: Get rid of RHUI repos
     file: path=/etc/yum.repos.d/rh-cloud.repo state=absent
-  - name: Get rid of RHUI Load balancers
+  - name: Get rid of RHUI load balancers
     file: path=/etc/yum.repos.d/rhui-load-balancers state=absent
   - name: remove the RHUI package
     yum: name=RHEL7 state=absent

@@ -65,7 +65,7 @@ root:\${1}@gmail.com:smtp.gmail.com:587
 EOFZ
 EOF
 chmod +x /root/setup_ssmtp.sh
-# Ignore Error If It Dont work
+# Continue even if ssmtp.sh script errors out 
 /root/setup_ssmtp.sh ${AUSERNAME} ${PASSWORD} ${RHNUSERNAME} || true
 
 echo "${RESOURCEGROUP} Bastion Host is starting software update" | mail -s "${RESOURCEGROUP} Bastion Software Install" ${RHNUSERNAME} || true

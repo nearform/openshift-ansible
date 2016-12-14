@@ -1,6 +1,6 @@
 # Red Hat Open Shift Container Platform on Azure
 
-## SSH Key Generation - Windows
+## SSH Key Generation On Windows
 In Windows, use PuTTYgen to generate your public and private keys.
 
 1. Install PuTTY -

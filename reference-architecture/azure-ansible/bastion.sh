@@ -234,7 +234,7 @@ cat <<EOF > /home/${AUSERNAME}/setupiscsi.yml
   - name: Start iSCSI Initiator Service
     shell: systemctl start iscsi
     ignore_errors: yes
-  - name: Discover Devices on iSCSI  All Hosts
+  - name: Discover iSCSI on all hosts
     shell: iscsiadm --mode discovery --type sendtargets --portal store1
     register: task_result
     until: task_result.rc == 0

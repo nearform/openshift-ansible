@@ -231,7 +231,7 @@ cat <<EOF > /home/${AUSERNAME}/setupiscsi.yml
   - name: Enable iSCSI
     shell: systemctl enable iscsi
     ignore_errors: yes
-  - name: Start iSCSI Initiator  Service
+  - name: Start iSCSI Initiator Service
     shell: systemctl start iscsi
     ignore_errors: yes
   - name: Discover Devices on iSCSI  All Hosts

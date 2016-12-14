@@ -18,7 +18,7 @@ Enter same passphrase again:
 Your identification has been saved in /Users/test/.ssh/id_rsa.
 Your public key has been saved in /Users/test/.ssh/id_rsa.pub.
 The key fingerprint is:
-SHA256:2KeBdOEN/empJoqPYXuSMv5elJbS0KMwlcQBX4KuSPM test@dhcp-65-33.sin.redhat.com
+SHA256:2KeBdOEN/empJoqPYXuSMv5elJbS0KMwlcQBX4KuSPM test@host.com
 The keys randomart image is:
 +---[RSA 2048]----+
 |  .==o. o.       |

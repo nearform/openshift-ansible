@@ -155,6 +155,6 @@ The same greenfield and brownfield deployment steps can be used to launch anothe
 A playbook is included to remove the s3 bucket and cloudformation. The parameter ci=true should not be used unless there is 100% certanty that all unattached EBS volumes can be removed.
 
 ```
-ansible-playook -i inventory/aws/hosts -e 'region=us-east-1 stack_name=openshift-infra ci=false' playbooks/teardown.yaml
+ansible-playbook -i inventory/aws/hosts -e 'region=us-east-1 stack_name=openshift-infra ci=false' playbooks/teardown.yaml
 ```
 A registered domain must be added to Route53 as a Hosted Zone before installation.  This registered domain can be purchased through AWS.

@@ -15,6 +15,9 @@ SSHPUBLICDATA3=${12}
 
 ps -ef | grep master.sh > cmdline.out
 
+domain=$(grep search /etc/resolv.conf | awk '{print $2}')
+sudo hostnamectl set-hostname ${HOSTNAME}.${domain}
+
 systemctl enable dnsmasq.service
 systemctl start dnsmasq.service
 
@@ -35,7 +38,7 @@ chown root /root/.ssh/id_rsa
 chmod 600 /root/.ssh/id_rsa
 
 subscription-manager unregister 
-subscription-manager register --username $RHNUSERNAME --password $RHNPASSWORD
+subscription-manager register --username $RHNUSERNAME --password "\"${RHNPASSWORD}\""
 subscription-manager attach --pool=$RHNPOOLID
 subscription-manager repos --disable="*"
 subscription-manager repos     --enable="rhel-7-server-rpms"     --enable="rhel-7-server-extras-rpms"

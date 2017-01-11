@@ -281,7 +281,7 @@ function revert {
     fi
 
     # RHEL image
-    if gcloud --project "$GCLOUD_PROJECT" compute images describe "$RHEL_IMAGE_GCE" &>/dev/null; then
+    if gcloud --project "$GCLOUD_PROJECT" compute images describe "$RHEL_IMAGE_GCE" &>/dev/null and [ "$DELETE_IMAGE" = true ]; then
         gcloud -q --project "$GCLOUD_PROJECT" compute images delete "$RHEL_IMAGE_GCE"
     fi
 
@@ -700,6 +700,7 @@ gcloud --project "$GCLOUD_PROJECT" compute ssh "cloud-user@${BASTION_INSTANCE}" 
         git clone https://github.com/openshift/openshift-ansible-contrib.git ~/openshift-ansible-contrib;
     fi
     pushd ~/openshift-ansible-contrib/reference-architecture/gce-ansible;
+    git checkout gce-fix
     ansible-playbook -e @~/ansible-config.yml playbooks/openshift-install.yaml;
 '";
 

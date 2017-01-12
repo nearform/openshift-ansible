@@ -700,7 +700,6 @@ gcloud --project "$GCLOUD_PROJECT" compute ssh "cloud-user@${BASTION_INSTANCE}" 
         git clone https://github.com/openshift/openshift-ansible-contrib.git ~/openshift-ansible-contrib;
     fi
     pushd ~/openshift-ansible-contrib/reference-architecture/gce-ansible;
-    git checkout gce-fix
     ansible-playbook -e @~/ansible-config.yml playbooks/openshift-install.yaml;
 '";
 

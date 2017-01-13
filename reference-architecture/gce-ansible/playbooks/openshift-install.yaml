@@ -4,15 +4,9 @@
   roles:
     - instance-groups
 
-- hosts: schedulable_nodes
-  gather_facts: no
-  roles:
-    - docker-storage-setup
+- include: ../../../playbooks/prerequisite.yaml
 
-- hosts: schedulable_nodes
-  gather_facts: no
-  roles:
-    - openshift-volume-quota
+- include: ../../../playbooks/openshift-storage.yaml
 
 - hosts: cluster_hosts
   gather_facts: no
@@ -43,10 +37,11 @@
   roles:
     - restrict-gce-metadata
 
+- include: ../../../playbooks/empty-dir-quota.yaml
+
 - hosts: schedulable_nodes
   gather_facts: no
   roles:
-    - openshift-emptydir-quota
     - selinux-fix 
 
 - hosts: primary_master

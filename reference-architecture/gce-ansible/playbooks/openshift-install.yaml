@@ -39,6 +39,7 @@
 
 - include: ../../../playbooks/empty-dir-quota.yaml
 
+
 - hosts: schedulable_nodes
   gather_facts: no
   roles:
@@ -48,5 +49,6 @@
   gather_facts: no
   roles:
     - openshift-registry
+
 
 - include: validation.yaml

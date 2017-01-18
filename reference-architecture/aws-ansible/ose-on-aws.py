@@ -245,6 +245,7 @@ def launch_refarch_env(region=None,
     ami=%s \
     keypair=%s \
     create_key=%s \
+    add_node=no \
     key_path=%s \
     create_vpc=%s \
     vpc_id=%s \

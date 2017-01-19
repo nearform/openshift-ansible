@@ -563,7 +563,8 @@
         	],
         "Instances": [
           {"Ref": "InfraNode01"},
-          {"Ref": "InfraNode02"}
+          {"Ref": "InfraNode02"},
+          {"Ref": "InfraNode03"}
             ]
       }
     },
@@ -718,6 +719,12 @@
             "Type": "A",
 			"TTL": "300",
 		    "ResourceRecords": [{ "Fn::GetAtt" : ["InfraNode02", "PrivateIp"] }]
+          },
+          {
+            "Name": {"Fn::Join": [".", ["ose-infra-node03",{"Ref": "Route53HostedZone"}]]},
+            "Type": "A",
+			"TTL": "300",
+		    "ResourceRecords": [{ "Fn::GetAtt" : ["InfraNode03", "PrivateIp"] }]
           },
           {
             "Name": {"Fn::Join": [".", ["ose-app-node01",{"Ref": "Route53HostedZone"}]]},
@@ -955,6 +962,52 @@
           "Tags": [
             { "Key": "Name",
               "Value": {"Fn::Join": [".", ["ose-infra-node02",{"Ref": "PublicHostedZone"}]]}
+            },
+            { "Key": "openshift-role",
+              "Value": "infra"
+            }
+          ],
+          "BlockDeviceMappings" : [
+          {
+            "DeviceName": "/dev/sda1",
+            "Ebs": {
+              "DeleteOnTermination": "true",
+              "VolumeSize": {"Ref": "NodeRootVolSize"},
+              "VolumeType": {"Ref": "NodeRootVolType"}
+            }
+          },
+          {
+            "DeviceName": "/dev/xvdb",
+            "Ebs": {
+              "DeleteOnTermination": "true",
+              "VolumeSize": {"Ref": "NodeDockerVolSize"},
+              "VolumeType": {"Ref": "NodeDockerVolType"}
+            }
+          },
+          {
+            "DeviceName": "/dev/xvdc",
+            "Ebs": {
+              "DeleteOnTermination": "true",
+              "VolumeSize": {"Ref": "NodeEmptyVolSize"},
+              "VolumeType": {"Ref": "NodeEmptyVolType"}
+            }
+          }
+         ]
+     }
+ },
+    "InfraNode03" : {
+       "Type" : "AWS::EC2::Instance",
+       "Properties" : {
+          "ImageId" : {"Ref": "AmiId"},
+          "UserData": {"Ref": "NodeUserData"},
+          "KeyName" : {"Ref": "KeyName"},
+          "InstanceType": {"Ref": "InfraInstanceType"},
+	  "SecurityGroupIds": [{ "Fn::GetAtt" : ["NodeSG", "GroupId"] }, { "Fn::GetAtt" : ["InfraSG", "GroupId"] }],
+          "SubnetId" : {"Ref": "PrivateSubnet3"},
+	  "IamInstanceProfile": { "Ref": "NodeInstanceProfile" },
+          "Tags": [
+            { "Key": "Name",
+              "Value": {"Fn::Join": [".", ["ose-infra-node03",{"Ref": "PublicHostedZone"}]]}
             },
             { "Key": "openshift-role",
               "Value": "infra"

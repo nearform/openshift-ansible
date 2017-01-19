@@ -2,7 +2,7 @@
 This repository contains the scripts used to deploy an OpenShift Container Platform or OpenShift Origin environment based off of the Reference Architecture Guide for OCP 3.3 on Amazon Web Services.
 
 ## Overview
-The repository contains Ansible playbooks which deploy 3 Masters in different availability zones, 2 infrastructure nodes and 2 applcation nodes. The Infrastrucute and Application nodes are split between two availbility zones.  The playbooks deploy a Docker registry and scale the router to the number of Infrastruture nodes.
+The repository contains Ansible playbooks which deploy 3 Masters in different availability zones, 3 infrastructure nodes and 2 applcation nodes. The Infrastrucute and Application nodes are split between availbility zones.  The playbooks deploy a Docker registry and scale the router to the number of Infrastruture nodes.
 
 ![Architecture](images/arch.jpg)
 

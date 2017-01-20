@@ -583,6 +583,9 @@
           },
           "sshPrivateData" : {
             "value" : "[parameters('sshPrivateData')]"
+          },
+          "wildcardZone" : {
+            "value" : "[parameters('WildcardZone')]"
           }
         }
       }

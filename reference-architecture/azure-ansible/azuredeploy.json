@@ -925,7 +925,7 @@
         "profileStatus" : "Enabled",
         "trafficRoutingMethod" : "Weighted",
         "dnsConfig" : {
-          "relativeName" : "[concat('**.',parameters('WildcardZone'))]",
+          "relativeName" : "[parameters('WildcardZone')]",
           "ttl" : 30
         },
         "monitorConfig" : {

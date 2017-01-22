@@ -22,3 +22,4 @@ ocp-on-vmware.ini
 ocp-installer
 vmware_inventory.ini
 infrastructure.json
+ansible.log

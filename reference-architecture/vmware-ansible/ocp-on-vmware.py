@@ -12,7 +12,7 @@ from six.moves import configparser
 @click.option('-v', '--verbose', count=True)
 @click.option('--create_inventory', is_flag=True, help='Helper script to create json inventory file and exit')
 @click.option('--create_ocp_vars', is_flag=True, help='Helper script to modify OpenShift ansible install variables and exit')
-@click.option('-t', '--tag', help='Ansible playbook tag for specific parts of playbook: valid targets are nfs, prod, haproxy, ocp-inbstall, ocp-configure, ocp-demo or clean')
+@click.option('-t', '--tag', help='Ansible playbook tag for specific parts of playbook: valid targets are nfs, prod, haproxy, ocp-install, ocp-configure, ocp-demo or clean')
 @click.option('--clean', is_flag=True, help='Delete all nodes and unregister from RHN')
 
 def launch_refarch_env(console_port=8443,
@@ -152,10 +152,10 @@ def launch_refarch_env(console_port=8443,
   for k, v in required_vars.items():
     if v == '':
         err_count += 1
-        print "Missing %s " % k 
+        print "Missing %s " % k
   if err_count > 0:
     print "Please fill out the missing variables in %s " %  vmware_ini_path
-    exit (1) 
+    exit (1)
   wildcard_zone="%s.%s" % (app_dns_prefix, public_hosted_zone)
 
   tags = []
@@ -237,6 +237,8 @@ def launch_refarch_env(console_port=8443,
               print "    wildcard_zone: " + app_dns_prefix + "." + public_hosted_zone
          elif line.startswith("    load_balancer_hostname:"):
               print "    load_balancer_hostname: " + lb_host
+         elif line.startswith("    deployment_type:"):
+              print "    deployment_type: " + deployment_type
          else:
               print line,
     #End create_ocp_vars
@@ -371,7 +373,7 @@ def launch_refarch_env(console_port=8443,
     with open('infrastructure.json', 'w') as outfile:
         json.dump(d, outfile)
     exit(0)
-  # End create inventory 
+  # End create inventory
 
   # Display information to the user about their choices
   click.echo('Configured values:')

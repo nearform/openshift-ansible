@@ -36,31 +36,32 @@ git clone https://github.com/vmware/pyvmomi && cd pyvmomi/ && python setup.py in
 The Ansible script will launch infrastructure and flow straight into installing the OpenShift application and components.
 
 ### Before Launching the Ansible script
-Before launching the ansible scripts ensure that your ssh keys are imported properly. Your private key should be located here ssh_keys/ocp3-installer. Make sure your public key is copied to your template.
+Before launching the ansible scripts ensure that your ssh keys are imported properly. Your private key should be located in **ssh_keys/ocp-installer**. Make sure your public key is copied to your template.
 
 ```bash
 ssh-keygen
 
-cp ~/.ssh/id_rsa ~/git/openshift-ansible-contrib/reference-architecture/vmware-ansible/ssh_key/ocp3-installer
+cp ~/.ssh/id_rsa ~/git/openshift-ansible-contrib/reference-architecture/vmware-ansible/ssh_key/ocp-installer
 
 ```
 
-Additionally, you will need to use ocp-on-vmware.py to configure your LDAP authentication credentials for the OpenShift install and to create your inventory to define the number of nodes for reach role: app, infra, master. Also, the create inventory will help you with your DNS configuration and will allow you to assign a starting static IP address point for your configuration.
+Additionally, you will need to use ocp-on-vmware.py to configure your LDAP authentication credentials for the OpenShift install and to create your inventory to define the number of nodes for each **role**: *app, infra, master*. Also, the *create inventory* tag will help you with your DNS configuration and will allow you to assign a starting static IP address point for your configuration.
 
 ### VMware Template Name
-This is your VMware template name. The template should be configured with open-vm-tools installed on RHEL 7.3. The template should have your public key listed in its authorized_keys section.  
+This is your VMware template name. The template should be configured with open-vm-tools installed on RHEL 7.3. The template should have your public key listed in its authorized_keys section.
 
 ### New VMware Environment (Greenfield)
-When installing all components into your VMware environment perform the following.   This will create the haproxy, the nfs server for the registry, and all the production OpenShift VMs. Additionally, the installer script will attempt to copy your existing public key to the VMs.
+When installing all components into your VMware environment perform the following. This will create the haproxy, the nfs server for the registry, and all the production OpenShift VMs. Additionally, the installer script will attempt to copy your existing public key to the VMs.
 
 ```bash
-$ cd ~/git/openshift-ansible-contrib/reference-architecture/vmware-ansible/ 
+$ cd ~/git/openshift-ansible-contrib/reference-architecture/vmware-ansible/
 
 $ vim ~/git/openshift-ansible-contrib/reference-architecture/vmware-ansible/ocp-on-vmware.ini
 
 [vmware]
 # console port and install type for OpenShift
 console_port=8443
+# choices are: openshift-enterprise or origin
 deployment_type=openshift-enterprise
 
 # vCenter host address/username and password
@@ -102,23 +103,24 @@ Continue using these values? [y/N]:
 ### Existing VM Environment and Deployment (Brownfield)
 The `ocp-on-vmware.py` script allows for deployments into an existing environment
 in which VMs already exists and are subscribed to the proper `RHEL` [channels].(https://access.redhat.com/documentation/en/openshift-container-platform/3.3/single/installation-and-configuration/#installing-base-packages)
-The prerequisite packages will be installed. The script expects the proper VM annotations are
-created on your VMs. App nodes will be labeled "app", infra nodes labeled
-"infra" and master nodes labeled as "master."
+The prerequisite packages will be installed. The script expects the proper VM annotations are created on your VMs:
+
+* app nodes will be labeled **"app"** 
+* infra nodes labeled **"infra"**
+* master nodes labeled as **"master"**
 
 Lastly, the prepared VMs must also have 2 additional hard disks as the OpenShift setup needs those
 for both docker storage and OpenShift volumes.
 
 
-The ocp-install tag will install OpenShift on your pre-existing environment. The dynamic inventory script sorts your
-VMs by their annotations and that is how the proper OpenShift labels are applied.
+The *ocp-install* tag will install OpenShift on your pre-existing environment. The dynamic inventory script sorts your VMs by their annotations and that is how the proper OpenShift labels are applied.
 
-The ocp-configure will configured your persistent registry and scale your nodes.
+The *ocp-configure* tag will configure your persistent registry and scale your nodes.
 
 Notice in the instance below we are supplying our own external NFS server and load balancer.
 
 ```bash
-$ cd ~/git/openshift-ansible-contrib/reference-architecture/vmware-ansible/ 
+$ cd ~/git/openshift-ansible-contrib/reference-architecture/vmware-ansible/
 
 $ vim /home/<user>/git/openshift-ansible-contrib/reference-architecture/vmware-ansible/ocp-on-vmware.ini
 

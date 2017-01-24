@@ -33,4 +33,5 @@
         regexp: 'enabled=1'
         replace: 'enabled=0'
       when: client.stat.exists
+
   when: ansible_distribution == "RedHat"

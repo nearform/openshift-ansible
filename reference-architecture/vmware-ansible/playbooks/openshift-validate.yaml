@@ -13,4 +13,4 @@
       # Group systems
       - instance-groups
 
-- include: ../../../playbooks/post-install-check.yaml
+- include: ../../../playbooks/post-validation.yaml

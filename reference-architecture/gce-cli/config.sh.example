@@ -35,7 +35,7 @@ OCP_IDENTITY_PROVIDERS='[ {"name": "google", "kind": "GoogleIdentityProvider", "
 
 ## DEFAULT VALUES ##
 
-OCP_VERSION='3.3'
+OCP_VERSION='3.4'
 
 CONSOLE_PORT='443'
 

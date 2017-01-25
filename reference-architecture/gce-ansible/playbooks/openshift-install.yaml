@@ -40,11 +40,6 @@
 - include: ../../../playbooks/empty-dir-quota.yaml
 
 
-- hosts: schedulable_nodes
-  gather_facts: no
-  roles:
-    - selinux-fix 
-
 - hosts: primary_master
   gather_facts: no
   roles:

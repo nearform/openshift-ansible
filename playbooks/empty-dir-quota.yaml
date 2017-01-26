@@ -1,3 +1,4 @@
+---
 - hosts: schedulable_nodes
   gather_facts: yes
   become: yes

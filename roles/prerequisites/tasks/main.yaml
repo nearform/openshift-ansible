@@ -20,5 +20,6 @@
         enabled: true
       with_items:
       - NetworkManager
-      - network 
+      - network
+
   when: not openshift.common.is_atomic | bool

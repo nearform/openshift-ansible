@@ -1,3 +1,4 @@
+---
 - include: setup-nfs.yaml
   tags: ['nfs', 'all']
 

@@ -3,4 +3,4 @@
   gather_facts: yes
   become: yes
   roles:
-      - rhsm-unregister
+  - rhsm-unregister

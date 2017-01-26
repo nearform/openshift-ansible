@@ -1,4 +1,5 @@
-- include: /usr/share/ansible/openshift-ansible/playbooks/byo/openshift-node/scaleup.yml 
+---
+- include: /usr/share/ansible/openshift-ansible/playbooks/byo/openshift-node/scaleup.yml
   vars:
     debug_level: 2
     openshift_debug_level: "{{ debug_level }}"
@@ -37,8 +38,8 @@
       login: true
       challenge: false
       mapping_method: claim
-      clientID: e76865557b0417387b35 
-      clientSecret: 72b36e28221c1b93089ecf72f1a19963a8532b06 
+      clientID: e76865557b0417387b35
+      clientSecret: 72b36e28221c1b93089ecf72f1a19963a8532b06
       organizations:
       - openshift
     osm_use_cockpit: false

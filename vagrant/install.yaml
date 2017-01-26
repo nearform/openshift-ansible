@@ -20,9 +20,9 @@
   - role: rhsm-repos
     when: "{{ deployment_type == 'openshift-enterprise' }}"
   tasks:
-    # Vagrant's "change host name" capability for Fedora/EL
-    # maps hostname to loopback, conflicting with hostmanager.
-    # We must repair /etc/hosts
+  # Vagrant's "change host name" capability for Fedora/EL
+  # maps hostname to loopback, conflicting with hostmanager.
+  # We must repair /etc/hosts
   - replace:
       dest: /etc/hosts
       regexp: '^(127\.0\.0\.1\s*)\S*\.example\.com (.*)'

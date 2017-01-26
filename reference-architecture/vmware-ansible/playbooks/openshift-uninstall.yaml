@@ -2,10 +2,10 @@
 - hosts: localhost
   gather_facts: yes
   vars_files:
-      - ../vars/main.yaml
+  - ../vars/main.yaml
   roles:
-      # Group systems
-      - instance-groups
+  # Group systems
+  - instance-groups
 
 - name: call openshift includes for installer
   include: /usr/share/ansible/openshift-ansible/playbooks/byo/adhoc/uninstall.yml

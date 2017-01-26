@@ -21,7 +21,7 @@
     customization:
       domain: "{{public_hosted_zone}}"
       dns_servers:
-        - "{{ vm_dns }}"
+      - "{{ vm_dns }}"
       dns_suffix: "{{public_hosted_zone}}"
       hostname: "{{ item.value.guestname}}"
   with_dict: "{{host_inventory}}"
@@ -38,10 +38,10 @@
     username: "{{ vcenter_username }}"
     password: "{{ vcenter_password }}"
     vmware_guest_facts: yes
-    guest: "{{ item.value.guestname }}" 
+    guest: "{{ item.value.guestname }}"
   with_dict: "{{host_inventory}}"
   when: "'master' in item.value.guestname or 'app' in item.value.guestname or 'infra' in item.value.guestname"
   register: actual_prod_host
   until: actual_prod_host.ansible_facts.hw_eth0.ipaddresses[0] is defined
   retries: 10
-  delay: 10 
+  delay: 10

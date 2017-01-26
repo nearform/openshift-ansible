@@ -26,12 +26,12 @@
 
     - name: Sleep to allow for route propegation
       pause:
-         seconds: 10
+        seconds: 10
     - name: check the status of the page
       uri:
-         url: "http://cakephp-mysql-example-validate.{{ wildcard_zone }}"
-         status_code: 200
-         method: GET
+        url: "http://cakephp-mysql-example-validate.{{ wildcard_zone }}"
+        status_code: 200
+        method: GET
   always:
     - name: Delete the Project
       command: "{{ openshift.common.client_binary }} delete project validate"

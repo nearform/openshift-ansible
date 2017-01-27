@@ -5,10 +5,10 @@
 
 - name: ETCD Cluster is healthy
   debug:
-      msg: "Cluster is healthy"
+    msg: "Cluster is healthy"
   when: etcd_health.stdout.find('cluster is healthy') != -1
 
 - name: ETCD Cluster is NOT healthy
   debug:
-      msg: "Cluster is NOT healthy"
+    msg: "Cluster is NOT healthy"
   when: etcd_health.stdout.find('cluster is healthy') == -1

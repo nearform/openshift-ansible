@@ -12,14 +12,14 @@
     folder: "/{{ vcenter_folder }}"
     annotation: "{{ item.value.tag }}"
     networks:
-    - name: "{{ vm_network }}" 
+    - name: "{{ vm_network }}"
       ip: "{{ item.value.ip4addr }}"
       netmask: "{{ vm_netmask }}"
       gateway: "{{ vm_gw }}"
     customization:
       domain: "{{public_hosted_zone}}"
       dns_servers:
-        - "{{ vm_dns }}"
+      - "{{ vm_dns }}"
       dns_suffix: "{{public_hosted_zone}}"
       hostname: "{{ item.value.guestname}}"
   with_dict: "{{ host_inventory }}"
@@ -42,4 +42,4 @@
   register: actual_nfs_host
   until: actual_nfs_host.ansible_facts.hw_eth0.ipaddresses[0] is defined
   retries: 10
-  delay: 10 
+  delay: 10

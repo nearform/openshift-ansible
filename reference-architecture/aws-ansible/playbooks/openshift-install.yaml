@@ -1,22 +1,23 @@
+---
 - hosts: localhost
   connection: local
   gather_facts: yes
   become: no
   vars_files:
-      - vars/main.yaml
+  - vars/main.yaml
   roles:
-      # Group systems
-      - cfn-outputs
-      - instance-groups
+  # Group systems
+  - cfn-outputs
+  - instance-groups
 
 - hosts: localhost
   connection: local
   gather_facts: no
   become: no
   vars_files:
-      - vars/main.yaml
+  - vars/main.yaml
   roles:
-      - host-up
+  - host-up
 
 - include: ../../../playbooks/prerequisite.yaml
 

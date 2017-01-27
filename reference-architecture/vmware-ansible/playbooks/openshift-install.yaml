@@ -2,17 +2,17 @@
 - hosts: localhost
   gather_facts: yes
   vars_files:
-      - vars/main.yaml
+  - vars/main.yaml
   roles:
-      # Group systems
-      - instance-groups
+  # Group systems
+  - instance-groups
 
 - include: ../../../playbooks/prerequisite.yaml
 
 - include: ../../../playbooks/openshift-storage.yaml
 
 - name: call openshift includes for installer
-  include:  /usr/share/ansible/openshift-ansible/playbooks/byo/config.yml
+  include: /usr/share/ansible/openshift-ansible/playbooks/byo/config.yml
   vars:
     debug_level: 2
     console_port: 8443
@@ -39,10 +39,10 @@
     openshift_router_selector: "role=infra"
     openshift_master_cluster_method: native
     openshift_cloudprovider_kind: vsphere
-    wildcard_zone: 
+    wildcard_zone:
     osm_default_subdomain: "{{ wildcard_zone }}"
-    deployment_type: 
-    load_balancer_hostname: 
+    deployment_type:
+    load_balancer_hostname:
     openshift_master_cluster_hostname: "{{ load_balancer_hostname }}"
     openshift_master_cluster_public_hostname: "{{ load_balancer_hostname }}"
     #openshift_master_identity_providers: "[{'name': 'allow_all', 'login': 'true', 'challenge': 'true', 'kind': 'AllowAllPasswordIdentityProvider'}]"
@@ -61,6 +61,6 @@
         preferredUsername:
         - uid
       insecure: true
-      url: 
-      bindDN: 
-      bindPassword: 
+      url:
+      bindDN:
+      bindPassword:

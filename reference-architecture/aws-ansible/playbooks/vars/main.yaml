@@ -1,3 +1,4 @@
+---
 # AWS instance specific configuration
 bastion_instance_type: t2.micro
 docker_storage: 25

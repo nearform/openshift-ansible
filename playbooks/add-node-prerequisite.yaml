@@ -1,0 +1,14 @@
+---
+- hosts: new_nodes
+  gather_facts: yes
+  become: yes
+  serial: 1
+  roles:
+    - rhsm-subscription
+
+- hosts: new_nodes
+  gather_facts: no
+  become: yes
+  roles:
+    - rhsm-repos
+    - prerequisites

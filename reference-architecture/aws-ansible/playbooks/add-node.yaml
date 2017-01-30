@@ -9,25 +9,7 @@
   # Group systems
   - instance-groups
 
-- hosts: new_nodes
-  gather_facts: yes
-  become: yes
-  serial: 1
-  user: ec2-user
-  vars_files:
-  - vars/main.yaml
-  roles:
-  - rhsm-subscription
-
-- hosts: new_nodes
-  gather_facts: no
-  become: yes
-  user: ec2-user
-  vars_files:
-  - vars/main.yaml
-  roles:
-  - rhsm-repos
-  - prerequisite
+- include: ../../../playbooks/add-node-prerequisite.yaml
 
 - include: node-setup.yaml
 

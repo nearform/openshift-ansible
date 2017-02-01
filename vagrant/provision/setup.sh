@@ -12,10 +12,3 @@ else
   echo "eth1 missing ip; restaring interface"
   ifdown eth1 && ifup eth1
 fi
-
-
-echo "Install ntp server to avoid to have desync issues"
-yum -y install ntp 
-systemctl enable ntpd
-systemctl start ntpd
-date

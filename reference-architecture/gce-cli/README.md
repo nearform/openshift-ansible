@@ -40,6 +40,9 @@ Variables can be set to customize the OpenShift infrastructure. All available va
 ./gcloud.sh
 ```
 
+### Static inventory
+To create a static inventory to used for other Ansible playbooks visit [Creating a static inventory](../gce-ansible/README.md)
+
 ### Tearing down the infrastructure
 
 If you want to tear down the infrastructure to start over with differrent settings, or just to clean up the resources, you can use `--revert` option:

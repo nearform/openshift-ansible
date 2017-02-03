@@ -41,7 +41,7 @@ Variables can be set to customize the OpenShift infrastructure. All available va
 ```
 
 ### Static inventory
-To create a static inventory to used for other Ansible playbooks visit [Creating a static inventory](../gce-ansible/README.md)
+A static inventory can be used for other Ansible playbooks not defined in this repository. To create the static inventory follow the steps in the link [Creating a static inventory](../gce-ansible/README.md)
 
 ### Tearing down the infrastructure
 

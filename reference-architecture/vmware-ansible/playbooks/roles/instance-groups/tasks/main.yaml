@@ -7,10 +7,10 @@
       role: master
   with_items: "{{ groups['master'] }}"
 
-- name: Add a master to the primary masters group
+- name: Add a master to the single master group
   add_host:
     name: "{{ hostvars[item].inventory_hostname }}"
-    groups: primary_master
+    groups: single_master
     openshift_node_labels:
       role: master
   with_items: "{{ groups['master'][0] }}"

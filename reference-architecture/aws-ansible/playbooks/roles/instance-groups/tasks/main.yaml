@@ -17,10 +17,10 @@
   when:
     - hostvars[item]['ec2_tag_aws_cloudformation_stack_name'] == "{{ stack_name }}"
 
-- name: Add a master to the primary masters group
+- name: Add a master to the single master group
   add_host:
     name: "{{ item }}"
-    groups: primary_master
+    groups: single_master
     openshift_node_labels:
       role: master
       KubernetesCluster: "{{ stack_name }}"

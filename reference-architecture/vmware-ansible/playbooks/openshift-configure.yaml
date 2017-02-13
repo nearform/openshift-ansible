@@ -9,7 +9,7 @@
 
 - include: ../../../playbooks/empty-dir-quota.yaml
 
-- hosts: primary_master
+- hosts: single_master
   gather_facts: yes
   become: yes
   vars_files:

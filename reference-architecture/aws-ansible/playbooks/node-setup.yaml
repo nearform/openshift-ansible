@@ -22,8 +22,8 @@
     osm_cluster_network_cidr: 172.16.0.0/16
     openshift_registry_selector: "role=infra"
     openshift_router_selector: "role=infra"
-    openshift_hosted_router_replicas: 2
-    openshift_hosted_registry_replicas: 2
+    openshift_hosted_router_replicas: 3
+    openshift_hosted_registry_replicas: 3
     openshift_node_local_quota_per_fsgroup: 512Mi
     openshift_master_cluster_method: native
     openshift_cloudprovider_kind: aws
@@ -32,15 +32,5 @@
     osm_default_subdomain: "{{ wildcard_zone }}"
     osm_default_node_selector: "role=app"
     deployment_type: openshift-enterprise
-    openshift_master_identity_providers:
-    - name: github
-      kind: GitHubIdentityProvider
-      login: true
-      challenge: false
-      mapping_method: claim
-      clientID: e76865557b0417387b35
-      clientSecret: 72b36e28221c1b93089ecf72f1a19963a8532b06
-      organizations:
-      - openshift
     osm_use_cockpit: false
     containerized: false

@@ -7,10 +7,10 @@
       role: master
   with_items: "{{ groups['tag_ocp-master'] }}"
 
-- name: Add a master to the primary masters group
+- name: Add a master to the single masters group
   add_host:
     name: "{{ hostvars[item].gce_name }}"
-    groups: primary_master
+    groups: single_master
     openshift_node_labels:
       role: master
   with_items: "{{ groups['tag_ocp-master'].0 }}"

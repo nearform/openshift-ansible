@@ -267,7 +267,7 @@ function revert {
     fi
 
     # Pre-registered image
-    if gcloud --project "$GCLOUD_PROJECT" compute images describe "$REGISTERED_IMAGE" &>/dev/null; then
+    if gcloud --project "$GCLOUD_PROJECT" compute images describe "$REGISTERED_IMAGE" &>/dev/null && [ "$DELETE_IMAGE" = true ]; then
         gcloud -q --project "$GCLOUD_PROJECT" compute images delete "$REGISTERED_IMAGE"
     fi
 

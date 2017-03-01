@@ -129,6 +129,7 @@ ansible_ssh_user=${AUSERNAME}
 remote_user=${AUSERNAME}
 
 openshift_master_default_subdomain=${WILDCARDZONE}.trafficmanager.net
+osm_default_subdomain=${WILDCARDZONE}.trafficmanager.net
 openshift_use_dnsmasq=false
 openshift_public_hostname=${RESOURCEGROUP}.trafficmanager.net
 

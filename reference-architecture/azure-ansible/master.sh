@@ -44,8 +44,6 @@ subscription-manager repos     --enable="rhel-7-server-rpms"     --enable="rhel-
 subscription-manager repos     --enable="rhel-7-server-ose-3.4-rpms"
 yum -y install atomic-openshift-utils
 yum -y install wget git net-tools bind-utils iptables-services bridge-utils bash-completion httpd-tools
-yum -y install docker
-sed -i -e "s#^OPTIONS='--selinux-enabled'#OPTIONS='--selinux-enabled --insecure-registry 172.30.0.0/16'#" /etc/sysconfig/docker
                                                                                          
 touch /root/.updateok
 
@@ -54,11 +52,6 @@ DEVS=/dev/sdc
 VG=docker-vg
 EXTRA_DOCKER_STORAGE_OPTIONS="--storage-opt dm.basesize=3G"
 EOF
-
-docker-storage-setup                                                                                                                                    
-systemctl enable docker
-systemctl start docker
-
 
 cat <<EOF > /home/${USERNAME}/.ansible.cfg
 [defaults]

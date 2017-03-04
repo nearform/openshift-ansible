@@ -70,7 +70,7 @@
       bindPassword:
     openshift_hosted_registry_storage_kind: nfs
     openshift_hosted_registry_storage_access_modes: ['ReadWriteMany']
-    openshift_hosted_registry_storage_host: "{{ nfs_registry_host }}" 
+    openshift_hosted_registry_storage_host: "{{ nfs_registry_host }}"
     openshift_hosted_registry_storage_nfs_directory: /registry
     openshift_hosted_registry_storage_volume_name: registry
     openshift_hosted_registry_storage_volume_size: 10Gi

@@ -244,6 +244,18 @@ def launch_refarch_env(console_port=8443,
               print "    deployment_type: " + deployment_type
          else:
               print line,
+    # Provide values for update playbook
+    update_file = "playbooks/minor-update.yaml"
+
+    for line in fileinput.input(update_file, inplace=True):
+         if line.startswith("    wildcard_zone:"):
+              print "    wildcard_zone: " + app_dns_prefix + "." + public_hosted_zone
+         elif line.startswith("    load_balancer_hostname:"):
+              print "    load_balancer_hostname: " + lb_host
+         elif line.startswith("    deployment_type:"):
+              print "    deployment_type: " + deployment_type
+         else:
+              print line,
     #End create_ocp_vars
     exit(0)
   if create_inventory is True:

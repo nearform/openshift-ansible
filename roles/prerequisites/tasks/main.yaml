@@ -10,12 +10,8 @@
 
   - name: Install the required rpms
     package:
-      name: "{{ item }}"
+      name: NetworkManager
       state: latest
-    with_items:
-    - NetworkManager
-    - atomic-openshift-excluder
-    - atomic-openshift-docker-excluder
 
   - name: Start NetworkManager and network
     service:
@@ -25,4 +21,23 @@
     with_items:
     - NetworkManager
     - network
+
   when: not openshift.common.is_atomic | bool
+
+- block:
+  - name: Install the required rpms
+    package:
+      name: "{{ item }}"
+      state: latest
+    with_items:
+    - atomic-openshift-excluder
+    - atomic-openshift-docker-excluder
+    register: installed
+
+  - name: disable excluder if installed
+    command: "{{ item }}"
+    with_items:
+    - atomic-openshift-excluder unexclude
+    - atomic-openshift-docker-excluder unexclude
+
+  when: deployment_type == 'openshift-enterprise'

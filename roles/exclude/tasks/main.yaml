@@ -4,9 +4,21 @@
     role: common
 
 - block:
-    - name: Exclude atomic-openshift packages
-      command: atomic-openshift-excluder exclude
+    - name: Determine if excluder packages are installed
+      rpm_q:
+        name: "atomic-openshift-excluder"
+        state: present
+      register: openshift_excluder_installed
+      failed_when: false
 
-    - name: Exclude docker package
+    - name: exclude the atomic package
+      command: atomic-openshift-excluder exclude
+      when:
+        - "{{ openshift_excluder_installed.installed_versions | default([]) | length > 0 }}"
+
+    - name: exclude docker package
       command: atomic-openshift-docker-excluder exclude
+      when:
+        - "{{ openshift_excluder_installed.installed_versions | default([]) | length > 0 }}"
+
   when: not openshift.common.is_atomic | bool

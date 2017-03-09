@@ -16,4 +16,3 @@
     openshift_master_cluster_hostname: "internal-openshift-master.{{ load_balancer_hostname }}"
     openshift_master_cluster_public_hostname: "openshift-master.{{ load_balancer_hostname }}"
     osm_default_node_selector: "role=app"
-    deployment_type: openshift-enterprise

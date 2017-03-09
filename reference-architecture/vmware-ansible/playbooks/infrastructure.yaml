@@ -17,5 +17,8 @@
 - include: openshift-validate.yaml
   tags: ['ocp-demo', 'all']
 
+- include: openshift-minor-upgrade.yaml 
+  tags: ['ocp-update', 'all']
+
 - include: cleanup-vsphere.yaml
   tags: ['clean']

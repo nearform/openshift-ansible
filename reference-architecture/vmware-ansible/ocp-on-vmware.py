@@ -12,11 +12,12 @@ from six.moves import configparser
 @click.option('-v', '--verbose', count=True)
 @click.option('--create_inventory', is_flag=True, help='Helper script to create json inventory file and exit')
 @click.option('--create_ocp_vars', is_flag=True, help='Helper script to modify OpenShift ansible install variables and exit')
-@click.option('-t', '--tag', help='Ansible playbook tag for specific parts of playbook: valid targets are nfs, prod, haproxy, ocp-install, ocp-configure, ocp-demo or clean')
+@click.option('-t', '--tag', help='Ansible playbook tag for specific parts of playbook: valid targets are nfs, prod, haproxy, ocp-install, ocp-configure, ocp-demo, ocp-update or clean')
 @click.option('--clean', is_flag=True, help='Delete all nodes and unregister from RHN')
 
 def launch_refarch_env(console_port=8443,
                     deployment_type=None,
+                    openshift_vers=None,
                     vcenter_host=None,
                     vcenter_username=None,
                     vcenter_password=None,
@@ -65,6 +66,7 @@ def launch_refarch_env(console_port=8443,
     'ini_path': os.path.join(os.path.dirname(__file__), '%s.ini' % scriptbasename),
     'console_port':'8443',
     'deployment_type':'openshift-enterprise',
+    'openshift_vers':'v3_4',
     'vcenter_host':'',
     'vcenter_username':'administrator@vsphere.local',
     'vcenter_password':'',
@@ -116,6 +118,7 @@ def launch_refarch_env(console_port=8443,
 
   console_port = config.get('vmware', 'console_port')
   deployment_type = config.get('vmware','deployment_type')
+  openshift_vers = config.get('vmware','openshift_vers')
   vcenter_host = config.get('vmware', 'vcenter_host')
   vcenter_username = config.get('vmware', 'vcenter_username')
   vcenter_password = config.get('vmware', 'vcenter_password')
@@ -237,6 +240,18 @@ def launch_refarch_env(console_port=8443,
          elif line.startswith("      bindDN:"):
               print "      bindDN: " + bindDN
          elif line.startswith("    wildcard_zone:"):
+              print "    wildcard_zone: " + app_dns_prefix + "." + public_hosted_zone
+         elif line.startswith("    load_balancer_hostname:"):
+              print "    load_balancer_hostname: " + lb_host
+         elif line.startswith("    deployment_type:"):
+              print "    deployment_type: " + deployment_type
+         else:
+              print line,
+    # Provide values for update playbook
+    update_file = "playbooks/minor-update.yaml"
+
+    for line in fileinput.input(update_file, inplace=True):
+         if line.startswith("    wildcard_zone:"):
               print "    wildcard_zone: " + app_dns_prefix + "." + public_hosted_zone
          elif line.startswith("    load_balancer_hostname:"):
               print "    load_balancer_hostname: " + lb_host
@@ -382,6 +397,7 @@ def launch_refarch_env(console_port=8443,
   click.echo('Configured values:')
   click.echo('\tconsole port: %s' % console_port)
   click.echo('\tdeployment_type: %s' % deployment_type)
+  click.echo('\topenshift_version: %s' % openshift_vers)
   click.echo('\tvcenter_host: %s' % vcenter_host)
   click.echo('\tvcenter_username: %s' % vcenter_username)
   click.echo('\tvcenter_password: *******')
@@ -481,6 +497,7 @@ def launch_refarch_env(console_port=8443,
     wildcard_zone=%s \
     console_port=%s \
     deployment_type=%s \
+    openshift_vers=%s \
     rhsm_user=%s \
     rhsm_password=%s \
     rhsm_activation_key=%s \
@@ -507,6 +524,7 @@ def launch_refarch_env(console_port=8443,
                     wildcard_zone,
                     console_port,
                     deployment_type,
+                    openshift_vers,
                     rhsm_user,
                     rhsm_password,
                     rhsm_activation_key,

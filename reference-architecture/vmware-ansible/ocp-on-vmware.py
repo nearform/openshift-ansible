@@ -17,6 +17,7 @@ from six.moves import configparser
 
 def launch_refarch_env(console_port=8443,
                     deployment_type=None,
+                    openshift_vers=None,
                     vcenter_host=None,
                     vcenter_username=None,
                     vcenter_password=None,
@@ -65,6 +66,7 @@ def launch_refarch_env(console_port=8443,
     'ini_path': os.path.join(os.path.dirname(__file__), '%s.ini' % scriptbasename),
     'console_port':'8443',
     'deployment_type':'openshift-enterprise',
+    'openshift_vers':'v3_4',
     'vcenter_host':'',
     'vcenter_username':'administrator@vsphere.local',
     'vcenter_password':'',
@@ -116,6 +118,7 @@ def launch_refarch_env(console_port=8443,
 
   console_port = config.get('vmware', 'console_port')
   deployment_type = config.get('vmware','deployment_type')
+  openshift_vers = config.get('vmware','openshift_vers')
   vcenter_host = config.get('vmware', 'vcenter_host')
   vcenter_username = config.get('vmware', 'vcenter_username')
   vcenter_password = config.get('vmware', 'vcenter_password')
@@ -394,6 +397,7 @@ def launch_refarch_env(console_port=8443,
   click.echo('Configured values:')
   click.echo('\tconsole port: %s' % console_port)
   click.echo('\tdeployment_type: %s' % deployment_type)
+  click.echo('\topenshift_version: %s' % openshift_vers)
   click.echo('\tvcenter_host: %s' % vcenter_host)
   click.echo('\tvcenter_username: %s' % vcenter_username)
   click.echo('\tvcenter_password: *******')
@@ -493,6 +497,7 @@ def launch_refarch_env(console_port=8443,
     wildcard_zone=%s \
     console_port=%s \
     deployment_type=%s \
+    openshift_vers=%s \
     rhsm_user=%s \
     rhsm_password=%s \
     rhsm_activation_key=%s \
@@ -519,6 +524,7 @@ def launch_refarch_env(console_port=8443,
                     wildcard_zone,
                     console_port,
                     deployment_type,
+                    openshift_vers,
                     rhsm_user,
                     rhsm_password,
                     rhsm_activation_key,

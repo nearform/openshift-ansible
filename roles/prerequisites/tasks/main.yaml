@@ -40,4 +40,4 @@
     - atomic-openshift-excluder unexclude
     - atomic-openshift-docker-excluder unexclude
 
-  when: deployment_type == 'openshift-enterprise'
+  when: deployment_type == 'openshift-enterprise' and not openshift.common.is_atomic | bool

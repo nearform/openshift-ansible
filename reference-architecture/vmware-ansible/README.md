@@ -93,7 +93,7 @@ Configured values:
     lb_host: haproxy-0.vcenter.example.com
     byo_nfs: no
     nfs_registry_host: nfs-0.vcenter.example.com
-    nfs_registry_mountpoint: /exports
+    nfs_registry_mountpoint: /registry
     apps_dns: apps.vcenter.example.com
     Using values from: ./ocp-on-vmware.ini
 

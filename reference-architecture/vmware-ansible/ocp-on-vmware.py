@@ -92,7 +92,7 @@ def launch_refarch_env(console_port=8443,
     'lb_host':'haproxy-',
     'byo_nfs':'no',
     'nfs_registry_host':'nfs-0',
-    'nfs_registry_mountpoint':'/exports',
+    'nfs_registry_mountpoint':'/registry',
     'master_nodes':'3',
     'infra_nodes':'2',
     'app_nodes':'3',
@@ -176,7 +176,7 @@ def launch_refarch_env(console_port=8443,
       support_nodes=support_nodes+1
       nfs_host = nfs_registry_host
       nfs_registry_host = nfs_host + '.' + public_hosted_zone
-      nfs_registry_mountpoint ='/exports'
+      nfs_registry_mountpoint ='/registry'
       tags.append('nfs')
   else:
     if nfs_registry_host == '':

@@ -47,18 +47,18 @@
 
 - name: Mount the partition
   mount:
-    name: /exports
+    name: /registry
     src: /dev/openshift/nfs
     fstype: xfs
     state: mounted
 
 - name: Make mounts owned by nfsnobody
-  file: path=/exports owner=nfsnobody group=nfsnobody mode=0777
+  file: path=/registry owner=nfsnobody group=nfsnobody mode=0777
 
 - name: Export the directories
   lineinfile:
     dest: "/etc/exports"
-    line: "/exports *(rw,sync,all_squash)"
+    line: "/registry *(rw,sync,all_squash)"
   notify: restart nfs
 
 - name: Creates pv1 directory

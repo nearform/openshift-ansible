@@ -185,63 +185,23 @@ fi
 
 ### PROVISION THE INFRASTRUCTURE ###
 
+# Configure python path
+PYTHONPATH="${PYTHONPATH:-}:${DIR}/ansible/inventory/gce/hosts"
+export PYTHONPATH
+
 # Prepare main ansible config file based on the configuration from this script
 export GCLOUD_PROJECT \
     GCLOUD_REGION \
     GCLOUD_ZONE \
-    OCP_PREFIX
+    OCP_PREFIX \
+    DNS_DOMAIN \
+    RHEL_IMAGE_PATH
 envsubst < "${DIR}/ansible-main-config.yaml.tpl" > "${DIR}/ansible-main-config.yaml"
 
-# Configure ansible connection to the GCP
+# Configure Ansible connection to the GCP
 pushd "${DIR}/ansible"
 ansible-playbook -i inventory/inventory playbooks/local.yaml
 popd
-
-# Check the DNS managed zone in Google Cloud DNS, create it if it doesn't exist and exit after printing NS servers
-if ! gcloud --project "$GCLOUD_PROJECT" dns managed-zones describe "$DNS_MANAGED_ZONE" &>/dev/null; then
-    echo "DNS zone '${DNS_MANAGED_ZONE}' doesn't exist. It will be created and installation will stop. Please configure the following NS servers for your domain in your domain provider before proceeding with the installation:"
-    gcloud --project "$GCLOUD_PROJECT" dns managed-zones create "$DNS_MANAGED_ZONE" --dns-name "$DNS_DOMAIN" --description "${DNS_DOMAIN} domain"
-    gcloud --project "$GCLOUD_PROJECT" dns managed-zones describe "$DNS_MANAGED_ZONE" --format='value(nameServers)' | tr ';' '\n'
-    exit 0
-fi
-
-# Upload image
-if ! gcloud --project "$GCLOUD_PROJECT" compute images describe "$RHEL_IMAGE_GCE" &>/dev/null; then
-    echo 'Converting gcow2 image to raw image:'
-    qemu-img convert -p -S 4096 -f qcow2 -O raw "$RHEL_IMAGE_PATH" disk.raw
-    echo 'Creating archive of raw image:'
-    tar -Szcvf "${RHEL_IMAGE}.tar.gz" disk.raw
-    bucket="gs://${IMAGE_BUCKET}"
-    gsutil ls -p "$GCLOUD_PROJECT" "$bucket" &>/dev/null || gsutil mb -p "$GCLOUD_PROJECT" -l "$GCLOUD_REGION" "$bucket"
-    gsutil ls -p "$GCLOUD_PROJECT" "${bucket}/${RHEL_IMAGE}.tar.gz" &>/dev/null || gsutil cp "${RHEL_IMAGE}.tar.gz" "$bucket"
-    gcloud --project "$GCLOUD_PROJECT" compute images create "$RHEL_IMAGE_GCE" --source-uri "${bucket}/${RHEL_IMAGE}.tar.gz"
-    gsutil -m rm -r "$bucket"
-    rm -f disk.raw "${RHEL_IMAGE}.tar.gz"
-else
-    echo "Image '${RHEL_IMAGE_GCE}' already exists"
-fi
-
-# Create SSH key for GCE
-if [ ! -f ~/.ssh/google_compute_engine ]; then
-    ssh-keygen -t rsa -f ~/.ssh/google_compute_engine -C cloud-user -N ''
-    if [ -z "${SSH_AGENT_PID:-}" ]; then
-        eval $(ssh-agent -s)
-    fi
-    ssh-add ~/.ssh/google_compute_engine
-fi
-
-# Check if the ~/.ssh/google_compute_engine.pub key is in the project metadata, and if not, add it there
-pub_key=$(cut -d ' ' -f 2 < ~/.ssh/google_compute_engine.pub)
-key_tmp_file='/tmp/ocp-gce-keys'
-if ! gcloud --project "$GCLOUD_PROJECT" compute project-info describe | grep -q "$pub_key"; then
-    if gcloud --project "$GCLOUD_PROJECT" compute project-info describe | grep -q ssh-rsa; then
-        gcloud --project "$GCLOUD_PROJECT" compute project-info describe | grep ssh-rsa | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' -e 's/value: //' > "$key_tmp_file"
-    fi
-    echo -n 'cloud-user:' >> "$key_tmp_file"
-    cat ~/.ssh/google_compute_engine.pub >> "$key_tmp_file"
-    gcloud --project "$GCLOUD_PROJECT" compute project-info add-metadata --metadata-from-file "sshKeys=${key_tmp_file}"
-    rm -f "$key_tmp_file"
-fi
 
 # Deploy network and firewall rules
 export OCP_PREFIX \

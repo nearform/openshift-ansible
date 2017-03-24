@@ -203,5 +203,10 @@ $ cd ~/openshift-ansible-contrib/reference-architecture/vmware-ansible/ && ./ocp
 $ cd ~/openshift-ansible-contrib/reference-architecture/vmware-ansible/ && ./ocp-on-vmware.py --tag ocp-demo
 ```
 
+* Update the install by running ocp-on-vmware.py --tag ocp-update
+
+```bash
+$ cd ~/openshift-ansible-contrib/reference-architecture/vmware-ansible/ && ./ocp-on-vmware.py --tag ocp-update
+```
 If you have installation failures during the ./ocp-on-vmware.py run by itself, you can
 simply rerun it.

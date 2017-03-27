@@ -70,7 +70,7 @@
     openshift_hosted_registry_storage_host:
     openshift_hosted_registry_storage_nfs_directory:
     openshift_hosted_registry_storage_volume_name: registry
-    openshift_hosted_registry_storage_volume_size: 10Gi
+    openshift_hosted_registry_storage_volume_size: 30Gi
 #openshift_master_identity_providers: "[{'name': 'allow_all', 'login': 'true', 'challenge': 'true', 'kind': 'AllowAllPasswordIdentityProvider'}]"
 
 - include: ../../../playbooks/exclude-atomic-docker.yaml

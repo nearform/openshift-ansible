@@ -14,7 +14,7 @@
       when: rhsm_user is defined and rhsm_user and sat_cfg.stat.exists == True
       ignore_errors: yes
 
-    - name: Is the host already registered?		
+    - name: Is the host already registered?
       command: "subscription-manager status"
       register: subscribed
       ignore_errors: yes

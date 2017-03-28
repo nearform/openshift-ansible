@@ -466,7 +466,7 @@
       "Type": "AWS::ElasticLoadBalancing::LoadBalancer",
       "Properties": {
         "CrossZone": "true",
-        "IdleTimeout": "300",
+        "ConnectionSettings": {"IdleTimeout" : 300},
         "Tags": [ {"Key": "Name", "Value": "ose_internal_master_elb"} ],
         "HealthCheck": {
           "HealthyThreshold" : "2",
@@ -501,7 +501,7 @@
       "Type": "AWS::ElasticLoadBalancing::LoadBalancer",
       "Properties": {
         "CrossZone": "true",
-        "IdleTimeout": "300",
+        "ConnectionSettings": {"IdleTimeout" : 300},
         "Tags": [ {"Key": "Name", "Value": "ose_master_elb"} ],
         "HealthCheck": {
           "HealthyThreshold" : "2",

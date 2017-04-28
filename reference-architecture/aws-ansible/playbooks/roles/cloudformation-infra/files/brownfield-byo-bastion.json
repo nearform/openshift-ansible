@@ -312,6 +312,46 @@
         "SourceSecurityGroupId": { "Fn::GetAtt": [ "InfraElbSG", "GroupId" ] }
       }
     },
+    "GlusterDaemon": {
+      "Type": "AWS::EC2::SecurityGroupIngress",
+      "Properties":{
+        "GroupId": { "Fn::GetAtt": [ "NodeSG", "GroupId" ] },
+        "IpProtocol": "tcp",
+        "FromPort": "24007",
+        "ToPort": "24007",
+        "SourceSecurityGroupId": { "Fn::GetAtt": [ "NodeSG", "GroupId" ] }
+      }
+    },
+    "GlusterManagement": {
+      "Type": "AWS::EC2::SecurityGroupIngress",
+      "Properties":{
+        "GroupId": { "Fn::GetAtt": [ "NodeSG", "GroupId" ] },
+        "IpProtocol": "tcp",
+        "FromPort": "24008",
+        "ToPort": "24008",
+        "SourceSecurityGroupId": { "Fn::GetAtt": [ "NodeSG", "GroupId" ] }
+      }
+    },
+    "GlusterSsh": {
+      "Type": "AWS::EC2::SecurityGroupIngress",
+      "Properties":{
+        "GroupId": { "Fn::GetAtt": [ "NodeSG", "GroupId" ] },
+        "IpProtocol": "tcp",
+        "FromPort": "2222",
+        "ToPort": "2222",
+        "SourceSecurityGroupId": { "Fn::GetAtt": [ "NodeSG", "GroupId" ] }
+      }
+    },
+    "GlusterNfs": {
+      "Type": "AWS::EC2::SecurityGroupIngress",
+      "Properties":{
+        "GroupId": { "Fn::GetAtt": [ "NodeSG", "GroupId" ] },
+        "IpProtocol": "tcp",
+        "FromPort": "49152",
+        "ToPort": "49664",
+        "SourceSecurityGroupId": { "Fn::GetAtt": [ "NodeSG", "GroupId" ] }
+      }
+    },
     "NodeIngressMasterKubelet": {
       "Type": "AWS::EC2::SecurityGroupIngress",
       "Properties":{
@@ -789,7 +829,7 @@
           {
             "DeviceName": "/dev/xvdd",
             "Ebs": {
-              "DeleteOnTermination": "false",
+              "DeleteOnTermination": "true",
               "VolumeSize": {"Ref": "MasterEmptyVolSize"},
               "VolumeType": {"Ref": "MasterEmptyVolType"}
             }
@@ -843,7 +883,7 @@
           {
             "DeviceName": "/dev/xvdd",
             "Ebs": {
-              "DeleteOnTermination": "false",
+              "DeleteOnTermination": "true",
               "VolumeSize": {"Ref": "MasterEmptyVolSize"},
               "VolumeType": {"Ref": "MasterEmptyVolType"}
             }
@@ -897,7 +937,7 @@
           {
             "DeviceName": "/dev/xvdd",
             "Ebs": {
-              "DeleteOnTermination": "false",
+              "DeleteOnTermination": "true",
               "VolumeSize": {"Ref": "MasterEmptyVolSize"},
               "VolumeType": {"Ref": "MasterEmptyVolType"}
             }
@@ -1161,9 +1201,41 @@
     }
   },
   "Outputs" : {
+    "StackVpc" : {
+      "Value" : { "Ref" : "Vpc" },
+      "Description" : "VPC that was created"
+    },
+    "PrivateSubnet1" : {
+      "Value" : { "Ref" : "PrivateSubnet1" },
+      "Description" : "Private Subnet 1"
+    },
+    "PrivateSubnet2" : {
+      "Value" : { "Ref" : "PrivateSubnet2" },
+      "Description" : "Private Subnet 2"
+    },
+    "PrivateSubnet3" : {
+      "Value" : { "Ref" : "PrivateSubnet3" },
+      "Description" : "Private Subnet 3"
+    },
+    "NodeSGId" : {
+      "Value" : { "Fn::GetAtt": [ "NodeSG", "GroupId" ]},
+      "Description" : "Node SG id"
+    },
+    "InfraSGId" : {
+      "Value" : { "Fn::GetAtt": [ "InfraSG", "GroupId" ]},
+      "Description" : "Infra Node SG id"
+    },
+    "BastionSGId" : {
+      "Value" : { "Ref" : "BastionSg"},
+      "Description" : "Bastion SG id"
+    },
+    "NodeARN" : {
+      "Value" : {"Fn::GetAtt" : ["NodeInstanceProfile", "Arn"] },
+      "Description": "ARN for the Node instance profile"
+    },
     "S3UserAccessId" : {
       "Value" : { "Ref" : "CFNKeys" },
-      "Description" : "AWSAccessKeyId of new user"
+      "Description" : "AWSAccessKeyId of user"
     },
     "S3UserSecretKey" : {
       "Value" : { "Fn::GetAtt" : ["CFNKeys", "SecretAccessKey"]},

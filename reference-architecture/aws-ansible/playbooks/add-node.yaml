@@ -8,6 +8,7 @@
   roles:
   # Group systems
   - instance-groups
+  - cfn-outputs
 
 - include: ../../../playbooks/add-node-prerequisite.yaml
 
@@ -31,7 +32,7 @@
   - name: add instance to ELB if node is infra
     ec2_elb:
       instance_id: "{{ hostvars[item].ec2_id }}"
-      ec2_elbs: "{{ infra_elb_name }}"
+      ec2_elbs: "{{ stack['ansible_facts']['cloudformation'][stack_name]['stack_outputs']['InfraLb'] | default(infra_elb_name) }}"
       region: "{{ region }}"
       wait: no
       state: present
@@ -46,3 +47,11 @@
       tags:
         provision: node
     with_items: "{{ groups['tag_provision_node'] }}"
+
+- hosts: cluster_hosts
+  gather_facts: yes
+  become: yes
+  vars_files:
+  - vars/main.yaml
+  roles:
+  - gluster-ports

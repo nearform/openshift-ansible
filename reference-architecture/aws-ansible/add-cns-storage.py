@@ -14,44 +14,45 @@ import sys
               show_default=True)
 
 ### AWS/EC2 options
+@click.option('--gluster-stack', help='Specify a gluster stack name. Making the name unique will allow for multiple deployments',
+              show_default=True)
 @click.option('--region', default='us-east-1', help='ec2 region',
               show_default=True)
 @click.option('--ami', default='ami-10251c7a', help='ec2 ami',
               show_default=True)
-@click.option('--node-instance-type', default='t2.medium', help='ec2 instance type',
+@click.option('--node-instance-type', default='m4.2xlarge', help='ec2 instance type',
               show_default=True)
 @click.option('--use-cloudformation-facts', is_flag=True, help='Use cloudformation to populate facts. Requires Deployment >= OCP 3.5',
               show_default=True)
 @click.option('--keypair', help='ec2 keypair name',
               show_default=True)
-@click.option('--subnet-id', help='Specify a Private subnet within the existing VPC',
+@click.option('--private-subnet-id1', help='Specify a Private subnet within the existing VPC',
+              show_default=True)
+@click.option('--private-subnet-id2', help='Specify a Private subnet within the existing VPC',
+              show_default=True)
+@click.option('--private-subnet-id3', help='Specify a Private subnet within the existing VPC',
+              show_default=True)
+@click.option('--gluster-volume-size', default='500', help='Gluster volume size in GB',
+              show_default=True)
+@click.option('--gluster-volume-type', default='st1', help='Gluster volume type',
               show_default=True)
 
 ### DNS options
 @click.option('--public-hosted-zone', help='hosted zone for accessing the environment')
-@click.option('--app-dns-prefix', default='apps', help='application dns prefix',
-              show_default=True)
 
 ### Subscription and Software options
 @click.option('--rhsm-user', help='Red Hat Subscription Management User')
 @click.option('--rhsm-password', help='Red Hat Subscription Management Password',
                 hide_input=True,)
-@click.option('--rhsm-pool', help='Red Hat Subscription Management Pool ID or Subscription Name')
+@click.option('--rhsm-pool', help='Red Hat Subscription Management Pool ID or Subscription Name for OpenShift')
 
 ### Miscellaneous options
 @click.option('--containerized', default='False', help='Containerized installation of OpenShift',
               show_default=True)
 @click.option('--iam-role', help='Specify the name of the existing IAM Instance profile',
               show_default=True)
-@click.option('--shortname', help='Specify the hostname of the system',
-              show_default=True)
 @click.option('--node-sg', help='Specify the already existing node security group id',
               show_default=True)
-@click.option('--infra-sg', help='Specify the already existing Infrastructure node security group id',
-              show_default=True)
-@click.option('--node-type', default='app', help='Specify the node label (example: infra or app)',
-              show_default=True)
-@click.option('--infra-elb-name', help='Specify the name of the ELB used for the router and registry')
 @click.option('--existing-stack', help='Specify the name of the existing CloudFormation stack')
 @click.option('--no-confirm', is_flag=True,
               help='Skip confirmation prompt')
@@ -62,14 +63,9 @@ def launch_refarch_env(region=None,
                     ami=None,
                     no_confirm=False,
                     node_instance_type=None,
+                    gluster_stack=None,
                     keypair=None,
-                    subnet_id=None,
-                    node_sg=None,
-                    infra_sg=None,
                     public_hosted_zone=None,
-                    app_dns_prefix=None,
-                    shortname=None,
-                    fqdn=None,
                     deployment_type=None,
                     console_port=443,
                     rhsm_user=None,
@@ -77,8 +73,13 @@ def launch_refarch_env(region=None,
                     rhsm_pool=None,
                     containerized=None,
                     node_type=None,
+                    private_subnet_id1=None,
+                    private_subnet_id2=None,
+                    private_subnet_id3=None,
+                    gluster_volume_type=None,
+                    gluster_volume_size=None,
+                    node_sg=None,
                     iam_role=None,
-                    infra_elb_name=None,
                     existing_stack=None,
                     use_cloudformation_facts=False,
                     verbose=0):
@@ -87,11 +88,11 @@ def launch_refarch_env(region=None,
   if public_hosted_zone is None:
     public_hosted_zone = click.prompt('Hosted DNS zone for accessing the environment')
 
-  if shortname is None:
-    shortname = click.prompt('Hostname of newly created system')
-
   if existing_stack is None:
     existing_stack = click.prompt('Specify the name of the existing CloudFormation stack')
+
+  if gluster_stack is None:
+    gluster_stack = click.prompt('Specify a unique name for the CNS CloudFormation stack')
 
  # If no keypair is specified fail:
   if keypair is None:
@@ -103,7 +104,7 @@ def launch_refarch_env(region=None,
   if deployment_type in ['openshift-enterprise'] and rhsm_password is None:
     rhsm_password = click.prompt("RHSM password?", hide_input=True)
   if deployment_type in ['openshift-enterprise'] and rhsm_pool is None:
-    rhsm_pool = click.prompt("RHSM Pool ID or Subscription Name?")
+    rhsm_pool = click.prompt("RHSM Pool ID or Subscription Name for OpenShift?")
 
   # Prompt for vars if they are not defined
   if use_cloudformation_facts and iam_role is None:
@@ -111,51 +112,49 @@ def launch_refarch_env(region=None,
   elif iam_role is None:
     iam_role = click.prompt("Specify the IAM Role of the node?")
 
- # If no keypair is specified fail:
-  if subnet_id is None:
-    subnet_id = click.prompt('A private subnet must be specified for the instance')
-
   if use_cloudformation_facts and node_sg is None:
     node_sg = "Computed by Cloudformations"
   elif node_sg is None:
     node_sg = click.prompt("Specify the Security Group for the nodes?")
 
-  if node_type in 'infra' and use_cloudformation_facts: 
-    infra_sg = "Computed by Cloudformations"
-  elif node_type in 'infra' and infra_sg is None:
-    infra_sg = click.prompt("Specify the Infra Security Group for the node?")
+  if use_cloudformation_facts and private_subnet_id1 is None:
+    private_subnet_id1 = "Computed by Cloudformations"
+  elif private_subnet_id1 is None:
+    private_subnet_id1 = click.prompt("Specify the first private subnet for the nodes?")
 
-  # Calculate various DNS values
-  wildcard_zone="%s.%s" % (app_dns_prefix, public_hosted_zone)
+  if use_cloudformation_facts and private_subnet_id2 is None:
+    private_subnet_id2 = "Computed by Cloudformations"
+  elif private_subnet_id2 is None:
+    private_subnet_id2 = click.prompt("Specify the second private subnet for the nodes?")
 
-  # Calculate various DNS values
-  fqdn="%s.%s" % (shortname, public_hosted_zone)
+  if use_cloudformation_facts and private_subnet_id3 is None:
+    private_subnet_id3 = "Computed by Cloudformations"
+  elif private_subnet_id3 is None:
+    private_subnet_id3 = click.prompt("Specify the third private subnet for the nodes?")
 
   # Hidden facts for infrastructure.yaml
   create_key = "no"
   create_vpc = "no"
   add_node = "yes"
+  node_type = "gluster"
 
   # Display information to the user about their choices
   if use_cloudformation_facts:
       click.echo('Configured values:')
       click.echo('\tami: %s' % ami)
       click.echo('\tregion: %s' % region)
+      click.echo('\tgluster_stack: %s' % gluster_stack)
       click.echo('\tnode_instance_type: %s' % node_instance_type)
+      click.echo('\tgluster_volume_type: %s' % gluster_volume_type)
+      click.echo('\tgluster_volume_size: %s' % gluster_volume_size)
       click.echo('\tkeypair: %s' % keypair)
-      click.echo('\tsubnet_id: %s' % subnet_id)
-      click.echo('\tconsole port: %s' % console_port)
       click.echo('\tdeployment_type: %s' % deployment_type)
       click.echo('\tpublic_hosted_zone: %s' % public_hosted_zone)
-      click.echo('\tapp_dns_prefix: %s' % app_dns_prefix)
-      click.echo('\tapps_dns: %s' % wildcard_zone)
-      click.echo('\tshortname: %s' % shortname)
-      click.echo('\tfqdn: %s' % fqdn)
+      click.echo('\tconsole port: %s' % console_port)
       click.echo('\trhsm_user: %s' % rhsm_user)
       click.echo('\trhsm_password: *******')
       click.echo('\trhsm_pool: %s' % rhsm_pool)
       click.echo('\tcontainerized: %s' % containerized)
-      click.echo('\tnode_type: %s' % node_type)
       click.echo('\texisting_stack: %s' % existing_stack)
       click.echo('\tSubnets, Security Groups, and IAM Roles will be gather from the CloudFormation')
       click.echo("")
@@ -163,25 +162,23 @@ def launch_refarch_env(region=None,
       click.echo('Configured values:')
       click.echo('\tami: %s' % ami)
       click.echo('\tregion: %s' % region)
+      click.echo('\tgluster_stack: %s' % gluster_stack)
       click.echo('\tnode_instance_type: %s' % node_instance_type)
+      click.echo('\tprivate_subnet_id1: %s' % private_subnet_id1)
+      click.echo('\tprivate_subnet_id2: %s' % private_subnet_id2)
+      click.echo('\tprivate_subnet_id3: %s' % private_subnet_id3)
+      click.echo('\tgluster_volume_type: %s' % gluster_volume_type)
+      click.echo('\tgluster_volume_size: %s' % gluster_volume_size)
       click.echo('\tkeypair: %s' % keypair)
-      click.echo('\tsubnet_id: %s' % subnet_id)
       click.echo('\tnode_sg: %s' % node_sg)
-      click.echo('\tinfra_sg: %s' % infra_sg)
-      click.echo('\tconsole port: %s' % console_port)
       click.echo('\tdeployment_type: %s' % deployment_type)
       click.echo('\tpublic_hosted_zone: %s' % public_hosted_zone)
-      click.echo('\tapp_dns_prefix: %s' % app_dns_prefix)
-      click.echo('\tapps_dns: %s' % wildcard_zone)
-      click.echo('\tshortname: %s' % shortname)
-      click.echo('\tfqdn: %s' % fqdn)
+      click.echo('\tconsole port: %s' % console_port)
       click.echo('\trhsm_user: %s' % rhsm_user)
       click.echo('\trhsm_password: *******')
       click.echo('\trhsm_pool: %s' % rhsm_pool)
       click.echo('\tcontainerized: %s' % containerized)
-      click.echo('\tnode_type: %s' % node_type)
       click.echo('\tiam_role: %s' % iam_role)
-      click.echo('\tinfra_elb_name: %s' % infra_elb_name)
       click.echo('\texisting_stack: %s' % existing_stack)
       click.echo("")
 
@@ -211,95 +208,88 @@ def launch_refarch_env(region=None,
         command='ansible-playbook -i inventory/aws/hosts -e \'region=%s \
         ami=%s \
         keypair=%s \
+        gluster_stack=%s \
         add_node=yes \
-        subnet_id=%s \
-        node_instance_type=%s \
-        public_hosted_zone=%s \
-        wildcard_zone=%s \
-        shortname=%s \
-        fqdn=%s \
+    	node_instance_type=%s \
+    	public_hosted_zone=%s \
+    	deployment_type=%s \
         console_port=%s \
-        deployment_type=%s \
-        rhsm_user=%s \
-        rhsm_password=%s \
-        rhsm_pool="%s" \
-        containerized=%s \
-        node_type=%s \
-        key_path=/dev/null \
-        infra_elb_name=%s \
-        create_key=%s \
-        create_vpc=%s \
-        stack_name=%s \' %s' % (region,
-                        ami,
-                        keypair,
-                        subnet_id,
-                        node_instance_type,
-                        public_hosted_zone,
-                        wildcard_zone,
-                        shortname,
-                        fqdn,
+    	rhsm_user=%s \
+    	rhsm_password=%s \
+    	rhsm_pool="%s" \
+    	containerized=%s \
+    	node_type=gluster \
+    	key_path=/dev/null \
+    	create_key=%s \
+    	create_vpc=%s \
+        gluster_volume_type=%s \
+        gluster_volume_size=%s \
+    	stack_name=%s \' %s' % (region,
+                    	ami,
+                    	keypair,
+                        gluster_stack,
+                    	node_instance_type,
+                    	public_hosted_zone,
+                    	deployment_type,
                         console_port,
-                        deployment_type,
-                        rhsm_user,
-                        rhsm_password,
-                        rhsm_pool,
-                        containerized,
-                        node_type,
-                        infra_elb_name,
-                        create_key,
-                        create_vpc,
-                        existing_stack,
-                        playbook)
-
+                    	rhsm_user,
+                    	rhsm_password,
+                    	rhsm_pool,
+                    	containerized,
+                    	create_key,
+                    	create_vpc,
+                        gluster_volume_type,
+                        gluster_volume_size,
+                    	existing_stack,
+                    	playbook)
     else:
         command='ansible-playbook -i inventory/aws/hosts -e \'region=%s \
         ami=%s \
         keypair=%s \
+        gluster_stack=%s \
         add_node=yes \
-        subnet_id=%s \
-        node_sg=%s \
-        infra_sg=%s \
-        node_instance_type=%s \
-        public_hosted_zone=%s \
-        wildcard_zone=%s \
-        shortname=%s \
-        fqdn=%s \
+   	node_sg=%s \
+    	node_instance_type=%s \
+    	private_subnet_id1=%s \
+    	private_subnet_id2=%s \
+    	private_subnet_id3=%s \
+    	public_hosted_zone=%s \
+    	deployment_type=%s \
         console_port=%s \
-        deployment_type=%s \
-        rhsm_user=%s \
-        rhsm_password=%s \
-        rhsm_pool="%s" \
-        containerized=%s \
-        node_type=%s \
-        iam_role=%s \
-        key_path=/dev/null \
-        infra_elb_name=%s \
-        create_key=%s \
-        create_vpc=%s \
-        stack_name=%s \' %s' % (region,
-                        ami,
-                        keypair,
-                        subnet_id,
-                        node_sg,
-                        infra_sg,
-                        node_instance_type,
-                        public_hosted_zone,
-                        wildcard_zone,
-                        shortname,
-                        fqdn,
+    	rhsm_user=%s \
+    	rhsm_password=%s \
+    	rhsm_pool="%s" \
+    	containerized=%s \
+    	node_type=gluster \
+    	iam_role=%s \
+    	key_path=/dev/null \
+    	create_key=%s \
+    	create_vpc=%s \
+        gluster_volume_type=%s \
+        gluster_volume_size=%s \
+    	stack_name=%s \' %s' % (region,
+                    	ami,
+                    	keypair,
+                        gluster_stack,
+                    	node_sg,
+                    	node_instance_type,
+                    	private_subnet_id1,
+                    	private_subnet_id2,
+                    	private_subnet_id3,
+                    	public_hosted_zone,
+                    	deployment_type,
                         console_port,
-                        deployment_type,
-                        rhsm_user,
-                        rhsm_password,
-                        rhsm_pool,
-                        containerized,
-                        node_type,
-                        iam_role,
-                        infra_elb_name,
-                        create_key,
-                        create_vpc,
-                        existing_stack,
-                        playbook)
+                    	rhsm_user,
+                    	rhsm_password,
+                    	rhsm_pool,
+                    	containerized,
+                    	iam_role,
+                    	create_key,
+                    	create_vpc,
+                        gluster_volume_type,
+                        gluster_volume_size,
+                    	existing_stack,
+                    	playbook)
 
     if verbose > 0:
       command += " -" + "".join(['v']*verbose)

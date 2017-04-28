@@ -1,0 +1,29 @@
+---
+- name: Clear yum cache
+  command: "yum clean all"
+  ignore_errors: true
+
+- name: Install the required rpms
+  package:
+    name: "{{ item }}"
+    state: latest
+  with_items:
+  - redhat-storage-server
+  - heketi-client
+  - iptables-services
+  - iptables
+
+- name: Stop firewalld
+  service:
+    name: firewalld
+    state: stopped
+    enabled: no
+
+- name: Start Glusterd and iptables
+  service:
+    name: "{{ item }}"
+    state: started
+    enabled: true
+  with_items:
+  - iptables
+  - glusterd

@@ -1,0 +1,41 @@
+---
+- name: open gluster ports
+  iptables:
+    chain: INPUT
+    destination_port: "{{ item }}"
+    jump: ACCEPT
+    ctstate: NEW
+    protocol: tcp
+    action: insert
+    match: tcp
+  with_items:
+    - 24007
+    - 24008
+    - 2222
+    - 49152:49664
+  when: groups['storage'] is defined and groups['storage'] != []
+  register: rule
+
+- name: save iptables
+  shell: iptables-save > /etc/sysconfig/iptables
+  when: rule|changed
+  notify:
+    - restart iptables
+
+- name: open gluster ports
+  iptables:
+    chain: INPUT
+    destination_port: 8080
+    ctstate: NEW
+    jump: ACCEPT
+    protocol: tcp
+    action: insert
+    match: tcp
+  when: groups['crs'] is defined and groups['crs'] != []
+  register: heketi
+
+- name: save iptables
+  shell: iptables-save > /etc/sysconfig/iptables
+  when: heketi|changed
+  notify:
+    - restart iptables

@@ -1305,7 +1305,7 @@
       "Description" : "Bastion SG id"
     },
     "NodeARN" : {
-      "Value" : { "Ref": "NodeInstanceProfile" }, 
+      "Value" : { "Ref": "NodeInstanceProfile" },
       "Description": "ARN for the Node instance profile"
     },
     "S3UserAccessId" : {

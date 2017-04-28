@@ -1230,7 +1230,7 @@
       "Description" : "Bastion SG id"
     },
     "NodeARN" : {
-      "Value" : {"Fn::GetAtt" : ["NodeInstanceProfile", "Arn"] },
+      "Value" : { "Ref": "NodeInstanceProfile" },
       "Description": "ARN for the Node instance profile"
     },
     "S3UserAccessId" : {

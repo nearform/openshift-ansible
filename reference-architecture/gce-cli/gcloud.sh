@@ -214,7 +214,7 @@ envsubst < "${DIR}/ansible-main-config.yaml.tpl" > "${DIR}/ansible-main-config.y
 # Run Ansible
 pushd "${DIR}/ansible"
 ansible-playbook -i inventory/inventory playbooks/prereq.yaml
-ansible-playbook -e rhsm_user=${RH_USERNAME} -e rhsm_password="${RH_PASSWORD}" -e rhsm_pool=${RH_POOL_ID} playbooks/main.yaml
+ansible-playbook -e rhsm_user="${RH_USERNAME}" -e rhsm_password="${RH_PASSWORD}" -e rhsm_pool="${RH_POOL_ID}" playbooks/main.yaml
 popd
 
 # Allow bastion to connect via SSH to other instances via external IP
@@ -234,14 +234,14 @@ for i in $instances; do
     if ! gcloud --project "$GCLOUD_PROJECT" compute disks describe "$docker_disk" --zone "$instance_zone" &>/dev/null; then
         gcloud --project "$GCLOUD_PROJECT" compute disks create "$docker_disk" --zone "$instance_zone" --size "$NODE_DOCKER_DISK_SIZE" --type "pd-ssd"
         gcloud --project "$GCLOUD_PROJECT" compute instances attach-disk "${i}" --disk "$docker_disk" --zone "$instance_zone"
-        gcloud --project "$GCLOUD_PROJECT" compute instances set-disk-auto-delete "${i}" --disk "$docker_disk" --auto-delete
+        gcloud --project "$GCLOUD_PROJECT" compute instances set-disk-auto-delete "${i}" --disk "$docker_disk" --auto-delete --zone "$instance_zone"
     else
         echo "Disk '${docker_disk}' already exists"
     fi
     if ! gcloud --project "$GCLOUD_PROJECT" compute disks describe "$openshift_disk" --zone "$instance_zone" &>/dev/null; then
         gcloud --project "$GCLOUD_PROJECT" compute disks create "$openshift_disk" --zone "$instance_zone" --size "$NODE_OPENSHIFT_DISK_SIZE" --type "pd-ssd"
         gcloud --project "$GCLOUD_PROJECT" compute instances attach-disk "${i}" --disk "$openshift_disk" --zone "$instance_zone"
-        gcloud --project "$GCLOUD_PROJECT" compute instances set-disk-auto-delete "${i}" --disk "$openshift_disk" --auto-delete
+        gcloud --project "$GCLOUD_PROJECT" compute instances set-disk-auto-delete "${i}" --disk "$openshift_disk" --auto-delete --zone "$instance_zone"
     else
         echo "Disk '${openshift_disk}' already exists"
     fi
@@ -344,6 +344,9 @@ gcloud --project "$GCLOUD_PROJECT" compute ssh "cloud-user@${OCP_PREFIX}-bastion
         --enable=\"rhel-7-server-extras-rpms\" \
         --enable=\"rhel-7-server-ose-${OCP_VERSION}-rpms\";
 
+    if ! rpm -q epel-release; then
+      yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+    fi
     yum install -y git python-libcloud atomic-openshift-utils;
 
     if ! grep -q \"export GCE_PROJECT=${GCLOUD_PROJECT}\" /etc/profile.d/ocp.sh 2>/dev/null; then

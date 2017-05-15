@@ -387,15 +387,18 @@ master3
 master1 openshift_hostname=master1 openshift_node_labels="{'role':'master','zone':'default'}"
 master2 openshift_hostname=master2 openshift_node_labels="{'role':'master','zone':'default'}"
 master3 openshift_hostname=master3 openshift_node_labels="{'role':'master','zone':'default'}"
-node[01:${NODECOUNT}] openshift_node_labels="{'role': 'app', 'zone': 'default'}"
 infranode1 openshift_hostname=infranode1 openshift_node_labels="{'role': 'infra', 'zone': 'default'}"
 infranode2 openshift_hostname=infranode2 openshift_node_labels="{'role': 'infra', 'zone': 'default'}"
 infranode3 openshift_hostname=infranode3 openshift_node_labels="{'role': 'infra', 'zone': 'default'}"
-
-[compute]
-node[01:${NODECOUNT}] openshift_node_labels="{'role': 'app', 'zone': 'default'}"
-
 EOF
+
+# Loop to add Nodes
+
+for (( c=01; c<$NODECOUNT+1; c++ ))
+do
+  pnum=$(printf "%02d" $c)
+  echo "node${pnum} openshift_node_labels=\"{'role': 'app', 'zone': 'default'}\" openshift_hostname=node${pnum}" >> /etc/ansible/hosts
+done
 
 
 cat <<EOF > /home/${AUSERNAME}/subscribe.yml
@@ -406,73 +409,6 @@ cat <<EOF > /home/${AUSERNAME}/subscribe.yml
   tasks:
   - name: wait for .updateok
     wait_for: path=/root/.updateok
-
-- hosts: localhost:all
-  vars:
-    description: "Get all variables updated"
-  tasks: []
-- hosts: localhost:all
-  gather_facts: True
-  vars:
-    description: "Update /etc/hosts"
-  tasks:
-  - name: setup
-    setup:
-  - name: "Build hosts file"
-    lineinfile: dest=/etc/hosts 
-                state=present
-                dest=/etc/hosts 
-                regexp='.*{{ item }}$' line="{{ hostvars[item].ansible_default_ipv4.address }} {{item}}" 
-    when: hostvars[item].ansible_default_ipv4.address is defined
-    with_items: "{{ groups['all'] }}"
-
-- hosts: localhost:all
-  vars:
-    description: "Fix resolv and dnsmasq"
-  tasks:
-  - name: setup
-    setup:
-  - name: "Change PEERDNS=yes to PEERDNS=no"
-    replace: 
-         dest: /etc/sysconfig/network-scripts/ifcfg-eth0
-         regexp: '^PEERDNS=yes$'
-         replace: 'PEERDNS=no'
-  - name: "Fix ifcfg DNS Entry"
-    lineinfile:
-         dest: /etc/sysconfig/network-scripts/ifcfg-eth0
-         line: 'DNS1=127.0.0.1'
-         state: present
-  - name: 'Copy and Backup the resolv.conf'
-    copy: 
-         src: /etc/resolv.conf
-         dest: /etc/dnsmasq-resolv.conf
-         backup: yes
-  - name: 'dnsmasq to use new resolver'
-    replace: 
-         dest: /etc/dnsmasq.conf
-         regexp: '^#resolv-file=$'
-         replace: 'resolv-file=/etc/dnsmasq-resolv.conf'
-         backup: yes
-  - name: 'restart dnsmasq'
-    service:
-         name: dnsmasq
-         state: restarted
-  - name: 'Remove resolv.conf'
-    file: 
-         state: absent
-         path: /etc/resolv.conf
-  - name: 'Update resolv.conf'
-    blockinfile:
-         dest: /etc/resolv.conf
-         create: yes
-         block: |
-            nameserver 127.0.0.1
-            search .
-  - name: 'restart network'
-    service:
-         name: network
-         state: restarted
-
 - hosts: all
   vars:
     description: "Subscribe OCP"

@@ -219,6 +219,7 @@ export GCLOUD_PROJECT \
     NODE_OPENSHIFT_DISK_SIZE \
     REGISTRY_BUCKET \
     OPENSHIFT_SDN \
+    OPENSHIFT_METRICS \
     OCP_IDENTITY_PROVIDERS
 envsubst < "${DIR}/ansible-main-config.yaml.tpl" > "${DIR}/ansible-main-config.yaml"
 

@@ -30,16 +30,3 @@
   with_dict: "{{ host_inventory }}"
   when: "'nfs' in item.value.guestname"
 
-- name: Get facts of NFS VM
-  vsphere_guest:
-    vcenter_hostname: "{{ vcenter_host }}"
-    username: "{{ vcenter_username }}"
-    password: "{{ vcenter_password }}"
-    vmware_guest_facts: yes
-    guest: "{{ item.value.guestname }}"
-  with_dict: "{{host_inventory}}"
-  when: "'nfs' in item.value.guestname"
-  register: actual_nfs_host
-  until: actual_nfs_host.ansible_facts.hw_eth0.ipaddresses[0] is defined
-  retries: 10
-  delay: 10

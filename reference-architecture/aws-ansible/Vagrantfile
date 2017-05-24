@@ -1,0 +1,155 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+# 
+
+# All Vagrant configuration is done below. The "2" in Vagrant.configure
+# configures the configuration version (we support older styles for
+# backwards compatibility). Please don't change it unless you know what
+# you're doing.
+VAGRANTFILE_API_VERSION = "2"
+
+# CPU and RAM can be adjusted depending on your system
+CPUCOUNT = "2"
+RAM = "4096"
+
+if ARGV.first == "up" && ENV.include?('AWS_ACCESS_KEY_ID') == false && ENV.include?('AWS_SECRET_ACCESS_KEY') == false
+  raise Vagrant::Errors::VagrantError.new, <<END
+Please export EC2 credentials AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY before attemping to run the provision scripts.
+END
+end
+
+if ARGV.first == "up" && ENV.include?('PUBLIC_HOSTED_ZONE') == false
+  raise Vagrant::Errors::VagrantError.new, <<END
+Please export PUBLIC_HOSTED_ZONE.
+END
+end
+
+if ARGV.first == "up" && ENV.include?('GITHUB_ORGANIZATION') == false
+  raise Vagrant::Errors::VagrantError.new, <<END
+Please export GITHUB_ORGANIZATION.
+END
+end
+
+if ARGV.first == "up" && ENV.include?('GITHUB_CLIENT_SECRET') == false
+  raise Vagrant::Errors::VagrantError.new, <<END
+Please export GITHUB_CLIENT_SECRET.
+END
+end
+
+if ARGV.first == "up" && ENV.include?('GITHUB_CLIENT_ID') == false
+  raise Vagrant::Errors::VagrantError.new, <<END
+Please export GITHUB_CLIENT_ID.
+END
+end
+
+# Set AWS keys from env variables
+AWS_ACCESS_KEY_ID = ENV['AWS_ACCESS_KEY_ID']
+AWS_SECRET_ACCESS_KEY = ENV['AWS_SECRET_ACCESS_KEY']
+
+# Set ose-on-aws.py parameters
+REGION = ENV['region'] || 'us-east-2'
+KEY_PAIR = ENV['KEY_PAIR'] || 'openshift-key'
+PUBLIC_HOSTED_ZONE = ENV['PUBLIC_HOSTED_ZONE']
+GITHUB_ORGANIZATION = ENV['GITHUB_ORGANIZATION']
+GITHUB_CLIENT_SECRET = ENV['GITHUB_CLIENT_SECRET']
+GITHUB_CLIENT_ID = ENV['GITHUB_CLIENT_ID']
+
+# Map of AWS regions and AMIs
+REGIONS = {
+  "us-east-1" => "ami-4a70015c",
+  "ap-south-1" => "ami-9c7b06f3",
+  "eu-west-2" => "ami-14425570",
+  "eu-west-1" => "ami-a1b9b7c7",
+  "ap-northeast-2" => "ami-e01cc18e",
+  "ap-northeast-1" => "ami-2a0d304d",
+  "sa-east-1" => "ami-ce7619a2",
+  "ca-central-1" => "ami-8b813def",
+  "ap-southeast-1" => "ami-61e36702",
+  "ap-southeast-2" => "ami-84c7cde7",
+  "eu-central-1" => "ami-f970ae96",
+  "us-east-2" => "ami-d2cfe8b7",
+  "us-west-1" => "ami-57ba9c37",
+  "us-west-2" => "ami-fbd8bd9b"
+}
+
+AMI = REGIONS[REGION]
+
+$gen_key = <<SCRIPT
+mkdir -p /home/vagrant/.ssh && ssh-keygen -t rsa -N '' -f /home/vagrant/.ssh/ocp
+
+# Copy SSH config for bastion host
+cat >/home/vagrant/.ssh/config <<EOF
+Host *.#{PUBLIC_HOSTED_ZONE}
+ProxyCommand               ssh ec2-user@bastion -W %h:%p
+IdentityFile               /home/vagrant/.ssh/ocp
+
+Host bastion
+Hostname                   bastion.#{PUBLIC_HOSTED_ZONE}
+user                       ec2-user
+StrictHostKeyChecking      no
+ProxyCommand               none
+CheckHostIP                no
+ForwardAgent               yes
+IdentityFile               /home/vagrant/.ssh/ocp
+EOF
+
+# Set permissions
+chmod 400 /home/vagrant/.ssh/config /home/vagrant/.ssh/ocp
+SCRIPT
+
+$provision = <<SCRIPT
+rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+
+# Install dependencies
+yum -y install python-pip git python2-boto \
+                python-netaddr python-httplib2 python-devel \
+                gcc libffi-devel openssl-devel python2-boto3 \
+                python-click python-six pyOpenSSL
+
+# Install ansible v2.2
+pip install git+https://github.com/ansible/ansible.git@stable-2.2 
+
+# Install dependencies
+pip install --upgrade setuptools graffiti_monkey
+
+# Clone repository 
+mkdir -p /usr/share/ansible/openshift-ansible
+git clone https://github.com/openshift/openshift-ansible.git /usr/share/ansible/openshift-ansible
+
+# After login, change to openshift-ansible-aws directory
+cd /usr/src/openshift-ansible-aws/reference-architecture/aws-ansible
+
+# # Run ose-on-aws.py script
+./ose-on-aws.py \
+--region=#{REGION} \
+--keypair=#{KEY_PAIR} \
+--create-key=yes \
+--key-path=/home/vagrant/.ssh/ocp.pub \
+--public-hosted-zone=#{PUBLIC_HOSTED_ZONE} \
+--deployment-type=origin \
+--ami=#{AMI} \
+--github-organization=#{GITHUB_ORGANIZATION} \
+--github-client-secret=#{GITHUB_CLIENT_SECRET} \
+--github-client-id=#{GITHUB_CLIENT_ID} \
+--containerized=true \
+--no-confirm \
+--verbose && graffiti-monkey --region #{REGION}
+SCRIPT
+
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+  config.vm.box = "centos/7"
+  
+  config.vm.provider "virtualbox" do |v|
+    v.memory = "#{RAM}"
+    v.cpus = "#{CPUCOUNT}"
+  end
+  
+  config.vm.synced_folder "./", "/vagrant", disabled: true
+  config.vm.synced_folder "../../", "/usr/src/openshift-ansible-aws"
+  
+  config.vm.provision "shell", inline: $gen_key, privileged: false
+  config.vm.provision "shell", inline: $provision, env: {
+    "AWS_ACCESS_KEY_ID" => AWS_ACCESS_KEY_ID,
+    "AWS_SECRET_ACCESS_KEY" => AWS_SECRET_ACCESS_KEY
+  }
+end

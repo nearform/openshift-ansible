@@ -37,4 +37,4 @@
   vars_files:
   - vars/main.yaml
   roles:
-  - ../../../roles/infra-node-scaleup
+  - ../../../roles/router-scaleup

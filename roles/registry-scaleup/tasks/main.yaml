@@ -11,10 +11,6 @@
   register: nodes
   when: node_type == "infra"
 
-- name: Scale the router
-  shell: "{{ openshift.common.client_binary }} scale dc/router --replicas={{ nodes.stdout }}"
-  when: node_type == "infra"
-
 - name: Scale the registry
   shell: "{{ openshift.common.client_binary }} scale dc/docker-registry --replicas={{ nodes.stdout }}"
   when: node_type == "infra"

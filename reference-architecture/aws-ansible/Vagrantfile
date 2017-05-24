@@ -81,7 +81,7 @@ mkdir -p /home/vagrant/.ssh && ssh-keygen -t rsa -N '' -f /home/vagrant/.ssh/ocp
 cat >/home/vagrant/.ssh/config <<EOF
 Host *.#{PUBLIC_HOSTED_ZONE}
 ProxyCommand               ssh ec2-user@bastion -W %h:%p
-IdentityFile               /home/vagrant/.ssh/ocp
+IdentityFile               /home/vagrant/.ssh/oce
 
 Host bastion
 Hostname                   bastion.#{PUBLIC_HOSTED_ZONE}
@@ -90,11 +90,11 @@ StrictHostKeyChecking      no
 ProxyCommand               none
 CheckHostIP                no
 ForwardAgent               yes
-IdentityFile               /home/vagrant/.ssh/ocp
+IdentityFile               /home/vagrant/.ssh/oce
 EOF
 
 # Set permissions
-chmod 400 /home/vagrant/.ssh/config /home/vagrant/.ssh/ocp
+cd /home/vagrant/.ssh && chmod 400 config oce oce.pub
 SCRIPT
 
 $provision = <<SCRIPT
@@ -124,7 +124,7 @@ cd /usr/src/openshift-ansible-aws/reference-architecture/aws-ansible
 --region=#{REGION} \
 --keypair=#{KEY_PAIR} \
 --create-key=yes \
---key-path=/home/vagrant/.ssh/ocp.pub \
+--key-path=/home/vagrant/.ssh/oce.pub \
 --public-hosted-zone=#{PUBLIC_HOSTED_ZONE} \
 --deployment-type=origin \
 --ami=#{AMI} \

@@ -1,4 +1,4 @@
-#OpenShift and Atomic Platform Ansible Contrib
+# OpenShift and Atomic Platform Ansible Contrib
 
 [![Build
 Status](https://travis-ci.org/openshift/openshift-ansible-contrib.svg?branch=master)](https://travis-ci.org/openshift/openshift-ansible-contrib)

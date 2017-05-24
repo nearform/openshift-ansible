@@ -74,8 +74,28 @@ REGIONS = {
 
 AMI = REGIONS[REGION]
 
-$gen_key = <<SCRIPT
-mkdir -p /home/vagrant/.ssh && ssh-keygen -t rsa -N '' -f /home/vagrant/.ssh/ocp
+$provision = <<SCRIPT
+rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+
+# Install dependencies
+yum -y install python-pip git python2-boto \
+                python-netaddr python-httplib2 python-devel \
+                gcc libffi-devel openssl-devel python2-boto3 \
+                python-click python-six pyOpenSSL
+
+# Upgrade pip
+pip install --upgrade pip
+
+# Install ansible v2.2, setuptools and graffiti_monkey
+pip install --upgrade git+https://github.com/ansible/ansible.git@stable-2.2 setuptools graffiti_monkey
+
+# Clone repository 
+mkdir -p /usr/share/ansible/openshift-ansible
+git clone https://github.com/openshift/openshift-ansible.git /usr/share/ansible/openshift-ansible
+SCRIPT
+
+$shell= <<SCRIPT
+mkdir -p /home/vagrant/.ssh && ssh-keygen -t rsa -N '' -f /home/vagrant/.ssh/oce
 
 # Copy SSH config for bastion host
 cat >/home/vagrant/.ssh/config <<EOF
@@ -95,31 +115,11 @@ EOF
 
 # Set permissions
 cd /home/vagrant/.ssh && chmod 400 config oce oce.pub
-SCRIPT
-
-$provision = <<SCRIPT
-rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
-
-# Install dependencies
-yum -y install python-pip git python2-boto \
-                python-netaddr python-httplib2 python-devel \
-                gcc libffi-devel openssl-devel python2-boto3 \
-                python-click python-six pyOpenSSL
-
-# Install ansible v2.2
-pip install git+https://github.com/ansible/ansible.git@stable-2.2 
-
-# Install dependencies
-pip install --upgrade setuptools graffiti_monkey
-
-# Clone repository 
-mkdir -p /usr/share/ansible/openshift-ansible
-git clone https://github.com/openshift/openshift-ansible.git /usr/share/ansible/openshift-ansible
 
 # After login, change to openshift-ansible-aws directory
-cd /usr/src/openshift-ansible-aws/reference-architecture/aws-ansible
+cd /usr/src/openshift-ansible/reference-architecture/aws-ansible
 
-# # Run ose-on-aws.py script
+# Run ose-on-aws.py script
 ./ose-on-aws.py \
 --region=#{REGION} \
 --keypair=#{KEY_PAIR} \
@@ -131,9 +131,10 @@ cd /usr/src/openshift-ansible-aws/reference-architecture/aws-ansible
 --github-organization=#{GITHUB_ORGANIZATION} \
 --github-client-secret=#{GITHUB_CLIENT_SECRET} \
 --github-client-id=#{GITHUB_CLIENT_ID} \
+--deploy-openshift-metrics=true \
 --containerized=true \
 --no-confirm \
---verbose && graffiti-monkey --region #{REGION}
+--verbose --verbose --verbose --verbose && graffiti-monkey --region #{REGION}
 SCRIPT
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
@@ -145,10 +146,10 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   end
   
   config.vm.synced_folder "./", "/vagrant", disabled: true
-  config.vm.synced_folder "../../", "/usr/src/openshift-ansible-aws"
+  config.vm.synced_folder "../../", "/usr/src/openshift-ansible"
   
-  config.vm.provision "shell", inline: $gen_key, privileged: false
-  config.vm.provision "shell", inline: $provision, env: {
+  config.vm.provision "shell", inline: $provision
+  config.vm.provision "shell", inline: $shell, privileged: false, env: {
     "AWS_ACCESS_KEY_ID" => AWS_ACCESS_KEY_ID,
     "AWS_SECRET_ACCESS_KEY" => AWS_SECRET_ACCESS_KEY
   }

@@ -23,6 +23,7 @@ export SUBSCRIPTIONID=${array[17]}
 export TENANTID=${array[18]}
 export AADCLIENTID=${array[19]}
 export AADCLIENTSECRET=${array[20]}
+export RHSMMODE=${array[21]}
 export FULLDOMAIN=${THEHOSTNAME#*.*}
 export WILDCARDFQDN=${WILDCARDZONE}.${FULLDOMAIN}
 export WILDCARDIP=`dig +short ${WILDCARDFQDN}`
@@ -31,6 +32,7 @@ echo "Show wildcard info"
 echo $WILDCARDFQDN
 echo $WILDCARDIP
 echo $WILDCARDNIP
+echo $RHSMMODE
 
 echo 'Show Registry Values'
 echo $REGISTRYSTORAGENAME
@@ -138,7 +140,12 @@ rm -f /etc/yum.repos.d/rh-cloud.repo
 yum-config-manager --disable epel
 yum-config-manager --disable epel-testing
 sleep 30
-subscription-manager register --username $RHNUSERNAME --password ${RHNPASSWORD}
+if [[ $RHSMMODE == "usernamepassword" ]]
+then
+   subscription-manager register --username="${RHNUSERNAME}" --password="${RHNPASSWORD}"
+else
+   subscription-manager register --org="${RHNUSERNAME}" --activationkey="${RHNPASSWORD}"
+fi
 subscription-manager attach --pool=$RHNPOOLID
 subscription-manager repos --disable="*"
 subscription-manager repos     --enable="rhel-7-server-rpms"     --enable="rhel-7-server-extras-rpms rhel-7-fast-datapath-rpms"
@@ -172,7 +179,7 @@ EOF
 # Create Azure Cloud Provider configuration Playbook
 
 cat > /home/${AUSERNAME}/setup-azure-master.yml <<EOF
-#!/usr/bin/ansible-playbook 
+#!/usr/bin/ansible-playbook
 - hosts: masters
   gather_facts: no
   serial: 1
@@ -215,7 +222,7 @@ cat > /home/${AUSERNAME}/setup-azure-master.yml <<EOF
           "subscriptionID" : "{{ g_subscriptionId }}",
           "tenantID" : "{{ g_tenantId }}",
           "resourceGroup": "{{ g_resourceGroup }}",
-        } 
+        }
     notify:
     - restart atomic-openshift-master-api
     - restart atomic-openshift-master-controllers
@@ -254,7 +261,7 @@ cat > /home/${AUSERNAME}/setup-azure-master.yml <<EOF
 EOF
 
 cat > /home/${AUSERNAME}/setup-azure-node.yml <<EOF
-#!/usr/bin/ansible-playbook 
+#!/usr/bin/ansible-playbook
 - hosts: all
   serial: 1
   gather_facts: no
@@ -286,7 +293,7 @@ cat > /home/${AUSERNAME}/setup-azure-node.yml <<EOF
           "subscriptionID" : "{{ g_subscriptionId }}",
           "tenantID" : "{{ g_tenantId }}",
           "resourceGroup": "{{ g_resourceGroup }}",
-        } 
+        }
     notify:
     - restart atomic-openshift-node
   - name: insert the azure disk config into the node
@@ -379,14 +386,14 @@ master2 openshift_hostname=master2 openshift_node_labels="{'role': 'master'}"
 master3 openshift_hostname=master3 openshift_node_labels="{'role': 'master'}"
 
 [etcd]
-master1 
-master2 
-master3 
+master1
+master2
+master3
 
 [nodes]
-master1 openshift_hostname=master1 openshift_node_labels="{'role':'master','zone':'default'}"
-master2 openshift_hostname=master2 openshift_node_labels="{'role':'master','zone':'default'}"
-master3 openshift_hostname=master3 openshift_node_labels="{'role':'master','zone':'default'}"
+master1 openshift_hostname=master1 openshift_node_labels="{'role':'master','zone':'default'}" openshift_schedulable=false
+master2 openshift_hostname=master2 openshift_node_labels="{'role':'master','zone':'default'}" openshift_schedulable=false
+master3 openshift_hostname=master3 openshift_node_labels="{'role':'master','zone':'default'}" openshift_schedulable=false
 infranode1 openshift_hostname=infranode1 openshift_node_labels="{'role': 'infra', 'zone': 'default'}"
 infranode2 openshift_hostname=infranode2 openshift_node_labels="{'role': 'infra', 'zone': 'default'}"
 infranode3 openshift_hostname=infranode3 openshift_node_labels="{'role': 'infra', 'zone': 'default'}"
@@ -425,19 +432,31 @@ cat <<EOF > /home/${AUSERNAME}/subscribe.yml
     shell: subscription-manager unregister
     ignore_errors: yes
   - name: register hosts
-    shell: subscription-manager register --username ${RHNUSERNAME} --password ${RHNPASSWORD}
+EOF
+if [[ $RHSMMODE == "usernamepassword" ]]
+then
+    echo "    shell: subscription-manager register --username=\"${RHNUSERNAME}\" --password=\"${RHNPASSWORD}\"" >> /home/${AUSERNAME}/subscribe.yml
+else
+    echo "    shell: subscription-manager register --org=\"${RHNUSERNAME}\" --activationkey=\"${RHNPASSWORD}\"" >> /home/${AUSERNAME}/subscribe.yml
+fi
+cat <<EOF >> /home/${AUSERNAME}/subscribe.yml
     register: task_result
     until: task_result.rc == 0
     retries: 10
     delay: 30
     ignore_errors: yes
-  - name: attach sub
-    shell: subscription-manager attach --pool=$RHNPOOLID
-    register: task_result
-    until: task_result.rc == 0
-    retries: 10
-    delay: 30
-    ignore_errors: yes
+EOF
+if [[ $RHSMMODE == "usernamepassword" ]]
+then
+    echo "  - name: attach sub" >> /home/${AUSERNAME}/subscribe.yml
+    echo "    shell: subscription-manager attach --pool=$RHNPOOLID" >> /home/${AUSERNAME}/subscribe.yml
+    echo "    register: task_result" >> /home/${AUSERNAME}/subscribe.yml
+    echo "    until: task_result.rc == 0" >> /home/${AUSERNAME}/subscribe.yml
+    echo "    retries: 10" >> /home/${AUSERNAME}/subscribe.yml
+    echo "    delay: 30" >> /home/${AUSERNAME}/subscribe.yml
+    echo "    ignore_errors: yes" >> /home/${AUSERNAME}/subscribe.yml
+fi
+cat <<EOF >> /home/${AUSERNAME}/subscribe.yml
   - name: disable all repos
     shell: subscription-manager repos --disable="*"
   - name: enable rhel7 repo
@@ -509,7 +528,7 @@ sleep 120
 ansible all --module-name=ping > ansible-preinstall-ping.out || true
 ansible-playbook  /home/${AUSERNAME}/subscribe.yml
 echo "${RESOURCEGROUP} Bastion Host is starting ansible BYO" | mail -s "${RESOURCEGROUP} Bastion BYO Install" ${RHNUSERNAME} || true
-ansible-playbook  /usr/share/ansible/openshift-ansible/playbooks/byo/config.yml < /dev/null 
+ansible-playbook  /usr/share/ansible/openshift-ansible/playbooks/byo/config.yml < /dev/null
 
 wget http://master1:8443/api > healtcheck.out
 ansible-playbook /home/${AUSERNAME}/postinstall.yml
@@ -521,17 +540,18 @@ mkdir /home/${AUSERNAME}/.kube
 cp /tmp/kube-config /home/${AUSERNAME}/.kube/config
 chown --recursive ${AUSERNAME} /home/${AUSERNAME}/.kube
 rm -f /tmp/kube-config
-yum -y install atomic-openshift-clients 
+yum -y install atomic-openshift-clients
 echo "setup registry for azure"
 oc env dc docker-registry -e REGISTRY_STORAGE=azure -e REGISTRY_STORAGE_AZURE_ACCOUNTNAME=$REGISTRYSTORAGENAME -e REGISTRY_STORAGE_AZURE_ACCOUNTKEY=$REGISTRYKEY -e REGISTRY_STORAGE_AZURE_CONTAINER=registry
 sleep 30
 echo "Setup Azure PVC"
 echo "Azure Setup masters"
-ansible-playbook /home/${AUSERNAME}/setup-azure-master.yml 
-ansible-playbook /home/${AUSERNAME}/setup-azure-node.yml 
+ansible-playbook /home/${AUSERNAME}/setup-azure-master.yml
+ansible-playbook /home/${AUSERNAME}/setup-azure-node.yml
 /home/${AUSERNAME}/createvhdcontainer.sh sapv1${RESOURCEGROUP}
 /home/${AUSERNAME}/createvhdcontainer.sh sapv2${RESOURCEGROUP}
 oc create -f /home/${AUSERNAME}/scgeneric.yml
+oc adm policy add-cluster-role-to-user cluster-admin ${AUSERNAME}
 cat /home/${AUSERNAME}/openshift-install.out | tr -cd [:print:] |  mail -s "${RESOURCEGROUP} Install Complete" ${RHNUSERNAME} || true
 EOF
 

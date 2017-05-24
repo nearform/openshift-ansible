@@ -29,4 +29,3 @@
   add_host: hostname="{{ item.value.guestname}}" ansible_ssh_host="{{ item.value.ip4addr }}" groups="nfs_group"
   with_dict: "{{ host_inventory }}"
   when: "'nfs' in item.value.guestname"
-

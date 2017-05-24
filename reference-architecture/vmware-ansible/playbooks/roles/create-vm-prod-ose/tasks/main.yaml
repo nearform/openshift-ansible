@@ -1,11 +1,11 @@
 ---
 - name: Assign app memory for container_storage
-  set_fact: 
+  set_fact:
     app_memory: 32768
   when: "'cns' in container_storage"
 
 - name: Assign app memory for container_storage
-  set_fact: 
+  set_fact:
     app_memory: 8192
   when: "'cns' not in container_storage"
 
@@ -24,7 +24,7 @@
     folder: "/{{ vcenter_folder }}"
     annotation: "{{ item.value.tag }}"
     hardware:
-        memory_mb: 16384
+      memory_mb: 16384
     networks:
     - name: "{{ vm_network }}"
       ip: "{{ item.value.ip4addr }}"
@@ -54,7 +54,7 @@
     folder: "/{{ vcenter_folder }}"
     annotation: "{{ item.value.tag }}"
     hardware:
-        memory_mb: 8192
+      memory_mb: 8192
     networks:
     - name: "{{ vm_network }}"
       ip: "{{ item.value.ip4addr }}"
@@ -84,7 +84,7 @@
     folder: "/{{ vcenter_folder }}"
     annotation: "{{ item.value.tag }}"
     hardware:
-        memory_mb: "{{ app_memory }}"
+      memory_mb: "{{ app_memory }}"
     networks:
     - name: "{{ vm_network }}"
       ip: "{{ item.value.ip4addr }}"
@@ -103,4 +103,3 @@
   add_host: hostname="{{ item.value.guestname }}" ansible_ssh_host="{{ item.value.ip4addr }}" groups="{{ item.value.tag }}, production_group"
   with_dict: "{{host_inventory}}"
   when: "'master' in item.value.guestname or 'app' in item.value.guestname or 'infra' in item.value.guestname"
-

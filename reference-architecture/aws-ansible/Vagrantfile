@@ -81,7 +81,8 @@ rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
 yum -y install python-pip git python2-boto \
                 python-netaddr python-httplib2 python-devel \
                 gcc libffi-devel openssl-devel python2-boto3 \
-                python-click python-six pyOpenSSL
+                python-click python-six pyOpenSSL \
+                java-1.8.0-openjdk-headless python-passlib
 
 # Upgrade pip
 pip install --upgrade pip

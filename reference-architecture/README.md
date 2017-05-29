@@ -10,3 +10,5 @@ GCP https://access.redhat.com/articles/2751521
 VMWare https://access.redhat.com/articles/2745171
 
 OSP https://access.redhat.com/articles/2743631
+
+Azure https://access.redhat.com/articles/3030691

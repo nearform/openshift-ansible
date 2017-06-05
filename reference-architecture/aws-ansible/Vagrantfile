@@ -47,8 +47,8 @@ AWS_ACCESS_KEY_ID = ENV['AWS_ACCESS_KEY_ID']
 AWS_SECRET_ACCESS_KEY = ENV['AWS_SECRET_ACCESS_KEY']
 
 # Set ose-on-aws.py parameters
-REGION = ENV['region'] || 'us-east-2'
-KEY_PAIR = ENV['KEY_PAIR'] || 'openshift-key'
+REGION = ENV['REGION'] || 'us-east-2'
+KEY_PAIR = ENV['KEY_PAIR'] || 'ocp'
 PUBLIC_HOSTED_ZONE = ENV['PUBLIC_HOSTED_ZONE']
 GITHUB_ORGANIZATION = ENV['GITHUB_ORGANIZATION']
 GITHUB_CLIENT_SECRET = ENV['GITHUB_CLIENT_SECRET']
@@ -81,7 +81,7 @@ rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
 yum -y install python-pip git python2-boto \
                 python-netaddr python-httplib2 python-devel \
                 gcc libffi-devel openssl-devel python2-boto3 \
-                python-click python-six pyOpenSSL \
+                python-click python-six pyOpenSSL httpd-tools \
                 java-1.8.0-openjdk-headless python-passlib
 
 # Upgrade pip
@@ -96,13 +96,13 @@ git clone https://github.com/openshift/openshift-ansible.git /usr/share/ansible/
 SCRIPT
 
 $shell= <<SCRIPT
-mkdir -p /home/vagrant/.ssh && ssh-keygen -t rsa -N '' -f /home/vagrant/.ssh/ose
+mkdir -p /home/vagrant/.ssh && ssh-keygen -t rsa -N '' -f /home/vagrant/.ssh/ocp
 
 # Copy SSH config for bastion host
 cat >/home/vagrant/.ssh/config <<EOF
 Host *.#{PUBLIC_HOSTED_ZONE}
 ProxyCommand               ssh ec2-user@bastion -W %h:%p
-IdentityFile               /home/vagrant/.ssh/ose
+IdentityFile               /home/vagrant/.ssh/ocp
 
 Host bastion
 Hostname                   bastion.#{PUBLIC_HOSTED_ZONE}
@@ -111,11 +111,11 @@ StrictHostKeyChecking      no
 ProxyCommand               none
 CheckHostIP                no
 ForwardAgent               yes
-IdentityFile               /home/vagrant/.ssh/ose
+IdentityFile               /home/vagrant/.ssh/ocp
 EOF
 
 # Set permissions
-cd /home/vagrant/.ssh && chmod 400 config ose ose.pub
+cd /home/vagrant/.ssh && chmod 400 config ocp ocp.pub
 
 # After login, change to openshift-ansible-aws directory
 cd /usr/src/openshift-ansible/reference-architecture/aws-ansible
@@ -125,13 +125,14 @@ cd /usr/src/openshift-ansible/reference-architecture/aws-ansible
 --region=#{REGION} \
 --keypair=#{KEY_PAIR} \
 --create-key=yes \
---key-path=/home/vagrant/.ssh/ose.pub \
+--key-path=/home/vagrant/.ssh/ocp.pub \
 --public-hosted-zone=#{PUBLIC_HOSTED_ZONE} \
 --deployment-type=origin \
 --ami=#{AMI} \
 --github-organization=#{GITHUB_ORGANIZATION} \
 --github-client-secret=#{GITHUB_CLIENT_SECRET} \
 --github-client-id=#{GITHUB_CLIENT_ID} \
+--deploy-openshift-metrics=true \
 --containerized=true \
 --no-confirm && graffiti-monkey --region #{REGION}
 SCRIPT

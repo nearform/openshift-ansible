@@ -47,6 +47,7 @@
     - name: Check if subscription is attached
       command: subscription-manager list --consumed --pool-only --matches="{{ rhsm_pool }}"
       register: subscription_attached
+      when: rhsm_pool is defined and rhsm_pool
       changed_when: no
 
     - block:
@@ -63,6 +64,6 @@
         - name: Attach subscription
           command: subscription-manager attach --pool="{{ pool_id.stdout }}"
 
-      when: subscription_attached.stdout == ""
+      when: rhsm_pool is defined and rhsm_pool and subscription_attached.stdout == ""
 
   when: ansible_distribution == "RedHat"

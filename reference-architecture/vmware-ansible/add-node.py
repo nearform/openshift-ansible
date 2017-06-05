@@ -33,7 +33,7 @@ class VMWareAddNode(object):
     byo_lb=None
     lb_host=None
     byo_nfs=None
-    nfs_registry_host=None
+    nfs_host=None
     nfs_registry_mountpoint=None
     master_nodes=None
     infra_nodes=None
@@ -113,7 +113,7 @@ class VMWareAddNode(object):
             'byo_lb':'no',
             'lb_host':'haproxy-',
             'byo_nfs':'no',
-            'nfs_registry_host':'nfs-0',
+            'nfs_host':'nfs-0',
             'nfs_registry_mountpoint':'/exports',
             'master_nodes':'3',
             'infra_nodes':'2',
@@ -167,7 +167,7 @@ class VMWareAddNode(object):
         self.byo_lb = config.get('vmware', 'byo_lb')
         self.lb_host = config.get('vmware', 'lb_host')
         self.byo_nfs = config.get('vmware', 'byo_nfs')
-        self.nfs_registry_host = config.get('vmware', 'nfs_registry_host')
+        self.nfs_host = config.get('vmware', 'nfs_host')
         self.nfs_registry_mountpoint = config.get('vmware', 'nfs_registry_mountpoint')
         self.master_nodes = config.get('vmware', 'master_nodes')
         self.infra_nodes = config.get('vmware', 'infra_nodes')
@@ -245,6 +245,8 @@ class VMWareAddNode(object):
         if self.byo_lb == "no":
             lb_host_fqdn = "%s.%s" % (self.lb_host, self.public_hosted_zone)
             self.lb_host = lb_host_fqdn
+            if ocp_hostname_prefix is not None:
+                self.lb_host = self.ocp_hostname_prefix + self.lb_host
         # Provide values for update and add node playbooks       
         update_file = ["playbooks/node-setup.yaml"]
         for line in fileinput.input(update_file, inplace=True):
@@ -308,7 +310,7 @@ class VMWareAddNode(object):
             rhel_subscription_pool="%s" \
             openshift_sdn=%s \
             lb_host=%s \
-            nfs_registry_host=%s \
+            nfs_host=%s \
             nfs_registry_mountpoint=%s \' %s' % ( self.vcenter_host,
                             self.vcenter_username,
                             self.vcenter_password,
@@ -333,7 +335,7 @@ class VMWareAddNode(object):
                             self.rhel_subscription_pool,
                             self.openshift_sdn,
                             self.lb_host,
-                            self.nfs_registry_host,
+                            self.nfs_host,
                             self.nfs_registry_mountpoint,
                             playbook)
 

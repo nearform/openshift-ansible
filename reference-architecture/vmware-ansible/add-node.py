@@ -68,6 +68,43 @@ class VMWareAddNode(object):
         if os.path.exists(self.inventory_file):
             self.launch_refarch_env()
 
+    def update_ini_file(self):
+        ''' Update INI file with added number of nodes '''
+        scriptbasename = "ocp-on-vmware"
+        defaults = {'vmware': {
+            'ini_path': os.path.join(os.path.dirname(__file__), '%s.ini' % scriptbasename),
+            'master_nodes':'3',
+            'infra_nodes':'2',
+            'app_nodes':'3' }
+        }
+        # where is the config?
+        if six.PY3:
+            config = configparser.ConfigParser()
+        else:
+            config = configparser.SafeConfigParser()
+
+        vmware_ini_path = os.environ.get('VMWARE_INI_PATH', defaults['vmware']['ini_path'])
+        vmware_ini_path = os.path.expanduser(os.path.expandvars(vmware_ini_path))
+        config.read(vmware_ini_path)
+
+
+        if 'app' in self.node_type:
+            self.app_nodes = int(self.app_nodes) + int(self.node_number)
+            config.set('vmware', 'app_nodes', str(self.app_nodes))
+            print "Updating %s file with %s app_nodes" % (vmware_ini_path, str(self.app_nodes))
+        if 'infra' in self.node_type:
+            self.infra_nodes = int(self.infra_nodes) + int(self.node_number)
+            config.set('vmware', 'infra_nodes', str(self.infra_nodes))
+            print "Updating %s file with %s infra_nodes" % (vmware_ini_path, str(self.infra_nodes))
+
+        for line in fileinput.input(vmware_ini_path, inplace=True):
+            if line.startswith("app_nodes"):
+                print "app_nodes=" + str(self.app_nodes)
+            elif line.startswith("infra_nodes"):
+                print "infra_nodes=" + str(self.infra_nodes)
+            else:
+                print line,
+
     def parse_cli_args(self):
 
         ''' Command line argument processing '''
@@ -96,7 +133,6 @@ class VMWareAddNode(object):
             'vcenter_password':'',
             'vcenter_template_name':'ocp-server-template-2.0.2',
             'vcenter_folder':'ocp',
-            'vcenter_cluster':'devel',
             'vcenter_cluster':'',
             'vcenter_resource_pool':'/Resources/OCP3',
             'public_hosted_zone':'',
@@ -245,7 +281,8 @@ class VMWareAddNode(object):
         if self.byo_lb == "no":
             lb_host_fqdn = "%s.%s" % (self.lb_host, self.public_hosted_zone)
             self.lb_host = lb_host_fqdn
-            if ocp_hostname_prefix is not None:
+
+            if self.ocp_hostname_prefix is not None:
                 self.lb_host = self.ocp_hostname_prefix + self.lb_host
         # Provide values for update and add node playbooks       
         update_file = ["playbooks/node-setup.yaml"]
@@ -310,6 +347,7 @@ class VMWareAddNode(object):
             rhel_subscription_pool="%s" \
             openshift_sdn=%s \
             lb_host=%s \
+            node_type=%s \
             nfs_host=%s \
             nfs_registry_mountpoint=%s \' %s' % ( self.vcenter_host,
                             self.vcenter_username,
@@ -335,17 +373,22 @@ class VMWareAddNode(object):
                             self.rhel_subscription_pool,
                             self.openshift_sdn,
                             self.lb_host,
+                            self.node_type,
                             self.nfs_host,
                             self.nfs_registry_mountpoint,
                             playbook)
 
             if self.verbose > 0:
-                command += " -vvvvv" 
+                command += " -vvvvv"
                 click.echo('We are running: %s' % command)
 
             status = os.system(command)
             if os.WIFEXITED(status) and os.WEXITSTATUS(status) != 0:
                 return os.WEXITSTATUS(status)
+            else:
+                self.update_ini_file()
+                print "Removing the existing %s file" % self.inventory_file
+                os.remove(self.inventory_file)
 
 if __name__ == '__main__':
 

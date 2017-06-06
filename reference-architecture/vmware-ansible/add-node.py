@@ -281,6 +281,7 @@ class VMWareAddNode(object):
         if self.byo_lb == "no":
             lb_host_fqdn = "%s.%s" % (self.lb_host, self.public_hosted_zone)
             self.lb_host = lb_host_fqdn
+
             if self.ocp_hostname_prefix is not None:
                 self.lb_host = self.ocp_hostname_prefix + self.lb_host
         # Provide values for update and add node playbooks       

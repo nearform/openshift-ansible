@@ -150,7 +150,7 @@ The same greenfield and brownfield deployment steps can be used to launch anothe
 --github-organization=RHSyseng --github-client-id=3a30415d84720ad14abc
 ```
 
-## Adding nodes
+## Adding nodes 
 Adding nodes can be done by performing the following. The configuration option --node-type allows for the creation of application or
 infrastructure nodes. If the deployment is for an application node --infra-sg and --infra-elb-name are not required.
 
@@ -190,4 +190,71 @@ ansible-playbook -i inventory/aws/hosts -e 'region=us-east-1 stack_name=openshif
 If nodes were added to the environment the following can be ran. Below shows all of the possible teardown additions.
 ```
 ansible-playbook -i inventory/aws/hosts -e 'region=us-east-1 stack_name=openshift-infra ci=true' -e 'extra_app_nodes=openshift-infra-ose-app-node03' -e 'gluster_nodes=openshift-infra-cns' -e 'extra_infra_nodes=openshift-infra-ose-infra-node04' playbooks/teardown.yaml
+```
+
+## Automate Installation
+In order to quickly provision an Openshift Origin cluster and avoid to play around with the CLI, a `Vagrantfile` has been created.
+
+This will spin up a virtual machine running CentOS 7 with already installed all required dependencies to run successfully Ansible playbooks. A Greenfield installation of Openshift Origin will start in the AWS Account defined by the exported variables. Here the following parameters used to run the installation:
+
+```bash
+./ose-on-aws.py \
+--region=#{REGION} \
+--keypair=#{KEY_PAIR} \
+--create-key=yes \
+--key-path=/home/vagrant/.ssh/ocp.pub \
+--public-hosted-zone=#{PUBLIC_HOSTED_ZONE} \
+--deployment-type=origin \
+--ami=#{AMI} \
+--github-organization=#{GITHUB_ORGANIZATION} \
+--github-client-secret=#{GITHUB_CLIENT_SECRET} \
+--github-client-id=#{GITHUB_CLIENT_ID} \
+--deploy-openshift-metrics=true \
+--containerized=true \
+--no-confirm
+```
+ 
+### Steps
+* Export
+  * `AWS_SECRET_ACCESS_KEY`
+  * `AWS_ACCESS_KEY_ID`
+  * `GITHUB_CLIENT_ID`
+  * `GITHUB_CLIENT_SECRET`
+  * `GITHUB_ORGANIZATION`
+  * `PUBLIC_HOSTED_ZONE`
+  * `REGION`
+* Run `make`
+
+*The make process will return error in the case that Vagrant is not found in the local machine.*
+
+### Additional notes
+* The installation will create a new key-pair in your AWS account and the key will be used to access all the EC2 instances. The key is located in the virtual machine under `/home/vagrant/.ssh/ocp.pub`
+* The AMI where Openshift run is[CentOS Atomic Host](https://wiki.centos.org/SpecialInterestGroup/Atomic/Download).
+* The script will also install metrics in the cluster (`deploy-openshift-metrics=true`).
+* The applications will be installed in Docker containers (`containerized=true`).
+
+## Openshift Central Logging
+At the moment no option is available in `ose-on-aws.py` to install central logging. It is needed to run the `openshift-logging` role under the repository [openshift-ansible/roles](https://github.com/openshift/openshift-ansible) separately once the cluster has been provisioned successfully.
+
+### Steps
+* Point the repository `openshift-ansible` located in the Vagrant machine under the folder `/usr/share/ansible` to the branch `release-1.5`.
+* Generate the static inventory file. Run from the root of the Vagrant machine folder `reference-architecture/aws`:
+```
+ansible-playbook -i inventory/aws/hosts -e 'region=us-east-1 stack_name=openshift-infra github_client_secret=c3cd9271ffb9f7258e135fcf3ea3a358cffa46b1 github_organization=["openshift"] console_port=443 wildcard_zone=apps.sysdeseng.com public_hosted_zone=sysdeseng.com playbooks/create-inventory-file.yaml
+```
+*After the creation of the static inventory file, double check that it mirrors the option parameters presents in the Vagrantfile*
+
+* Add in the static inventory file:
+```
+openshift_logging_install_logging=true
+openshift_logging_es_pvc_dynamic=true
+openshift_logging_es_pvc_size=50Gi
+openshift_logging_kibana_hostname=kibana.apps.{{ public_hosted_zone }}
+openshift_logging_master_public_url=https://openshift-master.{{ public_hosted_zone }}
+openshift_logging_kibana_proxy_debug=true
+openshift_logging_image_version=v1.5.1
+```
+* Run from the Vagrant machine folder `reference-architecture/aws-ansible`:
+```
+ansible-playbook -i static-inventory ../../../../share/ansible/openshift-ansible/playbooks/byo/openshift-cluster/openshift-logging.yml
 ```

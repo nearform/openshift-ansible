@@ -232,7 +232,7 @@ This will spin up a virtual machine running CentOS 7 with already installed all 
 
 ### Additional notes
 * The installation will create a new key-pair in your AWS account and the key will be used to access all the EC2 instances. The key is located in the virtual machine under `/home/vagrant/.ssh/ocp.pub`
-* The AMI where Openshift run is[CentOS Atomic Host](https://wiki.centos.org/SpecialInterestGroup/Atomic/Download).
+* The AMI where Openshift run corresponds to [CentOS Atomic Host](https://wiki.centos.org/SpecialInterestGroup/Atomic/Download).
 * The script will also install metrics in the cluster (`deploy-openshift-metrics=true`).
 * The applications will be installed in Docker containers (`containerized=true`).
 

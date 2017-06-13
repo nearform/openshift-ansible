@@ -17,7 +17,6 @@
 
 - hosts: federation
   tasks:
-# TODO: Need to build in a check to see if there are any default storage classes defined.
 #  - name: Add default storage class
 #    shell: >
 #      echo {{ lookup('file', 'default_storage_class.yml') | quote }} | oc create -f -

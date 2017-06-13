@@ -6,7 +6,7 @@
     gce_creds_file: "{{ lookup('env', 'GCE_CREDS_FILE') }}"
     gce_service_account: "{{ lookup('env', 'GCE_SERVICE_ACCOUNT') }}"
     gce_project_id: "{{ lookup('env', 'GCE_PROJECT_ID') }}"
-    gce_regions: "{{ lookup('env', 'GCE_REGIONS') | default('us-east1,us-central1,us-west1', true) }}"
+    gce_regions: "{{ lookup('env', 'GCE_REGIONS') | default('us-east1,us-east4,us-west1', true) }}"
     gce_regions_zones:
       us-east1:
         - us-east1-b

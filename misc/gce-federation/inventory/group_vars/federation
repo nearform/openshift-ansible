@@ -1,8 +1,7 @@
 ---
 # These two really should have some sane defaults rather than failing if not specified
 ansible_become: yes
-ansible_ssh_user: jdetiber
-
+ansible_ssh_user: admin
 openshift_deployment_type: origin
 openshift_additional_repos:
 - id: origin-devel

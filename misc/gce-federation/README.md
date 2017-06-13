@@ -49,8 +49,8 @@ export GCE_PROJECT_ID=federation-8675309
 Ensure the following are installed before performing the ansible run.
 
 ```
-yum -y install ansible
-pip install apache-libcloud
+rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+yum -y install ansible git python-libcloud git openssl python2-jmespath
 
 ```
 

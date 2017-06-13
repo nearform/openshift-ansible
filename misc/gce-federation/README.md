@@ -1,4 +1,5 @@
 #GCE quickstart
+
 cat << EOF > inventory/gce.ini
 gce_service_account_email_address = <service account email address>
 gce_service_account_pem_file_path = <path to service account pem file>
@@ -13,6 +14,7 @@ export GCE_PROJECT_ID=<gce project id>
 ansible-playbook init.yaml && ./inventory/gce.py --refresh-cache && ansible-playbook install.yaml && ansible-playbook federate.yaml && ansible-playbook deploy-app.yaml 
 
 ##General Configuration
+
 ====Required variables
 Variables can be set using extra vars (using -e at the command line) or by export environment variables.
 
@@ -28,9 +30,11 @@ Variables can be set using extra vars (using -e at the command line) or by expor
 |               |         |         |             |
 
 ###GCE Provisioning Configuration
+
 GCE Provisioning is enabled when gce_cluster_count > 0
 
 ###Required variables
+
 Variables can be set using extra vars (using -e at the command line) or by export environment variables.
 
 | variable name | env var | description |
@@ -40,6 +44,7 @@ Variables can be set using extra vars (using -e at the command line) or by expor
 | gce_project_id | GCE_PROJECT_ID | GCE project id to use for provisioning |
 
 ###Optional variables
+
 Variables can be set using extra vars (using -e at the command line) or by export environment variables.
 
 | variable name | env var | default | description |
@@ -48,4 +53,5 @@ Variables can be set using extra vars (using -e at the command line) or by expor
 | gce_regions | GCE_REGIONS | us-east1,us-central1,us-west1 | Comma separated list of regions to deploy clusters to |
 
 ##Cluster teardown
+
 ansible-playbook teardown.yaml

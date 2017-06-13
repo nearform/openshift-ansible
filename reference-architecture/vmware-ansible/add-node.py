@@ -56,6 +56,7 @@ class VMWareAddNode(object):
     support_nodes=None
     node_type=None
     node_number=None
+    container_storage=None
     verbose=0
 
     def __init__(self, load=True):
@@ -96,6 +97,10 @@ class VMWareAddNode(object):
             self.infra_nodes = int(self.infra_nodes) + int(self.node_number)
             config.set('vmware', 'infra_nodes', str(self.infra_nodes))
             print "Updating %s file with %s infra_nodes" % (vmware_ini_path, str(self.infra_nodes))
+        if 'storage' in self.node_type:
+            self.app_nodes = int(self.app_nodes) + int(self.node_number)
+            config.set('vmware', 'app_nodes', str(self.app_nodes))
+            print "Updating %s file with %s app_nodes for storage" % (vmware_ini_path, str(self.app_nodes))
 
         for line in fileinput.input(vmware_ini_path, inplace=True):
             if line.startswith("app_nodes"):
@@ -126,6 +131,7 @@ class VMWareAddNode(object):
         defaults = {'vmware': {
             'ini_path': os.path.join(os.path.dirname(__file__), '%s.ini' % scriptbasename),
             'console_port':'8443',
+            'container_storage':'none',
             'deployment_type':'openshift-enterprise',
             'openshift_vers':'v3_4',
             'vcenter_host':'',
@@ -179,6 +185,7 @@ class VMWareAddNode(object):
                 config.set('vmware', k, str(v))
 
         self.console_port = config.get('vmware', 'console_port')
+        self.container_storage = config.get('vmware', 'container_storage')
         self.deployment_type = config.get('vmware','deployment_type')
         self.openshift_vers = config.get('vmware','openshift_vers')
         self.vcenter_host = config.get('vmware', 'vcenter_host')
@@ -217,6 +224,9 @@ class VMWareAddNode(object):
         self.node_type = config.get('vmware', 'node_type')
         self.node_number = config.get('vmware', 'node_number')
         err_count=0
+
+        if 'storage' in self.node_type:
+            self.node_number = 3
 
         required_vars = {'public_hosted_zone':self.public_hosted_zone, 'vcenter_host':self.vcenter_host, 'vcenter_password':self.vcenter_password, 'vm_ipaddr_start':self.vm_ipaddr_start, 'ldap_fqdn':self.ldap_fqdn, 'ldap_user_password':self.ldap_user_password, 'vm_dns':self.vm_dns, 'vm_gw':self.vm_gw, 'vm_netmask':self.vm_netmask, 'vcenter_datacenter':self.vcenter_datacenter}
         for k, v in required_vars.items():
@@ -266,6 +276,9 @@ class VMWareAddNode(object):
             if self.node_type == 'infra':
                 node_ip = int(self.infra_nodes) + i
                 guest_name = self.node_type + '-' + str(node_ip)
+            if self.node_type == 'storage':
+                node_ip = int(self.app_nodes) + i
+                guest_name = self.node_type + '-' + str(node_ip)
             if self.ocp_hostname_prefix:
                 guest_name = self.ocp_hostname_prefix + guest_name
             d['host_inventory'][guest_name] = {}
@@ -304,7 +317,14 @@ class VMWareAddNode(object):
             if not click.confirm('Continue adding nodes with these values?'):
                 sys.exit(0)
 
-        playbooks = ['playbooks/add-node.yaml']
+        if 'cns' in self.container_storage and 'storage' in self.node_type:
+            playbooks = ['playbooks/add-cns-node.yaml']
+
+        elif 'crs' in self.container_storage and 'storage' in self.node_type:
+            playbooks = ['playbooks/add-crs-node.yaml']
+
+        else:
+            playbooks = ['playbooks/add-node.yaml']
 
         for playbook in playbooks:
 
@@ -339,6 +359,7 @@ class VMWareAddNode(object):
             vm_network=%s \
             wildcard_zone=%s \
             console_port=%s \
+            container_storage=%s \
             deployment_type=%s \
             openshift_vers=%s \
             rhel_subscription_user=%s \
@@ -365,6 +386,7 @@ class VMWareAddNode(object):
                             self.vm_network,
                             self.wildcard_zone,
                             self.console_port,
+                            self.container_storage,
                             self.deployment_type,
                             self.openshift_vers,
                             self.rhel_subscription_user,

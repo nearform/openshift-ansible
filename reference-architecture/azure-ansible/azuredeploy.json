@@ -1222,25 +1222,6 @@
                 "id" : "[variables('masterLb8443ProbeId')]"
               }
             }
-          },
-          {
-            "name" : "CockpitConsole",
-            "properties" : {
-              "frontendIPConfiguration" : {
-                "id" : "[variables('masterLbFrontEndConfigId')]"
-              },
-              "backendAddressPool" : {
-                "id" : "[variables('masterLbBackendPoolId')]"
-              },
-              "protocol" : "Tcp",
-              "loadDistribution" : "SourceIP",
-              "idleTimeoutInMinutes" : 30,
-              "frontendPort" : 9090,
-              "backendPort" : 9090,
-              "probe" : {
-                "id" : "[variables('masterLbCockpitProbeId')]"
-              }
-            }
           }
         ],
         "probes" : [
@@ -1249,15 +1230,6 @@
             "properties" : {
               "protocol" : "Tcp",
               "port" : 8443,
-              "intervalInSeconds" : 5,
-              "numberOfProbes" : 2
-            }
-          },
-          {
-            "name" : "cockpitProbe",
-            "properties" : {
-              "protocol" : "Tcp",
-              "port" : 9090,
               "intervalInSeconds" : 5,
               "numberOfProbes" : 2
             }
@@ -1326,23 +1298,6 @@
                 "id" : "[variables('infraLbHttpsProbeId')]"
               }
             }
-          },
-          {
-            "name" : "CockpitConsole",
-            "properties" : {
-              "frontendIPConfiguration" : {
-                "id" : "[variables('infraLbFrontEndConfigId')]"
-              },
-              "backendAddressPool" : {
-                "id" : "[variables('infraLbBackendPoolId')]"
-              },
-              "protocol" : "Tcp",
-              "frontendPort" : 9090,
-              "backendPort" : 9090,
-              "probe" : {
-                "id" : "[variables('infraLbCockpitProbeId')]"
-              }
-            }
           }
         ],
         "probes" : [
@@ -1360,15 +1315,6 @@
             "properties" : {
               "protocol" : "Tcp",
               "port" : 443,
-              "intervalInSeconds" : 5,
-              "numberOfProbes" : 2
-            }
-          },
-          {
-            "name" : "cockpitProbe",
-            "properties" : {
-              "protocol" : "Tcp",
-              "port" : 9090,
               "intervalInSeconds" : 5,
               "numberOfProbes" : 2
             }

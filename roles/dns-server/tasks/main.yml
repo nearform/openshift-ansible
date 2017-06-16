@@ -22,7 +22,7 @@
     state: started
 
 - name: Open Firewall for DNS
-  firewalld: 
+  firewalld:
     port: "{{item}}"
     permanent: yes
     state: enabled
@@ -32,23 +32,23 @@
   - 53/udp
 
 - name: Setup Zone Directory
-  file: 
-    dest: /var/named/static 
-    state: directory 
-    owner: named 
-    group: named 
+  file:
+    dest: /var/named/static
+    state: directory
+    owner: named
+    group: named
     mode: 0770
 
 - name: Setup ACLs
-  template: 
+  template:
     src: named.conf.acl.j2
-    dest: /etc/named/named.conf.acl 
-    owner: named 
+    dest: /etc/named/named.conf.acl
+    owner: named
     group: named
     mode: 0660
 
 - name: Setup DNS Logging configuration
-  template: 
+  template:
     src: named.conf.logging.j2
     dest: /etc/named/named.conf.logging
     owner: named
@@ -98,10 +98,10 @@
 - name: Generate keys for nsupdate
   command: >
     /sbin/dnssec-keygen
-      -a {{ dnssec_keygen_algorithm | default(default_dnssec_keygen_algorithm) }} 
+      -a {{ dnssec_keygen_algorithm | default(default_dnssec_keygen_algorithm) }}
       -b {{ dnssec_keygen_size | default(default_dnssec_keygen_size) }}
       -n USER
-      -r /dev/urandom 
+      -r /dev/urandom
       -K /var/named {{ item.0.name }}-{{ item.1.dns_domain }}
   with_subelements:
   - "{{ named_config_views }}"
@@ -116,10 +116,10 @@
 
   # Build the dict with the proper keys, i.e.:
   #    casl-private.example.com:
-  #      algorithm: HMAC-MD5 
+  #      algorithm: HMAC-MD5
   #      secret: SKqKNdpfk7llKxZ57bbxUnUDobaaJp9t8CjXLJPl+fRI5mPcSBuxTAyvJPa6Y9R7vUg9DwCy/6WTpgLNqnV4Hg==
   #    casl-public.example.com:
-  #      algorithm: HMAC-MD5 
+  #      algorithm: HMAC-MD5
   #      secret: kVE2bVTgZjrdJipxPhID8BEZmbHD8cExlVPR+zbFpW6la8kL5wpXiwOh8q5AAosXQI5t95UXwq3Inx8QT58duw==
 - name: Set nsupdate keys fact
   set_fact:
@@ -136,7 +136,7 @@
   with_items: "{{ nsupdate_keys_captured.results }}"
 
 - name: Prepare Zone Files
-  template: 
+  template:
     src: zone.db.j2
     dest: /var/named/static/{{ item.0.name }}-{{ item.1.dns_domain }}.db
     owner: named
@@ -151,15 +151,15 @@
     src: named.conf
     dest: /etc/named.conf
     owner: named
-    group: named 
+    group: named
     mode: 0660
-  
+
 - name: Configure named options
   template:
     src: named.conf.options.j2
     dest: /etc/named/named.conf.options
     owner: named
-    group: named 
+    group: named
 
 - name: Configure SELinux
   seboolean:

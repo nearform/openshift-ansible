@@ -1,3 +1,4 @@
+---
 - hosts: localhost
   roles:
   - role: dns
@@ -33,16 +34,16 @@
       - type: A
         hostname: node1
         ip: 172.17.10.20
-      - type: A 
+      - type: A
         hostname: node2
         ip: 172.17.10.21
     - view: public
       zone: first.example.com
       entries:
-      - type: A 
+      - type: A
         hostname: master
         ip: 10.9.77.20
-      - type: A 
+      - type: A
         hostname: node1
         ip: 10.9.77.20
       - type: A

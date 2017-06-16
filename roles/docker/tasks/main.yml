@@ -26,16 +26,4 @@
     dest: /etc/sysconfig/docker-storage-setup
   when: docker_storage_setup is undefined
   notify:
-  - restart docker
-
-# - name: "Run Docker Storage Setup"
-#   command: docker-storage-setup
-#   when: docker_storage_setup is undefined
-#   notify:
-#   - restart docker
-#
-# - name: "Extend the Volume Group for Docker Storage"
-#   command: lvextend -l 90%VG /dev/{{ docker_storage_volume_group }}/docker-pool
-#   when: docker_storage_setup is undefined
-#   notify:
-#   - restart docker
+    - restart docker

@@ -8,7 +8,7 @@
   roles:
     - instance-groups
 
-- hosts: crs 
+- hosts: crs
   user: root
   become: false
   ignore_errors: yes

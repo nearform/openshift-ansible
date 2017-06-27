@@ -11,5 +11,5 @@
 - include: heketi-ocp.yaml
   tags: ['heketi-ocp']
 
-- include: cleanup-crs.yaml 
+- include: cleanup-crs.yaml
   tags: ['crs-clean']

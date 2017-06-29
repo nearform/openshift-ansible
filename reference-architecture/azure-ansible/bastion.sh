@@ -253,7 +253,7 @@ openshift_master_default_subdomain=${WILDCARDNIP}
 #openshift_master_default_subdomain=${WILDCARDZONE}.${FULLDOMAIN}
 # osm_default_subdomain=${WILDCARDZONE}.${FULLDOMAIN}
 osm_default_subdomain=${WILDCARDNIP}
-openshift_use_dnsmasq=false
+openshift_use_dnsmasq=true
 openshift_public_hostname=${RESOURCEGROUP}.${FULLDOMAIN}
 
 openshift_master_cluster_method=native
@@ -470,4 +470,3 @@ chmod 755 /home/${AUSERNAME}/openshift-install.sh
 echo "${RESOURCEGROUP} Bastion Host is starting OpenShift Install" | mail -s "${RESOURCEGROUP} Bastion OpenShift Install Starting" ${RHNUSERNAME} || true
 /home/${AUSERNAME}/openshift-install.sh &> /home/${AUSERNAME}/openshift-install.out &
 exit 0
-

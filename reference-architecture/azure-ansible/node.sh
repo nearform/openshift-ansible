@@ -1,10 +1,5 @@
 #!/bin/bash
 
-domain=$(grep search /etc/resolv.conf | awk '{print $2}')
-
-systemctl enable dnsmasq.service
-systemctl start dnsmasq.service
-
 #yum -y update
 yum -y install wget git net-tools bind-utils iptables-services bridge-utils bash-completion
 

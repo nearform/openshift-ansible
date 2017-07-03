@@ -40,6 +40,10 @@
         value: "{{ rhsmusernamepasswordoractivationkey }}"
       metrics:
         value: "{{ metrics }}"
+      logging:
+        value: "{{ logging }}"
+      opslogging:
+        value: "{{ opslogging }}"
 
   register: azuredeploy
 

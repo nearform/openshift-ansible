@@ -31,6 +31,9 @@
   notify: restart heketi
   when: heketi_cfg.stat.exists == True
 
+- name: enable heketi
+  service: name=heketi state=enabled
+
 - name: restart heketi
   service: name=heketi state=restarted
 

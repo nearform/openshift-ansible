@@ -512,12 +512,11 @@
     "infraLbHttpProbeId" : "[concat(variables('infraLbId'),'/probes/httpProbe')]",
     "infraLbHttpsProbeId" : "[concat(variables('infraLbId'),'/probes/httpsProbe')]",
     "infraLbCockpitProbeId" : "[concat(variables('infraLbId'),'/probes/cockpitProbe')]",
-    "persistentVolume1Type" : "Standard_LRS",
     "StorageAccountPersistentVolume" : "[concat('sapv', resourceGroup().name)]",
     "StorageAccountLoggingMetricsVolumes" : "[concat('sapvlm', resourceGroup().name)]",
     "registryStorageName" : "[concat('sareg', resourceGroup().name)]",
     "subscriptionId" : "[subscription().subscriptionId]",
-    "persistentVolume2Type" : "Standard_LRS",
+    "StorageAccountLoggingMetricsVolumesVolumeType" : "Premium_LRS",
     "apiVersion" : "2015-06-15",
     "apiVersionCompute" : "2015-06-15",
     "apiVersionNetwork" : "2016-03-30",
@@ -1152,7 +1151,7 @@
         "displayName" : "StorageAccountLoggingMetricsVolumes"
       },
       "properties" : {
-        "accountType" : "[variables('persistentVolume2Type')]"
+        "accountType" : "[variables('StorageAccountLoggingMetricsVolumesVolumeType')]"
       }
     },
     {

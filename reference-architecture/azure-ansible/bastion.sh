@@ -477,7 +477,7 @@ oc env dc docker-registry -e REGISTRY_STORAGE=azure -e REGISTRY_STORAGE_AZURE_AC
 oc patch dc registry-console -p '{"spec":{"template":{"spec":{"nodeSelector":{"role":"infra"}}}}}'
 sleep 30
 echo "Setup Azure PV"
-/home/${AUSERNAME}/create_azure_storage_container.sh sapv${RESOURCEGROUP} "dynamicpv"
+/home/${AUSERNAME}/create_azure_storage_container.sh sapv${RESOURCEGROUP} "vhds"
 
 echo "Setup Azure PV for metrics & logging"
 /home/${AUSERNAME}/create_azure_storage_container.sh sapvlm${RESOURCEGROUP} "loggingmetricspv"

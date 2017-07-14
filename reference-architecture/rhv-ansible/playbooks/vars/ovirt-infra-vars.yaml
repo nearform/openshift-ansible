@@ -2,11 +2,11 @@
 ###########################
 # REST API variables
 ###########################
-engine_url: https://engine.example.com/ovirt-engine/api
-engine_user: admin@internal
-engine_password: changeme
+#engine_url: https://engine.example.com/ovirt-engine/api
+#engine_user: admin@internal
+#engine_password: changeme
 #engine_cafile: /etc/pki/ovirt-engine/ca.pem
-engine_cafile: ../playbooks/vars/ca.pem
+#engine_cafile: ../playbooks/vars/ca.pem
 
 ###########################
 # Common
@@ -27,35 +27,35 @@ clusters:
 ###########################
 # Hosts
 ###########################
-hosts:
-  - name: hypervisor0
-    address: 192.168.155.13
-    cluster: Default
-    password: changeme
-  - name: hypervisor1
-    address: 192.168.155.14
-    cluster: Default
-    password: changeme
-  - name: hypervisor2
-    address: 192.168.155.15
-    cluster: Default
-    password: changeme
+#hosts:
+#  - name: hypervisor200
+#    address: 192.168.155.200
+#    cluster: Default
+#    password: changeme
+#  - name: hypervisor201
+#    address: 192.168.155.201
+#    cluster: Default
+#    password: changeme
+#  - name: hypervisor202
+#    address: 192.168.155.202
+#    cluster: Default
+#    password: changeme
 
 ###########################
-# Storage
+# Storage (used to create storage in RHV)
 ###########################
-storages:
-  my_data_storage:
-    master: true
-    state: present
-    nfs:
-      address: 192.168.155.10
-      path: /var/lib/exports/vms
-  my_export_storage:
-    domain_function: export
-    nfs:
-      address: 192.168.155.10
-      path: /var/lib/exports/exports
+#storages:
+#  my_data_storage:
+#    master: true
+#    state: present
+#    nfs:
+#      address: 192.168.155.10
+#      path: /var/lib/exports/vms
+#  my_export_storage:
+#    domain_function: export
+#    nfs:
+#      address: 192.168.155.10
+#      path: /var/lib/exports/exports
 #  myiscsistorage:
 #    iscsi:
 #      target: iqn.2014-07.org.ovirt:storage
@@ -136,7 +136,7 @@ storages:
 # VM infra
 ##########################
 #qcow_url: https://cloud.centos.org/centos/7/images/CentOS-7-x86_64-GenericCloud.qcow2
-qcow_url: https://satellite.example.com/pub/rhel-guest-image-7.3-35.x86_64.qcow2
+#qcow_url: https://satellite.example.com/pub/rhel-guest-image-7.3-35.x86_64.qcow2
 template_cluster: Default
 template_name: rhel7
 template_memory: 1GiB
@@ -149,7 +149,7 @@ template_nics:
 
 master_vm:
   cluster: Default
-  root_password: changeme
+  ssh_key: "{{ root_ssh_key }}"
   domain: example.com
   template: rhel7
   memory: 1GiB
@@ -162,7 +162,7 @@ master_vm:
 
 node_vm:
   cluster: Default
-  root_password: changeme
+  ssh_key: "{{ root_ssh_key }}"
   domain: example.com
   template: rhel7
   memory: 1GiB
@@ -179,7 +179,7 @@ node_vm:
 
 lb_vm:
   cluster: Default
-  root_password: changeme
+  ssh_key: "{{ root_ssh_key }}"
   domain: example.com
   template: rhel7
   memory: 1GiB

@@ -1,14 +1,14 @@
 ---
 - name: oVirt infra
-  hosts: engine
+  hosts: localhost
   connection: local
   gather_facts: false
 
   vars_files:
-    - vars/ovirt_infra_vars.yml
+    - vars/ovirt-infra-vars.yaml
 
   pre_tasks:
-    - name: Log in to oVirt
+    - name: Login to oVirt
       ovirt_auth:
         url: "{{ engine_url }}"
         username: "{{ engine_user }}"
@@ -19,8 +19,7 @@
         - always
 
   roles:
-    - ovirt-image-template
-    - ovirt-vm-infra
+    - ovirt-infra
 
   post_tasks:
     - name: Logout from oVirt

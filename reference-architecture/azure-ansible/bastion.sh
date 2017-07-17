@@ -25,10 +25,18 @@ export AADCLIENTID=${array[19]}
 export AADCLIENTSECRET=${array[20]}
 export RHSMMODE=${array[21]}
 export METRICS=${array[22]}
+export LOGGING=${array[23]}
+export OPSLOGGING=${array[24]}
 export FULLDOMAIN=${THEHOSTNAME#*.*}
 export WILDCARDFQDN=${WILDCARDZONE}.${FULLDOMAIN}
 export WILDCARDIP=`dig +short ${WILDCARDFQDN}`
 export WILDCARDNIP=${WILDCARDIP}.nip.io
+export LOGGING_ES_INSTANCES="3"
+export OPSLOGGING_ES_INSTANCES="3"
+export METRICS_INSTANCES="1"
+export LOGGING_ES_SIZE="10"
+export OPSLOGGING_ES_SIZE="10"
+export METRICS_CASSANDRASIZE="10"
 echo "Show wildcard info"
 echo $WILDCARDFQDN
 echo $WILDCARDIP
@@ -151,7 +159,7 @@ subscription-manager attach --pool=$RHNPOOLID
 subscription-manager repos --disable="*"
 subscription-manager repos --enable="rhel-7-server-rpms" --enable="rhel-7-server-extras-rpms" --enable="rhel-7-fast-datapath-rpms"
 subscription-manager repos --enable="rhel-7-server-ose-3.5-rpms"
-yum -y install atomic-openshift-utils git net-tools bind-utils iptables-services bridge-utils bash-completion httpd-tools nodejs
+yum -y install atomic-openshift-utils git net-tools bind-utils iptables-services bridge-utils bash-completion httpd-tools nodejs qemu-img
 touch /root/.updateok
 
 # Create azure.conf file
@@ -213,11 +221,13 @@ cat <<EOF > /etc/ansible/hosts
 masters
 nodes
 etcd
+new_nodes
+new_masters
 
 [OSEv3:vars]
 osm_controller_args={'cloud-provider': ['azure'], 'cloud-config': ['/etc/azure/azure.conf']}
 osm_api_server_args={'cloud-provider': ['azure'], 'cloud-config': ['/etc/azure/azure.conf']}
-openshift_node_kubelet_args={'cloud-provider': ['azure'], 'cloud-config': ['/etc/azure/azure.conf']}
+openshift_node_kubelet_args={'cloud-provider': ['azure'], 'cloud-config': ['/etc/azure/azure.conf'], 'enable-controller-attach-detach': ['true']}
 debug_level=2
 console_port=8443
 docker_udev_workaround=True
@@ -262,11 +272,34 @@ openshift_master_cluster_method=native
 openshift_master_cluster_hostname=${RESOURCEGROUP}.${FULLDOMAIN}
 openshift_master_cluster_public_hostname=${RESOURCEGROUP}.${FULLDOMAIN}
 
-openshift_hosted_metrics_deploy=${METRICS}
-openshift_metrics_cassandra_storage_type=dynamic
+# Do not install metrics but post install
+openshift_metrics_install_metrics=false
+openshift_metrics_cassandra_storage_type=pv
+openshift_metrics_cassandra_pvc_size="${METRICS_CASSANDRASIZE}G"
+openshift_metrics_cassandra_replicas="${METRICS_INSTANCES}"
 openshift_metrics_hawkular_nodeselector={"role":"infra"}
 openshift_metrics_cassandra_nodeselector={"role":"infra"}
 openshift_metrics_heapster_nodeselector={"role":"infra"}
+
+# Do not install logging but post install
+openshift_logging_install_logging=false
+openshift_logging_es_pv_selector={"usage":"elasticsearch"}
+openshift_logging_es_pvc_dynamic="false"
+openshift_logging_es_pvc_size="${LOGGING_ES_SIZE}G"
+openshift_logging_es_cluster_size=${LOGGING_ES_INSTANCES}
+openshift_logging_fluentd_nodeselector={"logging":"true"}
+openshift_logging_es_nodeselector={"role":"infra"}
+openshift_logging_kibana_nodeselector={"role":"infra"}
+openshift_logging_curator_nodeselector={"role":"infra"}
+
+openshift_logging_use_ops=false
+openshift_logging_es_ops_pv_selector={"usage":"opselasticsearch"}
+openshift_logging_es_ops_pvc_dynamic="false"
+openshift_logging_es_ops_pvc_size="${OPSLOGGING_ES_SIZE}G"
+openshift_logging_es_ops_cluster_size=${OPSLOGGING_ES_INSTANCES}
+openshift_logging_es_ops_nodeselector={"role":"infra"}
+openshift_logging_kibana_ops_nodeselector={"role":"infra"}
+openshift_logging_curator_ops_nodeselector={"role":"infra"}
 
 [masters]
 master1 openshift_hostname=master1 openshift_node_labels="{'role': 'master'}"
@@ -278,21 +311,24 @@ master1
 master2
 master3
 
+[new_nodes]
+[new_masters]
+
 [nodes]
-master1 openshift_hostname=master1 openshift_node_labels="{'role':'master','zone':'default'}" openshift_schedulable=false
-master2 openshift_hostname=master2 openshift_node_labels="{'role':'master','zone':'default'}" openshift_schedulable=false
-master3 openshift_hostname=master3 openshift_node_labels="{'role':'master','zone':'default'}" openshift_schedulable=false
-infranode1 openshift_hostname=infranode1 openshift_node_labels="{'role': 'infra', 'zone': 'default'}"
-infranode2 openshift_hostname=infranode2 openshift_node_labels="{'role': 'infra', 'zone': 'default'}"
-infranode3 openshift_hostname=infranode3 openshift_node_labels="{'role': 'infra', 'zone': 'default'}"
+master1 openshift_hostname=master1 openshift_node_labels="{'role':'master','zone':'default','logging':'true'}" openshift_schedulable=false
+master2 openshift_hostname=master2 openshift_node_labels="{'role':'master','zone':'default','logging':'true'}" openshift_schedulable=false
+master3 openshift_hostname=master3 openshift_node_labels="{'role':'master','zone':'default','logging':'true'}" openshift_schedulable=false
+infranode1 openshift_hostname=infranode1 openshift_node_labels="{'role': 'infra', 'zone': 'default','logging':'true'}"
+infranode2 openshift_hostname=infranode2 openshift_node_labels="{'role': 'infra', 'zone': 'default','logging':'true'}"
+infranode3 openshift_hostname=infranode3 openshift_node_labels="{'role': 'infra', 'zone': 'default','logging':'true'}"
 EOF
 
 # Loop to add Nodes
-
 for (( c=01; c<$NODECOUNT+1; c++ ))
 do
   pnum=$(printf "%02d" $c)
-  echo "node${pnum} openshift_node_labels=\"{'role': 'app', 'zone': 'default'}\" openshift_hostname=node${pnum}" >> /etc/ansible/hosts
+  echo "node${pnum} openshift_hostname=node${pnum} \
+openshift_node_labels=\"{'role':'app','zone':'default','logging':'true'}\"" >> /etc/ansible/hosts
 done
 
 
@@ -382,7 +418,7 @@ EOF
 
 npm install -g azure-cli
 azure telemetry --disable
-cat <<'EOF' > /home/${AUSERNAME}/createvhdcontainer.sh
+cat <<'EOF' > /home/${AUSERNAME}/create_azure_storage_container.sh
 # $1 is the storage account to create container
 mkdir -p ~/.azuresettings/$1
 export TENANT=$(< ~/.azuresettings/tenant_id)
@@ -394,20 +430,22 @@ azure storage account connectionstring show ${1} --resource-group ${RESOURCEGROU
 sed -n '/connectionstring:/{p}' < ~/.azuresettings/${1}/connection.out > ~/.azuresettings/${1}/dataline.out
 export DATALINE=$(< ~/.azuresettings/${1}/dataline.out)
 export AZURE_STORAGE_CONNECTION_STRING=${DATALINE:27}
-azure storage container create vhds > ~/.azuresettings/${1}/container.dat
+azure storage container create ${2} > ~/.azuresettings/${1}/container.dat
 EOF
-chmod +x /home/${AUSERNAME}/createvhdcontainer.sh
+chmod +x /home/${AUSERNAME}/create_azure_storage_container.sh
 
 cat <<EOF > /home/${AUSERNAME}/scgeneric.yml
 kind: StorageClass
 apiVersion: storage.k8s.io/v1beta1
 metadata:
-  name: generic
+  name: "generic"
   annotations:
     storageclass.beta.kubernetes.io/is-default-class: "true"
+    volume.beta.kubernetes.io/storage-class: "generic"
+    volume.beta.kubernetes.io/storage-provisioner: kubernetes.io/azure-disk
 provisioner: kubernetes.io/azure-disk
 parameters:
-  storageAccount: sapv1${RESOURCEGROUP}
+  storageAccount: sapv${RESOURCEGROUP}
 EOF
 
 cat <<EOF > /home/${AUSERNAME}/openshift-install.sh
@@ -420,6 +458,10 @@ echo "${RESOURCEGROUP} Bastion Host is starting ansible BYO" | mail -s "${RESOUR
 ansible-playbook  /usr/share/ansible/openshift-ansible/playbooks/byo/config.yml < /dev/null
 
 wget http://master1:8443/api > healtcheck.out
+
+ansible all -b -m command -a "nmcli con modify eth0 ipv4.dns-search $(domainname -d)"
+ansible all -b -m service -a "name=NetworkManager state=restarted"
+
 ansible-playbook /home/${AUSERNAME}/postinstall.yml
 cd /root
 mkdir .kube
@@ -432,15 +474,118 @@ rm -f /tmp/kube-config
 yum -y install atomic-openshift-clients
 echo "setup registry for azure"
 oc env dc docker-registry -e REGISTRY_STORAGE=azure -e REGISTRY_STORAGE_AZURE_ACCOUNTNAME=$REGISTRYSTORAGENAME -e REGISTRY_STORAGE_AZURE_ACCOUNTKEY=$REGISTRYKEY -e REGISTRY_STORAGE_AZURE_CONTAINER=registry
+oc patch dc registry-console -p '{"spec":{"template":{"spec":{"nodeSelector":{"role":"infra"}}}}}'
 sleep 30
-echo "Setup Azure PVC"
-/home/${AUSERNAME}/createvhdcontainer.sh sapv1${RESOURCEGROUP}
-/home/${AUSERNAME}/createvhdcontainer.sh sapv2${RESOURCEGROUP}
-oc create -f /home/${AUSERNAME}/scgeneric.yml
+echo "Setup Azure PV"
+/home/${AUSERNAME}/create_azure_storage_container.sh sapv${RESOURCEGROUP} "vhds"
+
+echo "Setup Azure PV for metrics & logging"
+/home/${AUSERNAME}/create_azure_storage_container.sh sapvlm${RESOURCEGROUP} "loggingmetricspv"
+
 oc adm policy add-cluster-role-to-user cluster-admin ${AUSERNAME}
 cat /home/${AUSERNAME}/openshift-install.out | tr -cd [:print:] |  mail -s "${RESOURCEGROUP} Install Complete" ${RHNUSERNAME} || true
 touch /root/.openshiftcomplete
+touch /home/${AUSERNAME}/.openshiftcomplete
 EOF
+
+cat <<EOF > /home/${AUSERNAME}/openshift-postinstall.sh
+export ANSIBLE_HOST_KEY_CHECKING=False
+
+DEPLOYMETRICS=${METRICS,,}
+DEPLOYLOGGING=${LOGGING,,}
+DEPLOYOPSLOGGING=${OPSLOGGING,,}
+
+while true
+do
+  [ -e /home/${AUSERNAME}/.openshiftcomplete ] && break || sleep 10
+done
+
+if [ \${DEPLOYMETRICS} == "true" ]
+then
+  echo "Deploying Metrics"
+  /home/${AUSERNAME}/create_pv.sh sapvlm${RESOURCEGROUP} loggingmetricspv metricspv ${METRICS_INSTANCES} ${METRICS_CASSANDRASIZE}
+  ansible-playbook -e "openshift_metrics_install_metrics=\${DEPLOYMETRICS}" /usr/share/ansible/openshift-ansible/playbooks/byo/openshift-cluster/openshift-metrics.yml
+fi
+
+if [ \${DEPLOYLOGGING} == "true" ] || [ \${DEPLOYOPSLOGGING} == "true" ]
+then
+  if [ \${DEPLOYLOGGING} == "true" ]
+  then
+    /home/${AUSERNAME}/create_pv.sh sapvlm${RESOURCEGROUP} loggingmetricspv loggingpv ${LOGGING_ES_INSTANCES} ${LOGGING_ES_SIZE}
+    for ((i=0;i<${LOGGING_ES_INSTANCES};i++))
+    do
+      oc patch pv/loggingpv-\${i} -p '{"metadata":{"labels":{"usage":"elasticsearch"}}}'
+    done
+  fi
+
+  if [ \${DEPLOYOPSLOGGING} == true ]
+  then
+    /home/${AUSERNAME}/create_pv.sh sapvlm${RESOURCEGROUP} loggingmetricspv loggingopspv ${OPSLOGGING_ES_INSTANCES} ${OPSLOGGING_ES_SIZE}
+    for ((i=0;i<${OPSLOGGING_ES_INSTANCES};i++))
+    do
+      oc patch pv/loggingopspv-\${i} -p '{"metadata":{"labels":{"usage":"opselasticsearch"}}}'
+    done
+  fi
+  ansible-playbook -e "openshift_logging_install_logging=\${DEPLOYLOGGING} openshift_logging_use_ops=\${DEPLOYOPSLOGGING}" /usr/share/ansible/openshift-ansible/playbooks/byo/openshift-cluster/openshift-logging.yml
+fi
+
+oc create -f /home/${AUSERNAME}/scgeneric.yml
+EOF
+
+cat <<'EOF' > /home/${AUSERNAME}/create_pv.sh
+# $1 is the storage account to create container
+# $2 is the container
+# $3 is the blob
+# $4 is the times
+# $5 is the size in gigabytes
+
+mkdir -p ~/.azuresettings/$1
+export TENANT=$(< ~/.azuresettings/tenant_id)
+export AAD_CLIENT_ID=$(< ~/.azuresettings/aad_client_id)
+export AAD_CLIENT_SECRET=$(< ~/.azuresettings/aad_client_secret)
+export RESOURCEGROUP=$(< ~/.azuresettings/resource_group)
+azure login --service-principal --tenant ${TENANT}  -u ${AAD_CLIENT_ID} -p ${AAD_CLIENT_SECRET}
+azure storage account connectionstring show ${1} --resource-group ${RESOURCEGROUP} > ~/.azuresettings/$1/connection.out
+sed -n '/connectionstring:/{p}' < ~/.azuresettings/${1}/connection.out > ~/.azuresettings/${1}/dataline.out
+export DATALINE=$(< ~/.azuresettings/${1}/dataline.out)
+export AZURE_STORAGE_CONNECTION_STRING=${DATALINE:27}
+
+qemu-img create -f raw /tmp/image.raw ${5}G
+mkfs.xfs /tmp/image.raw
+qemu-img convert -f raw -o subformat=fixed -O vpc /tmp/image.raw /tmp/image.vhd
+rm -f /tmp/image.raw
+
+TIMES=$(expr ${4} - 1)
+
+for ((i=0;i<=TIMES;i++))
+do
+  azure storage blob upload /tmp/image.vhd ${2} $3-${i}.vhd
+  echo "https://${1}.blob.core.windows.net/${2}/$3-${i}.vhd"
+
+  cat<<OEF | oc create -f -
+apiVersion: "v1"
+kind: "PersistentVolume"
+metadata:
+  name: "${3}-${i}"
+spec:
+  capacity:
+    storage: "${5}Gi"
+  accessModes:
+    - "ReadWriteOnce"
+  persistentVolumeReclaimPolicy: Delete
+  azureDisk:
+    diskName: "${3}-${i}"
+    diskURI: "https://${1}.blob.core.windows.net/${2}/${3}-${i}.vhd"
+    cachingMode: None
+    fsType: xfs
+    readOnly: false
+OEF
+done
+
+rm -f /tmp/image.vhd
+EOF
+
+chmod +x /home/${AUSERNAME}/create_pv.sh
 
 cat <<EOF > /home/${AUSERNAME}/.ansible.cfg
 [defaults]
@@ -476,4 +621,6 @@ cd /home/${AUSERNAME}
 chmod 755 /home/${AUSERNAME}/openshift-install.sh
 echo "${RESOURCEGROUP} Bastion Host is starting OpenShift Install" | mail -s "${RESOURCEGROUP} Bastion OpenShift Install Starting" ${RHNUSERNAME} || true
 /home/${AUSERNAME}/openshift-install.sh &> /home/${AUSERNAME}/openshift-install.out &
+chmod 755 /home/${AUSERNAME}/openshift-postinstall.sh
+/home/${AUSERNAME}/openshift-postinstall.sh &> /home/${AUSERNAME}/openshift-postinstall.out &
 exit 0

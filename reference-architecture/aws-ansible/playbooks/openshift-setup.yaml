@@ -65,7 +65,6 @@
     openshift_metrics_cassandra_nodeselector: {"role":"infra"}
     openshift_metrics_heapster_nodeselector: {"role":"infra"}
     # logging
-    openshift_logging_install_logging: false
     openshift_logging_es_pvc_dynamic: true
     openshift_logging_es_pvc_size: "{{ openshift_hosted_logging_storage_volume_size }}" 
     openshift_logging_es_cluster_size: 3

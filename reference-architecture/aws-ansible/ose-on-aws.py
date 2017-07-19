@@ -77,7 +77,9 @@ import sys
 @click.option('--github-organization', multiple=True, help='GitHub Organization')
 @click.option('--s3-username',  help='S3 user for registry access')
 @click.option('--deploy-openshift-metrics',  help='Deploy OpenShift Metrics', type=click.Choice(['true', 'false']), default='false')
+@click.option('--deploy-openshift-logging',  help='Deploy OpenShift Logging', type=click.Choice(['true', 'false']), default='false')
 @click.option('--openshift-hosted-metrics-storage-volume-size', default='20Gi', help='Size of OptionShift Metrics Persistent Volume',
+@click.option('--openshift-hosted-logging-storage-volume-size', default='100Gi', help='Size of OptionShift Logging Persistent Volume',
               show_default=False)
 @click.option('--no-confirm', is_flag=True,
               help='Skip confirmation prompt')
@@ -121,6 +123,8 @@ def launch_refarch_env(region=None,
                     github_organization=None,
                     deploy_openshift_metrics=None,
                     openshift_hosted_metrics_storage_volume_size=None,
+                    deploy_openshift_logging=None,
+                    openshift_hosted_logging_storage_volume_size=None,
                     verbose=0):
 
   # Need to prompt for the R53 zone:
@@ -231,6 +235,8 @@ def launch_refarch_env(region=None,
   click.echo('\tgithub_organization: %s' % (','.join(github_organization)))
   click.echo('\tdeploy_openshift_metrics: %s' % deploy_openshift_metrics)
   click.echo('\topenshift_hosted_metrics_storage_volume_size: %s' % openshift_hosted_metrics_storage_volume_size)
+  click.echo('\tdeploy_openshift_logging: %s' % deploy_openshift_logging)
+  click.echo('\topenshift_hosted_logging_storage_volume_size: %s' % openshift_hosted_logging_storage_volume_size)
   click.echo("")
 
   if not no_confirm:
@@ -291,7 +297,9 @@ def launch_refarch_env(region=None,
     github_client_secret=%s \
     github_organization=%s \
     openshift_hosted_metrics_deploy=%s \
-    openshift_hosted_metrics_storage_volume_size=%s \' %s' % (region,
+    openshift_hosted_metrics_storage_volume_size=%s \
+    openshift_hosted_logging_deploy=%s \
+    openshift_hosted_logging_storage_volume_size=%s \' %s' % (region,
                     stack_name,
                     ami,
                     keypair,
@@ -327,6 +335,8 @@ def launch_refarch_env(region=None,
                     str(map(lambda x: x.encode('utf8'), github_organization)).replace("'", '"').replace(' ', ''),
                     deploy_openshift_metrics,
                     openshift_hosted_metrics_storage_volume_size,
+                    deploy_openshift_logging,
+                    openshift_hosted_logging_storage_volume_size,
                     playbook)
 
     if verbose > 0:

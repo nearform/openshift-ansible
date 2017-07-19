@@ -79,6 +79,7 @@ import sys
 @click.option('--deploy-openshift-metrics',  help='Deploy OpenShift Metrics', type=click.Choice(['true', 'false']), default='false')
 @click.option('--deploy-openshift-logging',  help='Deploy OpenShift Logging', type=click.Choice(['true', 'false']), default='false')
 @click.option('--openshift-hosted-metrics-storage-volume-size', default='20Gi', help='Size of OptionShift Metrics Persistent Volume',
+              show_default=False)
 @click.option('--openshift-hosted-logging-storage-volume-size', default='100Gi', help='Size of OptionShift Logging Persistent Volume',
               show_default=False)
 @click.option('--no-confirm', is_flag=True,

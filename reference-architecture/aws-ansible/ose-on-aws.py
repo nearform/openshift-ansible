@@ -76,8 +76,8 @@ import sys
 @click.option('--github-client-secret', help='GitHub OAuth Client Secret')
 @click.option('--github-organization', multiple=True, help='GitHub Organization')
 @click.option('--s3-username',  help='S3 user for registry access')
-@click.option('--deploy-openshift-metrics',  help='Deploy OpenShift Metrics', type=click.Choice(['true', 'false']), default='false')
-@click.option('--deploy-openshift-logging',  help='Deploy OpenShift Logging', type=click.Choice(['true', 'false']), default='false')
+@click.option('--openshift-hosted-metrics-deploy',  help='Deploy OpenShift Metrics', type=click.Choice(['true', 'false']), default='false')
+@click.option('--openshift-hosted-logging-deploy',  help='Deploy OpenShift Logging', type=click.Choice(['true', 'false']), default='false')
 @click.option('--openshift-hosted-metrics-storage-volume-size', default='20Gi', help='Size of OptionShift Metrics Persistent Volume',
               show_default=False)
 @click.option('--openshift-hosted-logging-storage-volume-size', default='100Gi', help='Size of OptionShift Logging Persistent Volume',
@@ -122,9 +122,9 @@ def launch_refarch_env(region=None,
                     github_client_id=None,
                     github_client_secret=None,
                     github_organization=None,
-                    deploy_openshift_metrics=None,
+                    openshift_hosted_metrics_deploy=None,
                     openshift_hosted_metrics_storage_volume_size=None,
-                    deploy_openshift_logging=None,
+                    openshift_hosted_logging_deploy=None,
                     openshift_hosted_logging_storage_volume_size=None,
                     verbose=0):
 
@@ -234,9 +234,9 @@ def launch_refarch_env(region=None,
   click.echo('\tgithub_client_id: *******')
   click.echo('\tgithub_client_secret: *******')
   click.echo('\tgithub_organization: %s' % (','.join(github_organization)))
-  click.echo('\tdeploy_openshift_metrics: %s' % deploy_openshift_metrics)
+  click.echo('\topenshift_hosted_metrics_deploy: %s' % openshift_hosted_metrics_deploy)
   click.echo('\topenshift_hosted_metrics_storage_volume_size: %s' % openshift_hosted_metrics_storage_volume_size)
-  click.echo('\tdeploy_openshift_logging: %s' % deploy_openshift_logging)
+  click.echo('\topenshift_hosted_logging_deploy: %s' % openshift_hosted_logging_deploy)
   click.echo('\topenshift_hosted_logging_storage_volume_size: %s' % openshift_hosted_logging_storage_volume_size)
   click.echo("")
 
@@ -334,9 +334,9 @@ def launch_refarch_env(region=None,
                     github_client_id,
                     github_client_secret,
                     str(map(lambda x: x.encode('utf8'), github_organization)).replace("'", '"').replace(' ', ''),
-                    deploy_openshift_metrics,
+                    openshift_hosted_metrics_deploy,
                     openshift_hosted_metrics_storage_volume_size,
-                    deploy_openshift_logging,
+                    openshift_hosted_logging_deploy,
                     openshift_hosted_logging_storage_volume_size,
                     playbook)
 

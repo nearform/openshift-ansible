@@ -315,7 +315,7 @@ class VMWareAddNode(object):
                 guest_name = 'crs-' + str(node_ip)
             if self.node_type == 'storage' and self.container_storage == 'cns':
                 node_ip = int(self.app_nodes) + i
-                guest_name = 'app-storage-' + str(node_ip)
+                guest_name = 'app-cns-' + str(node_ip)
             if self.ocp_hostname_prefix:
                 guest_name = self.ocp_hostname_prefix + guest_name
             d['host_inventory'][guest_name] = {}
@@ -379,6 +379,9 @@ class VMWareAddNode(object):
                 sys.exit(0)
 
         if 'cns' in self.container_storage and 'storage' in self.node_type:
+            if 'None' in self.tag:
+                # do the full install and config minus the cleanup
+                self.tag = 'vms,cns-node-setup'
             playbooks = ['playbooks/cns-storage.yaml']
 
         elif 'crs' in self.container_storage and 'storage' in self.node_type:

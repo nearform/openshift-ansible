@@ -1,0 +1,17 @@
+---
+- include: prod-ose-cns.yaml
+  tags: ['vms']
+
+- include: cns-node-setup.yaml
+  tags: [ 'cns-node-setup']
+
+- include: node-setup.yaml
+  tags: [ 'cns-node-setup']
+#- include: cns-heketi-setup.yaml
+#  tags: [ 'heketi-setup']
+
+#- include: cns-heketi-ocp.yaml
+#  tags: ['heketi-ocp']
+
+- include: cleanup-cns.yaml
+  tags: ['cns-clean']

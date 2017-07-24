@@ -1,0 +1,13 @@
+---
+- hosts: cns
+  gather_facts: yes
+  become: no
+  vars_files:
+  - vars/main.yaml
+  roles:
+  - instance-groups
+  - rhel_subscribe
+  - vmware-guest-setup
+  - gluster-ports
+- include: ../../../playbooks/openshift-storage.yaml
+- include: ../../../playbooks/add-node-prerequisite.yaml

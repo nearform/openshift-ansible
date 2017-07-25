@@ -107,20 +107,13 @@ class VMWareAddNode(object):
             self.infra_nodes = int(self.infra_nodes) + int(self.node_number)
             config.set('vmware', 'infra_nodes', str(self.infra_nodes))
             print "Updating %s file with %s infra_nodes" % (vmware_ini_path, str(self.infra_nodes))
-        if 'storage' in self.node_type and 'cns' in self.container_storage:
+        if 'storage' in self.node_type:
             if 'clean' in self.tag:
-                self.app_nodes = int(self.app_nodes) - int(self.node_number)
+                self.storage_nodes = int(self.storage_nodes) - int(self.node_number)
             else:
-                self.app_nodes = int(self.app_nodes) + int(self.node_number)
-            config.set('vmware', 'app_nodes', str(self.app_nodes))
-            print "Updating %s file with %s app_nodes" % (vmware_ini_path, str(self.app_nodes))
-
-        if 'storage' in self.node_type and 'crs' in self.container_storage:
-            self.storage_nodes = int(self.storage_nodes) + int(self.node_number)
-            if 'clean' in self.tag:
-                self.storage_nodes = 0
+                self.storage_nodes = int(self.storage_nodes) + int(self.node_number)
             config.set('vmware', 'storage_nodes', str(self.storage_nodes))
-            print "Updating %s file with %s storage_nodes for storage" % (vmware_ini_path, str(self.storage_nodes))
+            print "Updating %s file with %s storage_nodes" % (vmware_ini_path, str(self.storage_nodes))
 
         for line in fileinput.input(vmware_ini_path, inplace=True):
             if line.startswith("app_nodes"):
@@ -320,10 +313,10 @@ class VMWareAddNode(object):
                 node_ip = int(self.infra_nodes) + i
                 guest_name = self.node_type + '-' + str(node_ip)
             if self.node_type == 'storage' and self.container_storage == 'crs':
-                node_ip = i
+                node_ip = int(self.storage_nodes) + i
                 guest_name = 'crs-' + str(node_ip)
             if self.node_type == 'storage' and self.container_storage == 'cns':
-                node_ip = i
+                node_ip =  int(self.storage_nodes) + i
                 guest_name = 'app-cns-' + str(node_ip)
             if self.ocp_hostname_prefix:
                 guest_name = self.ocp_hostname_prefix + guest_name

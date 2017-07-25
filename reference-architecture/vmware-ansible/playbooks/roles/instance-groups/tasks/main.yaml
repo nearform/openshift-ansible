@@ -57,28 +57,28 @@
   when:
     - add_node is defined
 
-- name: Add app instances to host group
+- name: Add cns instances to host group
   add_host:
     name: "{{ hostvars[item].inventory_hostname }}"
     groups: nodes, cluster_hosts, schedulable_nodes
     openshift_node_labels:
       role: storage
-  with_items: "{{ groups['cns'] }}"
+  with_items: "{{ groups['storage'] }}"
   when:
     - "'cns' in container_storage and add_node is defined and 'storage' in node_type"
+
+- name: Add crs nodes to the storage group
+  add_host:
+    name: "{{ hostvars[item].inventory_hostname }}"
+    groups: storage, crs
+  with_items: "{{ groups['crs'] }}"
+  when:
+    - "'crs' in container_storage and add_node is defined and 'storage' in node_type"
 
 - name: Add a crs node to the single crs group
   add_host:
     name: "{{ hostvars[item].inventory_hostname }}"
     groups: single_crs
   with_items: "{{ groups['crs'][0] }}"
-  when:
-    - "'crs' in container_storage and add_node is defined and 'storage' in node_type"
-
-- name: Add crs nodes to the storage group
-  add_host:
-    name: "{{ hostvars[item].inventory_hostname }}"
-    groups: storage
-  with_items: "{{ groups['crs'] }}"
   when:
     - "'crs' in container_storage and add_node is defined and 'storage' in node_type"

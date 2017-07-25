@@ -3,7 +3,7 @@
   tags: ['vms']
 
 - include: crs-node-setup.yaml
-  tags: [ 'crs-node-setup' ]
+  tags: [ 'node-setup' ]
 
 - include: heketi-setup.yaml
   tags: [ 'heketi-setup']
@@ -12,4 +12,4 @@
   tags: ['heketi-ocp']
 
 - include: cleanup-crs.yaml
-  tags: ['crs-clean']
+  tags: ['clean']

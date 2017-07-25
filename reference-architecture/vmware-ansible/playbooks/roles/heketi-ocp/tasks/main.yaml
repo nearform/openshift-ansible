@@ -9,6 +9,9 @@
     src: ~/storage-crs.json
     dest: ~/storage-crs.json
 
+- name: Switch to default project
+  command: oc project default
+
 - name: Check to see if heketi secret is already created
   command: "oc get secrets"
   register: oc_secrets

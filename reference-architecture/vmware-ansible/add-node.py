@@ -107,7 +107,7 @@ class VMWareAddNode(object):
         if 'storage' in self.node_type and 'cns' in self.container_storage:
             self.app_nodes = int(self.app_nodes) + int(self.node_number)
             config.set('vmware', 'app_nodes', str(self.app_nodes))
-            print "Updating %s file with %s app_nodes for storage" % (vmware_ini_path, str(self.app_nodes))
+            print "Updating %s file with %s app_nodes" % (vmware_ini_path, str(self.app_nodes))
 
         if 'storage' in self.node_type and 'crs' in self.container_storage:
             self.storage_nodes = int(self.storage_nodes) + int(self.node_number)
@@ -346,7 +346,7 @@ class VMWareAddNode(object):
                     line = line[1:]
                 line = line.replace("\\", "")
                 print line
-            cmd = "cat topology-raw.json  | python -m json.tool >> topology.json"
+            cmd = "cat topology-raw.json  | python -m json.tool > topology.json"
             os.system(cmd)
             os.remove('topology-raw.json')
             print "Gluster topology file created using /dev/sdd: topology.json"

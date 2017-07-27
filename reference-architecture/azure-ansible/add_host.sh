@@ -2,8 +2,7 @@
 set -eo pipefail
 
 usage(){
-  echo "$0 -g <resourcegroup> [-t node|master|infranode]  [-l location] [-u username] [-p /path/to/publicsshkey] [-s vmsize] [-d extradisksize (in G)] [-d extradisksize] [-d...]"
-  echo "  -g|--resourcegroup  mandatory"
+  echo "$0 [-t node|master|infranode]  [-l location] [-u username] [-p /path/to/publicsshkey] [-s vmsize] [-d extradisksize (in G)] [-d extradisksize] [-d...]"
   echo "  -t|--type           node, master or infranode"
   echo "                      If not specified: node"
   echo "  -l|--location       eastus, eastus2,..."
@@ -20,14 +19,15 @@ usage(){
   echo "  -d|--disk           Extra disk size in GB (it can be repeated a few times)"
   echo "                      If not specified: 2x128GB"
   echo "Examples:"
-  echo "    $0 -g myresourcegroup -t infranode -d 200 -d 10"
-  echo "    $0 -g myresourcegroup"
+  echo "    $0 -t infranode -d 200 -d 10"
+  echo "    $0"
 }
 
 login_azure(){
   export TENANT=$(< ~/.azuresettings/tenant_id)
   export AAD_CLIENT_ID=$(< ~/.azuresettings/aad_client_id)
   export AAD_CLIENT_SECRET=$(< ~/.azuresettings/aad_client_secret)
+  export RESOURCEGROUP=$(< ~/.azuresettings/resource_group)
   echo "Logging into Azure..."
   azure login \
     --service-principal \
@@ -298,10 +298,6 @@ while [[ $# -gt 0 ]]; do
       TYPE="${1,,}"
       shift
       ;;
-    "-g"|"--resourcegroup")
-      RESOURCEGROUP="$1"
-      shift
-      ;;
     "-l"|"--location")
       LOCATION="$1"
       shift
@@ -330,12 +326,6 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-if [[ "$RESOURCEGROUP" == "" ]]; then
-  echo "ERROR: Option -g require arguments." >&2
-  exit 1
-fi
-
-export RESOURCEGROUP
 export TYPE=${TYPE:-${DEFTYPE}}
 export ADMIN=${ADMIN:-${USER}}
 export SSHPUB=${SSHPUB:-${DEFSSHPUB}}

@@ -2,11 +2,9 @@
 set -eo pipefail
 
 usage(){
-  echo "$0 [-t node|master|infranode]  [-l location] [-u username] [-p /path/to/publicsshkey] [-s vmsize] [-d extradisksize (in G)] [-d extradisksize] [-d...]"
+  echo "$0 [-t node|master|infranode] [-u username] [-p /path/to/publicsshkey] [-s vmsize] [-d extradisksize (in G)] [-d extradisksize] [-d...]"
   echo "  -t|--type           node, master or infranode"
   echo "                      If not specified: node"
-  echo "  -l|--location       eastus, eastus2,..."
-  echo "                      If not specified: same as the bastion"
   echo "  -u|--user           regular user to be created on the host"
   echo "                      If not specified: Current user"
   echo "  -p|--sshpub         path to the public ssh key to be injected in the host"
@@ -28,6 +26,7 @@ login_azure(){
   export AAD_CLIENT_ID=$(< ~/.azuresettings/aad_client_id)
   export AAD_CLIENT_SECRET=$(< ~/.azuresettings/aad_client_secret)
   export RESOURCEGROUP=$(< ~/.azuresettings/resource_group)
+  export LOCATION=$(< ~/.azuresettings/location)
   echo "Logging into Azure..."
   azure login \
     --service-principal \
@@ -298,10 +297,6 @@ while [[ $# -gt 0 ]]; do
       TYPE="${1,,}"
       shift
       ;;
-    "-l"|"--location")
-      LOCATION="$1"
-      shift
-      ;;
     "-u"|"--user")
       ADMIN="$1"
       shift
@@ -336,13 +331,6 @@ echo "Updating atomic-openshift-utils..."
 sudo yum update -y atomic-openshift-utils 1>/dev/null
 login_azure
 BZ1469358
-
-if [[ "$LOCATION" == "" ]]; then
-  # Get default location
-  echo "No location provided, looking for it..."
-  LOCATION=$(azure vm show ${RESOURCEGROUP} bastion --json | jq -r '.location')
-fi
-export LOCATION
 
 case "$TYPE" in
   'node')

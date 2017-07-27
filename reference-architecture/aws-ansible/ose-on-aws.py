@@ -14,7 +14,7 @@ import sys
               show_default=True)
 @click.option('--deployment-type', default='openshift-enterprise', type=click.Choice(['origin', 'openshift-enterprise']),  help='OpenShift deployment type',
               show_default=True)
-@click.option('--openshift-sdn', default='redhat/openshift-ovs-subnet', help='OpenShift SDN (redhat/openshift-ovs-subnet, redhat/openshift-ovs-multitenant, or other supported SDN)',
+@click.option('--openshift-sdn', default='redhat/openshift-ovs-multitenant', help='OpenShift SDN (redhat/openshift-ovs-subnet, redhat/openshift-ovs-multitenant, or other supported SDN)',
               show_default=True)
 
 ### AWS/EC2 options
@@ -76,11 +76,11 @@ import sys
 @click.option('--github-client-secret', help='GitHub OAuth Client Secret')
 @click.option('--github-organization', multiple=True, help='GitHub Organization')
 @click.option('--s3-username',  help='S3 user for registry access')
-@click.option('--openshift-hosted-metrics-deploy',  help='Deploy OpenShift Metrics', type=click.Choice(['true', 'false']), default='false')
-@click.option('--openshift-hosted-logging-deploy',  help='Deploy OpenShift Logging', type=click.Choice(['true', 'false']), default='false')
-@click.option('--openshift-hosted-metrics-storage-volume-size', default='20Gi', help='Size of OptionShift Metrics Persistent Volume',
+@click.option('--openshift-metrics-deploy',  help='Deploy OpenShift Metrics', type=click.Choice(['true', 'false']), default='true')
+@click.option('--openshift-logging-deploy',  help='Deploy OpenShift Logging', type=click.Choice(['true', 'false']), default='true')
+@click.option('--openshift-metrics-storage-volume-size', default='20Gi', help='Size of OptionShift Metrics Persistent Volume',
               show_default=False)
-@click.option('--openshift-hosted-logging-storage-volume-size', default='100Gi', help='Size of OptionShift Logging Persistent Volume',
+@click.option('--openshift-logging-storage-volume-size', default='100Gi', help='Size of OptionShift Logging Persistent Volume',
               show_default=False)
 @click.option('--no-confirm', is_flag=True,
               help='Skip confirmation prompt')
@@ -122,10 +122,10 @@ def launch_refarch_env(region=None,
                     github_client_id=None,
                     github_client_secret=None,
                     github_organization=None,
-                    openshift_hosted_metrics_deploy=None,
-                    openshift_hosted_metrics_storage_volume_size=None,
-                    openshift_hosted_logging_deploy=None,
-                    openshift_hosted_logging_storage_volume_size=None,
+                    openshift_metrics_deploy=None,
+                    openshift_metrics_storage_volume_size=None,
+                    openshift_logging_deploy=None,
+                    openshift_logging_storage_volume_size=None,
                     verbose=0):
 
   # Need to prompt for the R53 zone:
@@ -234,10 +234,10 @@ def launch_refarch_env(region=None,
   click.echo('\tgithub_client_id: *******')
   click.echo('\tgithub_client_secret: *******')
   click.echo('\tgithub_organization: %s' % (','.join(github_organization)))
-  click.echo('\topenshift_hosted_metrics_deploy: %s' % openshift_hosted_metrics_deploy)
-  click.echo('\topenshift_hosted_metrics_storage_volume_size: %s' % openshift_hosted_metrics_storage_volume_size)
-  click.echo('\topenshift_hosted_logging_deploy: %s' % openshift_hosted_logging_deploy)
-  click.echo('\topenshift_hosted_logging_storage_volume_size: %s' % openshift_hosted_logging_storage_volume_size)
+  click.echo('\topenshift_metrics_deploy: %s' % openshift_metrics_deploy)
+  click.echo('\topenshift_metrics_storage_volume_size: %s' % openshift_metrics_storage_volume_size)
+  click.echo('\topenshift_logging_deploy: %s' % openshift_logging_deploy)
+  click.echo('\topenshift_logging_storage_volume_size: %s' % openshift_logging_storage_volume_size)
   click.echo("")
 
   if not no_confirm:
@@ -334,10 +334,10 @@ def launch_refarch_env(region=None,
                     github_client_id,
                     github_client_secret,
                     str(map(lambda x: x.encode('utf8'), github_organization)).replace("'", '"').replace(' ', ''),
-                    openshift_hosted_metrics_deploy,
-                    openshift_hosted_metrics_storage_volume_size,
-                    openshift_hosted_logging_deploy,
-                    openshift_hosted_logging_storage_volume_size,
+                    openshift_metrics_deploy,
+                    openshift_metrics_storage_volume_size,
+                    openshift_logging_deploy,
+                    openshift_logging_storage_volume_size,
                     playbook)
 
     if verbose > 0:

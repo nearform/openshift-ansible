@@ -2,21 +2,36 @@
 - hosts: localhost
   gather_facts: yes
   roles:
-  # Group systems
-  - instance-groups
+    - instance-groups
+  tags:
+    - always
 
 - include: ../../../playbooks/prerequisite.yaml
+  tags:
+    - pre
+    - rhsm
 
 - include: ../../../playbooks/openshift-storage.yaml
   vars:
     docker_dev: "/dev/vdb"
     local_volumes_device: "/dev/vdc"
+  tags:
+    - pre
+    - storage
+
+- hosts: masters
+  roles:
+    - {"role": docker-storage-setup, "docker_dev": "/dev/vdb"}
+  tags:
+    - pre
+    - storage
 
 - name: call openshift includes for installer
   include: /usr/share/ansible/openshift-ansible/playbooks/byo/config.yml
+  tags:
+    - byo
   vars:
     debug_level: 2
-    console_port: 8443
     openshift_debug_level: "{{ debug_level }}"
     wildcard_zone: "{{app_dns_prefix}}.{{public_hosted_zone}}"
     osm_cluster_network_cidr: 172.16.0.0/16
@@ -25,7 +40,6 @@
     osm_default_subdomain: "{{ wildcard_zone }}"
     openshift_hosted_registry_replicas: 1
     openshift_hosted_registry_storage_access_modes: ['ReadWriteMany']
-    openshift_hosted_registry_storage_volume_name: registry
     openshift_hosted_registry_storage_volume_size: 30Gi
     openshift_hosted_router_replicas: 2
     openshift_master_access_token_max_seconds: 2419200
@@ -41,7 +55,38 @@
     openshift_node_debug_level: "{{ node_debug_level | default(debug_level, true) }}"
     openshift_node_kubelet_args:
       node-labels:
-      - "role={{ openshift_node_labels.role }}"
+        - "role={{ openshift_node_labels.role }}"
     openshift_registry_selector: "role=infra"
     openshift_router_selector: "role=infra"
+    # Load balancer config
+    openshift_loadbalancer_additional_frontends:
+      - name: apps-http
+        option: tcplog
+        binds:
+          - "*:80"
+        default_backend: apps-http
+      - name: apps-https
+        option: tcplog
+        binds:
+          - "*:443"
+        default_backend: apps-http
+    openshift_loadbalancer_additional_backends:
+      - name: apps-http
+        balance: source
+        servers:
+          - name: infra0
+            address: "{{ hostvars[groups['tag_openshift_infra'].0]['ansible_host'] }}:80"
+            opts: check
+          - name: infra1
+            address: "{{ hostvars[groups['tag_openshift_infra'].1]['ansible_host'] }}:80"
+            opts: check
+      - name: apps-https
+        balance: source
+        servers:
+          - name: infra0
+            address: "{{ hostvars[groups['tag_openshift_infra'].0]['ansible_host'] }}:443"
+            opts: check
+          - name: infra1
+            address: "{{ hostvars[groups['tag_openshift_infra'].1]['ansible_host'] }}:443"
+            opts: check
 ...

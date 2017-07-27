@@ -12,6 +12,19 @@
     state: poweredon
     folder: "/{{ vcenter_folder }}"
     annotation: "{{ item.value.tag }}"
+    disk:
+    - size_gb: 40
+      datastore: "{{ vcenter_datastore }}"
+      type: thin
+    - size_gb: 40
+      datastore: "{{ vcenter_datastore }}"
+      type: thin
+    - size_gb: 40
+      datastore: "{{ vcenter_datastore }}"
+      type: thin
+    - size_gb: 300
+      datastore: "{{ vcenter_datastore }}"
+      type: eagerZeroedThick
     hardware:
       memory_mb: 32768
     networks:
@@ -26,9 +39,9 @@
       dns_suffix: "{{public_hosted_zone}}"
       hostname: "{{ item.value.guestname}}"
   with_dict: "{{host_inventory}}"
-  when: "'master' in item.value.guestname or 'app' in item.value.guestname or 'infra' in item.value.guestname"
+  when: "'cns' in item.value.guestname"
 
 - name: Add CNS production VMs to inventory
-  add_host: hostname="{{ item.value.guestname }}" ansible_ssh_host="{{ item.value.ip4addr }}" groups="{{ item.value.tag }}, production_group, new_nodes"
+  add_host: hostname="{{ item.value.guestname }}" ansible_ssh_host="{{ item.value.ip4addr }}" groups="{{ item.value.tag }}, cns, new_nodes"
   with_dict: "{{host_inventory}}"
-  when: "'master' in item.value.guestname or 'app' in item.value.guestname or 'infra' in item.value.guestname"
+  when: "'cns' in item.value.guestname"

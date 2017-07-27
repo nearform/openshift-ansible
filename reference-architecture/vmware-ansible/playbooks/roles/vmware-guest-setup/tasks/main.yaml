@@ -8,6 +8,8 @@
     - net-tools
     - chrony
     - python-six
+    - iptables
+    - iptables-services
 
 - name: be sure katello-agent is installed
   yum: name=katello-agent state=installed

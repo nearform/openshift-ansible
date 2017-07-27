@@ -24,9 +24,10 @@ export TENANTID=${array[18]}
 export AADCLIENTID=${array[19]}
 export AADCLIENTSECRET=${array[20]}
 export RHSMMODE=${array[21]}
-export METRICS=${array[22]}
-export LOGGING=${array[23]}
-export OPSLOGGING=${array[24]}
+export OPENSHIFTSDN=${array[22]}
+export METRICS=${array[23]}
+export LOGGING=${array[24]}
+export OPSLOGGING=${array[25]}
 export FULLDOMAIN=${THEHOSTNAME#*.*}
 export WILDCARDFQDN=${WILDCARDZONE}.${FULLDOMAIN}
 export WILDCARDIP=`dig +short ${WILDCARDFQDN}`
@@ -160,6 +161,7 @@ subscription-manager repos --disable="*"
 subscription-manager repos --enable="rhel-7-server-rpms" --enable="rhel-7-server-extras-rpms" --enable="rhel-7-fast-datapath-rpms"
 subscription-manager repos --enable="rhel-7-server-ose-3.5-rpms"
 yum -y install atomic-openshift-utils git net-tools bind-utils iptables-services bridge-utils bash-completion httpd-tools nodejs qemu-img
+yum -y install --enablerepo="epel" jq
 touch /root/.updateok
 
 # Create azure.conf file
@@ -239,7 +241,6 @@ openshift_hosted_registry_replicas=3
 openshift_master_api_port="{{ console_port }}"
 openshift_master_console_port="{{ console_port }}"
 openshift_override_hostname_check=true
-os_sdn_network_plugin_name='redhat/openshift-ovs-multitenant'
 osm_use_cockpit=false
 openshift_release=v3.5
 openshift_cloudprovider_kind=azure
@@ -250,6 +251,8 @@ openshift_install_examples=true
 deployment_type=openshift-enterprise
 openshift_master_identity_providers=[{'name': 'htpasswd_auth', 'login': 'true', 'challenge': 'true', 'kind': 'HTPasswdPasswordIdentityProvider', 'filename': '/etc/origin/master/htpasswd'}]
 openshift_master_manage_htpasswd=false
+
+os_sdn_network_plugin_name=${OPENSHIFTSDN}
 
 # default selectors for router and registry services
 openshift_router_selector='role=infra'
@@ -396,11 +399,9 @@ cat <<EOF >> /home/${AUSERNAME}/subscribe.yml
   - name: Install the OCP client
     yum: name=atomic-openshift-clients state=latest
   - name: Update all hosts
-    command: yum -y update
-    async: 1200
-    poll: 10
+    yum: name="*" state=latest
   - name: Wait for Things to Settle
-    pause:  minutes=5
+    pause: minutes=2
 EOF
 
 cat <<EOF > /home/${AUSERNAME}/postinstall.yml
@@ -483,6 +484,11 @@ echo "Setup Azure PV for metrics & logging"
 /home/${AUSERNAME}/create_azure_storage_container.sh sapvlm${RESOURCEGROUP} "loggingmetricspv"
 
 oc adm policy add-cluster-role-to-user cluster-admin ${AUSERNAME}
+# Workaround for BZ1469358
+ansible master1 -b -m fetch -a "src=/etc/origin/master/ca.serial.txt dest=/tmp/ca.serial.txt flat=true"
+ansible masters -b -m copy -a "src=/tmp/ca.serial.txt dest=/etc/origin/master/ca.serial.txt mode=644 owner=root"
+curl https://raw.githubusercontent.com/openshift/openshift-ansible-contrib/master/reference-architecture/azure-ansible/add_host.sh -o add_host.sh -s
+chmod a+x ./add_host.sh
 cat /home/${AUSERNAME}/openshift-install.out | tr -cd [:print:] |  mail -s "${RESOURCEGROUP} Install Complete" ${RHNUSERNAME} || true
 touch /root/.openshiftcomplete
 touch /home/${AUSERNAME}/.openshiftcomplete

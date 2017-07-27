@@ -274,6 +274,17 @@
         "description" : "Azure AD Client Secret"
       }
     },
+    "OpenShiftSDN" : {
+      "type" : "string",
+      "defaultValue" : "redhat/openshift-ovs-multitenant",
+      "allowedValues" : [
+        "redhat/openshift-ovs-subnet",
+        "redhat/openshift-ovs-multitenant"
+      ],
+      "metadata" : {
+        "description" : "The supported SDN plugin to be used in OCP."
+      }
+    },
     "metrics" : {
       "type": "bool",
       "defaultValue": true,
@@ -503,7 +514,6 @@
     "masterLbBackendPoolId" : "[concat(variables('masterLbId'),'/backendAddressPools/loadBalancerBackend')]",
     "masterLbHttpProbeId" : "[concat(variables('masterLbId'),'/probes/httpProbe')]",
     "masterLb8443ProbeId" : "[concat(variables('masterLbId'),'/probes/8443Probe')]",
-    "masterLbCockpitProbeId" : "[concat(variables('masterLbId'),'/probes/cockpitProbe')]",
     "infraLoadBalancerName" : "[concat(parameters('WildcardZone'), 'lb')]",
     "infraPublicIpAddressId" : "[resourceId('Microsoft.Network/publicIPAddresses', parameters('WildcardZone'))]",
     "infraLbId" : "[resourceId('Microsoft.Network/loadBalancers', variables('infraLoadBalancerName'))]",
@@ -737,6 +747,9 @@
           "rhsmmode" : {
             "value" : "[parameters('rhsmUsernamePasswordOrActivationKey')]"
           },
+          "openshiftsdn": {
+            "value" : "[parameters('OpenShiftSDN')]"
+          },
           "metrics" : {
             "value" : "[parameters('metrics')]"
           },
@@ -782,32 +795,14 @@
           "adminUsername" : {
             "value" : "[parameters('adminUsername')]"
           },
-          "adminPassword" : {
-            "value" : "[parameters('adminPassword')]"
-          },
           "sshKeyData" : {
             "value" : "[parameters('sshKeyData')]"
-          },
-          "numberOfNodes" : {
-            "value" : "[parameters('numberOfNodes')]"
           },
           "baseTemplateUrl" : {
             "value" : "[variables('baseTemplateUrl')]"
           },
-          "routerExtIP" : {
-            "value" : "[reference(parameters('WildcardZone')).ipAddress]"
-          },
           "imageReference" : {
             "value" : "[variables(parameters('image'))]"
-          },
-          "RHNUserName" : {
-            "value" : "[parameters('RHNUserName')]"
-          },
-          "RHNPassword" : {
-            "value" : "[parameters('RHNPassword')]"
-          },
-          "SubscriptionPoolId" : {
-            "value" : "[parameters('SubscriptionPoolId')]"
           },
           "sshPrivateData" : {
             "value" : "[parameters('sshPrivateData')]"
@@ -854,32 +849,14 @@
           "adminUsername" : {
             "value" : "[parameters('adminUsername')]"
           },
-          "adminPassword" : {
-            "value" : "[parameters('adminPassword')]"
-          },
           "sshKeyData" : {
             "value" : "[parameters('sshKeyData')]"
-          },
-          "numberOfNodes" : {
-            "value" : "[parameters('numberOfNodes')]"
           },
           "baseTemplateUrl" : {
             "value" : "[variables('baseTemplateUrl')]"
           },
-          "routerExtIP" : {
-            "value" : "[reference(parameters('WildcardZone')).ipAddress]"
-          },
           "imageReference" : {
             "value" : "[variables(parameters('image'))]"
-          },
-          "RHNUserName" : {
-            "value" : "[parameters('RHNUserName')]"
-          },
-          "RHNPassword" : {
-            "value" : "[parameters('RHNPassword')]"
-          },
-          "SubscriptionPoolId" : {
-            "value" : "[parameters('SubscriptionPoolId')]"
           },
           "sshPrivateData" : {
             "value" : "[parameters('sshPrivateData')]"
@@ -926,32 +903,14 @@
           "adminUsername" : {
             "value" : "[parameters('adminUsername')]"
           },
-          "adminPassword" : {
-            "value" : "[parameters('adminPassword')]"
-          },
           "sshKeyData" : {
             "value" : "[parameters('sshKeyData')]"
-          },
-          "numberOfNodes" : {
-            "value" : "[parameters('numberOfNodes')]"
           },
           "baseTemplateUrl" : {
             "value" : "[variables('baseTemplateUrl')]"
           },
-          "routerExtIP" : {
-            "value" : "[reference(parameters('WildcardZone')).ipAddress]"
-          },
           "imageReference" : {
             "value" : "[variables(parameters('image'))]"
-          },
-          "RHNUserName" : {
-            "value" : "[parameters('RHNUserName')]"
-          },
-          "RHNPassword" : {
-            "value" : "[parameters('RHNPassword')]"
-          },
-          "SubscriptionPoolId" : {
-            "value" : "[parameters('SubscriptionPoolId')]"
           },
           "sshPrivateData" : {
             "value" : "[parameters('sshPrivateData')]"
@@ -1011,7 +970,7 @@
             "value" : "[variables('infraLoadBalancerName')]"
           },
           "availabilitySet" : {
-            "value" : "['infraavailabilityset']"
+            "value" : "['infranodeavailabilityset']"
           }
         }
       }
@@ -1062,7 +1021,7 @@
             "value" : "[variables('infraLoadBalancerName')]"
           },
           "availabilitySet" : {
-            "value" : "['infraavailabilityset']"
+            "value" : "['infranodeavailabilityset']"
           }
         }
       }
@@ -1113,7 +1072,7 @@
             "value" : "[variables('infraLoadBalancerName')]"
           },
           "availabilitySet" : {
-            "value" : "['infraavailabilityset']"
+            "value" : "['infranodeavailabilityset']"
           }
         }
       }
@@ -1163,7 +1122,7 @@
     },
     {
       "type" : "Microsoft.Compute/availabilitySets",
-      "name" : "infraavailabilityset",
+      "name" : "infranodeavailabilityset",
       "location" : "[variables('location')]",
       "apiVersion" : "[variables('apiVersionCompute')]",
       "properties" : {}

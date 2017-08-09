@@ -9,6 +9,7 @@ openshift_master_cluster_method: native
 openshift_override_hostname_check: true
 openshift_set_node_ip: true
 openshift_use_dnsmasq: false
+osm_default_node_selector: 'region=primary'
 
 # Enable Flannel and set interface
 openshift_use_openshift_sdn: false

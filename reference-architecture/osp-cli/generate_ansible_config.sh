@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 #
 # Create an OSEv3.yml file with user values
 #

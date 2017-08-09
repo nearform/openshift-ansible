@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 #
 # Copy files to the bastion
 # Prepare the bastion to configure the rest of the VMs

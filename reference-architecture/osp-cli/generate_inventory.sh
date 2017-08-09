@@ -34,6 +34,9 @@ infra-node-[0:${I}].${OCP3_CONTROL_DOMAIN} openshift_public_hostname=infra-node-
 [app-nodes]
 app-node-[0:${A}].${OCP3_CONTROL_DOMAIN} openshift_public_hostname=app-node-[0:${A}].${OCP3_DOMAIN} openshift_node_labels="{'region': 'primary', 'zone': 'default'}"
 
+[nodes]
+master-[0:${M}].${OCP3_CONTROL_DOMAIN} openshift_public_hostname=master-[0:${M}].${OCP3_DOMAIN} openshift_node_labels="{'region': 'master', 'zone': 'default'}" 
+
 [nodes:children]
 infra-nodes
 app-nodes

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 #
 # Push control files and install openshift
 #

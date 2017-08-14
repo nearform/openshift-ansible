@@ -26,15 +26,18 @@ mv "$INVENTORY"/ansible.cfg .
 
 PUBLIC_IP="$(curl --silent https://api.ipify.org)"
 
-ANSIBLE_CI_VARS=openstack_ssh_public_key=$KEYPAIR_NAME \
-    openstack_external_network_name="38.145.32.0/22" \
-    openstack_default_image_name="CentOS-7-x86_64-GenericCloud-1703" \
-    openstack_num_nodes=1 \
-    env_id=$ENV_ID \
-    node_ingress_cidr="$PUBLIC_IP/32" \
-    ssh_ingress_cidr="$PUBLIC_IP/32" \
-    manage_packages=False \
-    ephemeral_volumes=True
+
+cat << EOF >> extra-vars.yaml
+openstack_ssh_public_key: $KEYPAIR_NAME
+openstack_external_network_name: "38.145.32.0/22"
+openstack_default_image_name: "CentOS-7-x86_64-GenericCloud-1703"
+openstack_num_nodes: 1
+env_id: $ENV_ID
+node_ingress_cidr: "$PUBLIC_IP/32"
+ssh_ingress_cidr: "$PUBLIC_IP/32"
+manage_packages: False
+ephemeral_volumes: True
+EOF
 
 
 # TODO(shadower): this just started to break. We will need to unset this from
@@ -64,12 +67,13 @@ cat $INVENTORY/group_vars/OSEv3.yml
 
 echo
 echo CI provisioning custom vars:
-echo $ANSIBLE_CI_VARS
+cat extra-vars.yaml
 
+echo
 echo INSTALL OPENSHIFT
 
 ansible-galaxy install -r playbooks/provisioning/openstack/galaxy-requirements.yaml -p roles
-ansible-playbook --timeout 180 --user openshift --private-key ~/.ssh/id_rsa -i "$INVENTORY" playbooks/provisioning/openstack/provision.yaml -e $ANSIBLE_CI_VARS
+ansible-playbook --timeout 180 --user openshift --private-key ~/.ssh/id_rsa -i "$INVENTORY" playbooks/provisioning/openstack/provision.yaml -e @extra-vars.yaml
 
 echo
 echo INVENTORY hosts file:

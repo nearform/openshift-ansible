@@ -24,19 +24,21 @@ export INVENTORY="$PWD/playbooks/provisioning/openstack/sample-inventory"
 
 mv "$INVENTORY"/ansible.cfg .
 
-sed -i "s/^openstack_ssh_public_key.*/openstack_ssh_public_key: $KEYPAIR_NAME/" "$INVENTORY"/group_vars/all.yml
-sed -i 's/^openstack_external_network_name.*/openstack_external_network_name: "38.145.32.0\/22"/' "$INVENTORY"/group_vars/all.yml
-sed -i 's/^openstack_default_image_name.*/openstack_default_image_name: "CentOS-7-x86_64-GenericCloud-1703"/' "$INVENTORY"/group_vars/all.yml
-sed -i 's/^openstack_num_nodes.*/openstack_num_nodes: 1/' "$INVENTORY"/group_vars/all.yml
-sed -i "s/^env_id.*/env_id: $ENV_ID/" "$INVENTORY"/group_vars/all.yml
-
 PUBLIC_IP="$(curl --silent https://api.ipify.org)"
-echo "node_ingress_cidr: $PUBLIC_IP/32" >> "$INVENTORY"/group_vars/all.yml
-echo "manage_packages: False" >> "$INVENTORY"/group_vars/all.yml
-echo "ephemeral_volumes: True" >> "$INVENTORY"/group_vars/all.yml
 
-# TODO(shadower): this just started to break. If this fix works, let's remove
-# it from the sample inventory proper.
+ANSIBLE_CI_VARS=openstack_ssh_public_key=$KEYPAIR_NAME \
+    openstack_external_network_name="38.145.32.0/22" \
+    openstack_default_image_name="CentOS-7-x86_64-GenericCloud-1703" \
+    openstack_num_nodes=1 \
+    env_id=$ENV_ID \
+    node_ingress_cidr="$PUBLIC_IP/32" \
+    ssh_ingress_cidr="$PUBLIC_IP/32" \
+    manage_packages=False \
+    ephemeral_volumes=True
+
+
+# TODO(shadower): this just started to break. We will need to unset this from
+# the sample inventory.
 sed -i 's/openshift_release/#openshift_release/' "$INVENTORY"/group_vars/OSEv3.yml
 
 cat << EOF >> "$INVENTORY"/group_vars/OSEv3.yml
@@ -48,7 +50,7 @@ openshift_master_identity_providers:
   filename: '/etc/origin/master/htpasswd'
 openshift_master_htpasswd_users:
   test: '\$apr1\$vUfm7jQS\$C6Vn0GDScgOjzvk1PSHe1/'
-openshift_disable_check: disk_availability,memory_availability
+openshift_disable_check: disk_availability,memory_availability,docker_storage
 EOF
 
 
@@ -60,11 +62,14 @@ echo
 echo group_vars/OSEv3.yml
 cat $INVENTORY/group_vars/OSEv3.yml
 
+echo
+echo CI provisioning custom vars:
+echo $ANSIBLE_CI_VARS
 
 echo INSTALL OPENSHIFT
 
 ansible-galaxy install -r playbooks/provisioning/openstack/galaxy-requirements.yaml -p roles
-ansible-playbook --timeout 180 --user openshift --private-key ~/.ssh/id_rsa -i "$INVENTORY" playbooks/provisioning/openstack/provision.yaml
+ansible-playbook --timeout 180 --user openshift --private-key ~/.ssh/id_rsa -i "$INVENTORY" playbooks/provisioning/openstack/provision.yaml -e $ANSIBLE_CI_VARS
 
 echo
 echo INVENTORY hosts file:

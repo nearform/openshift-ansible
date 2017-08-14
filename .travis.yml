@@ -14,7 +14,6 @@ python:
 
 env:
   global:
-    # Access credentials for the RDO Cloud CI account. Contact @tomassedovic, @cooktheryan, @bogdando or @celebdor
     - secure: glCEAFal3DrjvxbXa5u/GdNQFu/p2dU5VdupxoCiSjeltGlS/fPiZdXZjhlgjiOpaGoPh/AWtkXqiJXAzq+vKYRIFIg6AolPoY7+AQWmOsRp/p6f+EvLw4y2gqXniKyYr00T9afb1zW2tJebdqyMN3B1metgnV6O6rp5tooFlSCqJJDEczdo+KauK5ATfApS6kgFSsfwmFTdFg0MkV6MUGFpHZgvo78xCHWd3/ySlckGNJsq0s3lUafKyzfMegyWwVIyHBNUUKffLawatdZr19A2txEOHrcmJ6AOuJlshvFti2l83VFBm1VvqNWf6Q7KUY5Ee8EO7K7MCOEe/v5VZIt8liizYmie/Ca6b2I/P94iY+9qsS/r1Jh/d0gtFhVt8kJoIHMTwROcz919JZU2Kyn1pTu6l8/7y4zPyouuyewnwLEX9TWKmXYmhLsbWeH3qVKI2w21nSiPpGJo/dT1BRxaBICrAL4HPvSvgAM5bO7/aTh8qhUlsS23lsE9u4MW20HHiZSHpwdDOsQWQnzSZsEjNLOiqHAw9rYJbaqXo01K6ftypLHdQpBP8nq0Az+D2c4Vwcq4uXV23/5TraS3jX1HKsMo5anLc81UfXs6+wXQ86tIKIq4qBeKrNekVWDkBEu9lCQ3eHWLU5jhVo0GjDg2ZSRN6D9L3ZG4pkCadzE=
     - CI_CONCURRENT_JOBS=1
   matrix:

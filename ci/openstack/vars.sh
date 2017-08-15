@@ -7,12 +7,12 @@ then
     git fetch origin master:master
 
     echo Modified files:
-    git diff --no-pager --name-only master
+    git --no-pager diff --name-only master
     echo ==========
 
     WHITELIST_REGEX='^(.travis.yml|ci|roles|playbooks\/provisioning)'
 
-    if git diff --no-pager --name-only master | grep -qE "$WHITELIST_REGEX"; then
+    if git --no-pager diff --name-only master | grep -qE "$WHITELIST_REGEX"; then
         RUN_OPENSTACK_CI=true
     else
         RUN_OPENSTACK_CI=false

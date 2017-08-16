@@ -9,8 +9,6 @@
 
 - include: ../../../playbooks/prerequisite.yaml
 
-- include: ../../../playbooks/openshift-storage.yaml
-
 - name: call openshift includes for installer
   include: /usr/share/ansible/openshift-ansible/playbooks/byo/config.yml
   vars:

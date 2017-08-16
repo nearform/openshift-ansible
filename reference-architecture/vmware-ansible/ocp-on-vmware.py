@@ -485,8 +485,6 @@ def launch_refarch_env(console_port=8443,
     if clean is True:
         # recreate inventory with added nodes to clean up
         tags = 'clean'
-        command='./ocp-on-vmware --create_inventory --no-confirm'
-        os.system(command)
     if tag:
         tags = tag
 
@@ -494,7 +492,11 @@ def launch_refarch_env(console_port=8443,
     #command='ansible-playbook'
     #else:
     #   command='docker run -t --rm --volume `pwd`:/opt/ansible:z -v ~/.ssh:/root/.ssh:z -v /tmp:/tmp:z --net=host ansible:2.2-latest'
-    command='ansible-playbook'
+    if 'clean' in tags:
+        command='ansible-playbook '
+        playbook = 'playbooks/cleanup-vsphere.yaml'
+    else:
+        command='ansible-playbook'
     command=command + ' --extra-vars "@./infrastructure.json" --tags %s -e \'vcenter_host=%s \
     vcenter_username=%s \
     vcenter_password=%s \
@@ -513,10 +515,10 @@ def launch_refarch_env(console_port=8443,
     console_port=%s \
     deployment_type=%s \
     openshift_vers=%s \
-    rhel_subscription_user=%s \
-    rhel_subscription_pass=%s \
+    rhsm_user=%s \
+    rhsm_password=%s \
     rhel_subscription_server=%s \
-    rhel_subscription_pool="%s" \
+    rhsm_pool="%s" \
     openshift_sdn=%s \
     containerized=%s \
     container_storage=%s \

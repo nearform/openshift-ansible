@@ -10,6 +10,9 @@
   vars_files:
     - vars/main.yaml
   roles:
-    - rhel_subscribe
+    - rhsm-subscription
+    - rhsm-repos
     - vmware-guest-setup
+    - docker-storage-setup
+    - openshift-volume-quota
   ignore_errors: yes

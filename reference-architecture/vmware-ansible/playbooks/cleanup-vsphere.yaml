@@ -8,7 +8,6 @@
   roles:
     - instance-groups
 
-
 - hosts: cluster_hosts
   user: root
   become: false

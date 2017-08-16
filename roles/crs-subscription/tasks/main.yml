@@ -26,30 +26,43 @@
       changed_when: no
       ignore_errors: yes
 
-    - name: RedHat subscriptions
+    - name: Register host via Activation key
+      redhat_subscription:
+        activationkey: "{{ rhsm_activation_key }}"
+        org_id: "{{ rhsm_org_id }}"
+        state: present
+        pool: "{{ rhsm_pool }}"
+      when: rhsm_activation_key is defined and rhsm_activation_key
+      register: register_key_result
+      ignore_errors: yes
+
+    - name: Register host
       redhat_subscription:
         username: "{{ rhsm_user }}"
         password: "{{ rhsm_password }}"
+        state: present
+        pool: "{{ rhsm_pool }}"
       when: "'Current' not in subscribed.stdout and rhsm_user is defined and rhsm_user"
 
-    - name: Retrieve the OpenShift Pool ID
-      command: subscription-manager list --available --matches="{{ rhsm_pool }}" --pool-only
-      register: openshift_pool_id
-      when: rhsm_pool is defined and rhsm_pool
-      changed_when: False
+    - name: Check if subscription is attached
+      command: subscription-manager list --consumed --pool-only --matches="{{ rhsm_pool }}"
+      register: subscription_attached
+      changed_when: no
 
-    - name: Determine if OpenShift Pool Already Attached
-      command: subscription-manager list --consumed --matches="{{ rhsm_pool }}" --pool-only
-      register: openshift_pool_attached
-      changed_when: False
-      when: rhsm_pool is defined and rhsm_pool and openshift_pool_id.stdout == ''
+    - block:
+        - name: Get pool id
+          shell: subscription-manager list --available --pool-only --matches="{{ rhsm_pool }}" | head -n 1
+          register: pool_id
+          changed_when: no
 
-    - fail:
-        msg: "Unable to find pool matching {{ rhsm_pool }} in available or consumed pools"
-      when: rhsm_pool is defined and rhsm_pool and openshift_pool_id.stdout == '' and openshift_pool_attached is defined and openshift_pool_attached.stdout == ''
+        - name: Fail if no pool ID is returned
+          fail:
+            msg: No subscription matching "{{ rhsm_pool }}" found
+          when: pool_id.stdout == ""
 
-    - name: Attach to OpenShift Pool
-      command: subscription-manager subscribe --pool {{ openshift_pool_id.stdout_lines[0] }}
-      when: rhsm_pool is defined and rhsm_pool and openshift_pool_id.stdout != ''
+        - name: Attach subscription
+          command: subscription-manager attach --pool="{{ pool_id.stdout }}"
+
+      when: subscription_attached.stdout == ""
 
   when: ansible_distribution == "RedHat"

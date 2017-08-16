@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# Don't run the end to end test when the openstack credentials are not set up.
+# This happens on pull requests coming from forks.
+if [ -z ${OS_AUTH_URL:-} ]; then
+    RUN_OPENSTACK_CI=false
+fi
+
 if [ "${RUN_OPENSTACK_CI:-}" == true ]
 then
     WHITELIST_REGEX='^(.travis.yml|ci|roles|playbooks\/provisioning)'
@@ -10,6 +16,7 @@ then
         RUN_OPENSTACK_CI=false
     fi
 fi
+
 
 export RUN_OPENSTACK_CI
 

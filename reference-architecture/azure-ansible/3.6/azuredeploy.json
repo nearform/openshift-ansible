@@ -286,23 +286,23 @@
       }
     },
     "metrics" : {
-      "type": "bool",
-      "defaultValue": true,
-      "metadata" :{
+      "type" : "bool",
+      "defaultValue" : true,
+      "metadata" : {
         "description" : "Enable OCP metrics"
       }
     },
     "logging" : {
-      "type": "bool",
-      "defaultValue": true,
-      "metadata" :{
+      "type" : "bool",
+      "defaultValue" : true,
+      "metadata" : {
         "description" : "Enable OCP aggregated logging"
       }
     },
     "opslogging" : {
-      "type": "bool",
-      "defaultValue": false,
-      "metadata" :{
+      "type" : "bool",
+      "defaultValue" : false,
+      "metadata" : {
         "description" : "Enable OCP aggregated logging for ops"
       }
     }
@@ -310,7 +310,8 @@
   "variables" : {
     "gituser" : "openshift",
     "branch" : "master",
-    "baseTemplateUrl" : "[concat('https://raw.githubusercontent.com/',variables('gituser'),'/openshift-ansible-contrib/',variables('branch'),'/reference-architecture/azure-ansible/')]",
+    "version" : "3.6",
+    "baseTemplateUrl" : "[concat('https://raw.githubusercontent.com/',variables('gituser'),'/openshift-ansible-contrib/',variables('branch'),'/reference-architecture/azure-ansible/',variables('version'),'/')]",
     "baseVMachineTemplateUriInfranode" : "[concat(variables('baseTemplateUrl'), 'infranode.json')]",
     "baseVMachineTemplateUriNode" : "[concat(variables('baseTemplateUrl'), 'node.json')]",
     "baseVMachineTemplateUriMaster" : "[concat(variables('baseTemplateUrl'), 'master.json')]",
@@ -747,7 +748,7 @@
           "rhsmmode" : {
             "value" : "[parameters('rhsmUsernamePasswordOrActivationKey')]"
           },
-          "openshiftsdn": {
+          "openshiftsdn" : {
             "value" : "[parameters('OpenShiftSDN')]"
           },
           "metrics" : {

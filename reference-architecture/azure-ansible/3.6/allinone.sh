@@ -59,6 +59,17 @@ ps -ef | grep allinone.sh > cmdline.out
 systemctl enable dnsmasq.service
 systemctl start dnsmasq.service
 
+echo "Resize Root FS"
+rootdev=`findmnt --target / -o SOURCE -n`
+rootdrivename=`lsblk -no pkname $rootdev`
+rootdrive="/dev/"$rootdrivename
+majorminor=`lsblk  $rootdev -o MAJ:MIN | tail -1`
+part_number=${majorminor#*:}
+yum install -y cloud-utils-growpart.noarch
+growpart $rootdrive $part_number -u on
+xfs_growfs $rootdev
+
+
 mkdir -p /var/lib/origin/openshift.local.volumes
 ZEROVG=$( parted -m /dev/sda print all 2>/dev/null | grep unknown | grep /dev/sd | cut -d':' -f1 | head -n1)
 parted -s -a optimal ${ZEROVG} mklabel gpt -- mkpart primary xfs 1 -1
@@ -176,8 +187,10 @@ fi
 subscription-manager attach --pool=$RHNPOOLID
 subscription-manager repos --disable="*"
 subscription-manager repos --enable="rhel-7-server-rpms" --enable="rhel-7-server-extras-rpms" --enable="rhel-7-fast-datapath-rpms"
-subscription-manager repos --enable="rhel-7-server-ose-3.5-rpms"
-yum -y install atomic-openshift-utils git net-tools bind-utils iptables-services bridge-utils bash-completion httpd-tools nodejs qemu-img
+subscription-manager repos --enable="rhel-7-server-ose-3.6-rpms"
+yum -y install atomic-openshift-utils git net-tools bind-utils iptables-services bridge-utils bash-completion httpd-tools nodejs qemu-img docker
+systemctl enable docker
+systemctl start docker
 touch /root/.updateok
 
 # Create azure.conf file
@@ -259,7 +272,7 @@ openshift_master_console_port="{{ console_port }}"
 openshift_override_hostname_check=true
 os_sdn_network_plugin_name='redhat/openshift-ovs-multitenant'
 osm_use_cockpit=false
-openshift_release=v3.5
+openshift_release=v3.6
 openshift_cloudprovider_kind=azure
 openshift_node_local_quota_per_fsgroup=512Mi
 azure_resource_group=${RESOURCEGROUP}
@@ -390,7 +403,7 @@ cat <<EOF >> /home/${AUSERNAME}/subscribe.yml
   - name: enable fastpath repos
     shell: subscription-manager repos --enable="rhel-7-fast-datapath-rpms"
   - name: enable OCP repos
-    shell: subscription-manager repos --enable="rhel-7-server-ose-3.5-rpms"
+    shell: subscription-manager repos --enable="rhel-7-server-ose-3.6-rpms"
   - name: install the latest version of PyYAML
     yum: name=PyYAML state=latest
   - name: Install the OCP client

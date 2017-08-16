@@ -84,9 +84,9 @@ $ vim vars.yaml
  * If "usernamepassword", then the username and password should be specified
  * If "activationkey", then the activation key and organization id should be specified
 * rhnusername: The RHN username where the instances will be registered
- * rhnusername: "activationkey" if activation key method has been chosen
+ * rhnusername: "organizationid" if  activation key method has been chosen
 * rhnpassword: The RHN password where the instances will be registered in plain text
- * rhnpassword: "organizationid" if activation key method has been chosen
+ * rhnpassword: "activationkey" if activation key method has been chosen
 * subscriptionpoolid: The subscription pool id the instances will use
 * resourcegroupname: The Azure resource name that will be created
 * aadclientid: Active Directory ID needed to be able to create, move and delete persistent volumes

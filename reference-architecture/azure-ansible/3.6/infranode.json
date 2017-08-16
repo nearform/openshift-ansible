@@ -5,9 +5,6 @@
     "vmName" : {
       "type" : "string"
     },
-    "dnsName" : {
-      "type" : "string"
-    },
     "sa" : {
       "type" : "string"
     },
@@ -21,7 +18,7 @@
       "type" : "string"
     },
     "sshKeyData" : {
-      "type" : "string",
+      "type" : "securestring",
       "metadata" : {
         "description" : "SSH RSA public key file as a string."
       }
@@ -35,23 +32,14 @@
         "description" : "imageReference object that should be used to create the virtual machine"
       }
     },
-    "sshPrivateData" : {
-      "type" : "securestring",
-      "metadata" : {
-        "description" : "SSH RSA private key file as a string."
-      }
+    "dnsName" : {
+      "type" : "string"
     },
-    "masterLoadBalancerName" : {
-      "type" : "string",
-      "metadata" : {
-        "description" : "loadbalacername"
-      }
+    "LoadBalancerName" : {
+      "type" : "string"
     },
     "availabilitySet" : {
-      "type" : "string",
-      "metadata" : {
-        "description" : "availabilityset"
-      }
+      "type" : "string"
     }
   },
   "variables" : {
@@ -81,7 +69,7 @@
               },
               "loadBalancerBackendAddressPools" : [
                 {
-                  "id" : "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Network/loadBalancers/', parameters('masterLoadBalancerName'), '/backendAddressPools/loadBalancerBackEnd')]"
+                  "id" : "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Network/loadBalancers/', parameters('LoadBalancerName'), '/backendAddressPools/loadBalancerBackEnd')]"
                 }
               ]
             }
@@ -130,7 +118,8 @@
               "uri" : "[concat('http://', parameters('sa'), '.blob.core.windows.net/openshiftvmachines/', parameters('vmName'), '.vhd')]"
             },
             "caching" : "ReadWrite",
-            "createOption" : "FromImage"
+            "createOption" : "FromImage",
+            "diskSizeGB" : "128"
           },
           "dataDisks" : [
             {
@@ -185,11 +174,11 @@
         "autoUpgradeMinorVersion" : true,
         "settings" : {
           "fileUris" : [
-            "[concat(parameters('baseTemplateUrl'), 'master.sh')]"
+            "[concat(parameters('baseTemplateUrl'), 'node.sh')]"
           ]
         },
         "protectedSettings" : {
-          "commandToExecute" : "[ concat('sh master.sh ', parameters('adminUsername'), ' ', parameters('sshPrivateData'),  ' ', parameters('sshKeyData')) ]"
+          "commandToExecute" : "sh node.sh"
         }
       }
     },
@@ -204,11 +193,24 @@
       "properties" : {
         "securityRules" : [
           {
-            "name" : "default-allow-openshift-master",
+            "name" : "default-allow-openshift-router-http",
             "properties" : {
               "protocol" : "Tcp",
               "sourcePortRange" : "*",
-              "destinationPortRange" : "8443",
+              "destinationPortRange" : "80",
+              "sourceAddressPrefix" : "*",
+              "destinationAddressPrefix" : "*",
+              "access" : "Allow",
+              "priority" : 1000,
+              "direction" : "Inbound"
+            }
+          },
+          {
+            "name" : "default-allow-openshift-router-https",
+            "properties" : {
+              "protocol" : "Tcp",
+              "sourcePortRange" : "*",
+              "destinationPortRange" : "443",
               "sourceAddressPrefix" : "*",
               "destinationAddressPrefix" : "*",
               "access" : "Allow",

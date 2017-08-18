@@ -173,10 +173,10 @@
     "vhdStorageType" : "Premium_LRS",
     "vnetId" : "[resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]",
     "rhel" : {
-      "publisher" : "Redhat",
+      "publisher" : "redhat",
       "offer" : "RHEL",
       "sku" : "7-RAW",
-      "version" : "latest"
+      "version" : "7.4.2017080923"
     },
     "baseVMachineTemplateUriOneVm" : "[concat(variables('baseTemplateUrl'), 'onevm.json')]",
     "vmSizesMap" : {

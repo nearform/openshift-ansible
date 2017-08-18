@@ -176,7 +176,7 @@
       "publisher" : "redhat",
       "offer" : "RHEL",
       "sku" : "7-RAW",
-      "version" : "7.4.2017080923"
+      "version" : "latest"
     },
     "baseVMachineTemplateUriOneVm" : "[concat(variables('baseTemplateUrl'), 'onevm.json')]",
     "vmSizesMap" : {

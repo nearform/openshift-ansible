@@ -34,7 +34,8 @@ worry about the 15 "fix yet another typo" commits polluting the history.
 If you pepper your fantastic new feature with a lot of unrelated
 changes such as changing the YAML indent or splitting long lines into
 shorter ones, it will be harder to focus on the feature or fix you're
-adding. This again leads longer review times and frustrated reviewers.
+adding. This again leads to longer review times and frustrated
+reviewers.
 
 It is perfectly fine to submit a standalone PR that says "make all
 lines under 80 characters long" or "make the yaml list indentation

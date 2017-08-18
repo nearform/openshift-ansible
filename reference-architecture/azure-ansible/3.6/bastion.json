@@ -86,7 +86,7 @@
     "rhsmmode" : {
       "type" : "string"
     },
-    "openshiftsdn": {
+    "openshiftsdn" : {
       "type" : "string"
     },
     "metrics" : {

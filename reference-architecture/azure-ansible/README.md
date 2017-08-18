@@ -1,53 +1,114 @@
-# OpenShift and Atomic Platform Ansible Contrib
+# Red Hat OpenShift Container Platform on Azure
 
-[![Build
-Status](https://travis-ci.org/openshift/openshift-ansible-contrib.svg?branch=master)](https://travis-ci.org/openshift/openshift-ansible-contrib)
+## Overview
+The reference architecture supports the creation of either a multi-node full HA
+production cluster or a single node designed for exploration of OpenShift on Azure.
 
-This repository contains *unsupported* code that can be used in conjunction with the
-[openshift-ansible](https://github.com/openshift/openshift-ansible) repository, namely:
-- additional [roles](https://github.com/openshift/openshift-ansible-contrib/tree/master/roles) for OpenShift deployment
-- code for provisioning various cloud providers (GCE, AWS, VMWare, [Openstack](https://github.com/openshift/openshift-ansible-contrib/tree/master/playbooks/provisioning/openstack) and [Red Hat Virtualization (RHV) / oVirt](https://github.com/openshift/openshift-ansible-contrib/tree/master/reference-architecture/rhv-ansible))
-- supporting scripts and playbooks for the various [reference architectures](https://github.com/openshift/openshift-ansible-contrib/tree/master/reference-architecture) Red Hat has published
+When creating the Red Hat OpenShift Container Platform on Azure, you will need a SSH RSA key for access.
 
-## Running tests locally
-We use [tox](http://readthedocs.org/docs/tox/) to manage virtualenvs and run
-tests. Alternatively, tests can be run using
-[detox](https://pypi.python.org/pypi/detox/) which allows for running tests in
-parallel
+## SSH Key Generation
 
+1. [Windows](ssh_windows.md)
+2. [Linux](ssh_linux.md)
+3. [Mac](ssh_mac.md)
 
-```
-pip install tox detox
-```
+## Create the Installation
+### OCP Version 3.6 - Create the Installation on the Azure Portal
+<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fopenshift%2Fopenshift-ansible-contrib%2Fmaster%2Freference-architecture%2Fazure-ansible%2F3.6%2Fazuredeploy.json" target="_blank">
+    <img src="http://azuredeploy.net/deploybutton.png"/>
+</a>
+<a href="http://armviz.io/#/?load=https%3A%2F%2Fraw.githubusercontent.com%2Fopenshift%2Fopenshift-ansible-contrib%2Fmaster%2Freference-architecture%2Fazure-ansible%2F3.6%2Fazuredeploy.json" target="_blank">
+    <img src="http://armviz.io/visualizebutton.png"/>
+</a>
 
-List the test environments available:
-```
-tox -l
-```
+#### Development Branch
+<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fglennswest%2Fopenshift-ansible-contrib%2Fmaster%2Freference-architecture%2Fazure-ansible%2F3.6%2Fazuredeploy.json" target="_blank">
+    <img src="http://azuredeploy.net/deploybutton.png"/>
+</a>
+</a>
+<a href="http://armviz.io/#/?load=https%3A%2F%2Fraw.githubusercontent.com%2Fglennswest%2Fopenshift-ansible-contrib%2Fmaster%2Freference-architecture%2F3.6%2Fazure-ansible%2Fazuredeploy.json" target="_blank">
+    <img src="http://armviz.io/visualizebutton.png"/>
+</a>
 
-Run all of the tests with:
-```
-tox
-```
+#### Create a Single VM Installation using the Azure Portal
 
-Run all of the tests in parallel with detox:
-```
-detox
-```
+<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fopenshift%2Fopenshift-ansible-contrib%2Fmaster%2Freference-architecture%2Fazure-ansible%2F3.6%2Fallinone.json" target="_blank">
+    <img src="http://azuredeploy.net/deploybutton.png"/>
+</a>
 
-Running a particular test environment (python 2.7 flake8 tests in this case):
-```
-tox -e py27-ansible22-flake8
-```
+### OCP Version 3.5 - Create the Installation on the Azure Portal
+<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fopenshift%2Fopenshift-ansible-contrib%2Fmaster%2Freference-architecture%2Fazure-ansible%2F3.5%2Fazuredeploy.json" target="_blank">
+    <img src="http://azuredeploy.net/deploybutton.png"/>
+</a>
+<a href="http://armviz.io/#/?load=https%3A%2F%2Fraw.githubusercontent.com%2Fopenshift%2Fopenshift-ansible-contrib%2Fmaster%2Freference-architecture%2Fazure-ansible%2F3.5%2Fazuredeploy.json" target="_blank">
+    <img src="http://armviz.io/visualizebutton.png"/>
+</a>
 
-Running a particular test environment in a clean virtualenv (python 3.5 yamllint
-tests in this case):
-```
-tox -r -e py35-ansible22-yamllint
-```
+#### Development Branch
+<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fglennswest%2Fopenshift-ansible-contrib%2Fmaster%2Freference-architecture%2Fazure-ansible%2F3.5%2Fazuredeploy.json" target="_blank">
+    <img src="http://azuredeploy.net/deploybutton.png"/>
+</a>
+</a>
+<a href="http://armviz.io/#/?load=https%3A%2F%2Fraw.githubusercontent.com%2Fglennswest%2Fopenshift-ansible-contrib%2Fmaster%2Freference-architecture%2F3.5%2Fazure-ansible%2Fazuredeploy.json" target="_blank">
+    <img src="http://armviz.io/visualizebutton.png"/>
+</a>
 
-If you want to enter the virtualenv created by tox to do additional
-testing/debugging (py27-flake8 env in this case):
-```
-source .tox/py27-ansible22-flake8/bin/activate
-```
+#### Create a Single VM Installation using the Azure Portal
+
+<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fopenshift%2Fopenshift-ansible-contrib%2Fmaster%2Freference-architecture%2Fazure-ansible%2F3.5%2Fallinone.json" target="_blank">
+    <img src="http://azuredeploy.net/deploybutton.png"/>
+</a>
+
+## Parameters
+
+For macOS:
+
+1. SSHKeyData - Public Key - Copy/Paste from .ssh/id_rsa.pub - pbcopy < ~/.ssh/id_rsa.pub
+
+2. PoolId - From RHEL - subscription-manager list --available
+
+3. SSHPrivate Data - Base64 Encoded id_rsa - cat ~/.ssh/id_rsa | base64 | pbcopy
+
+For RHEL/Fedora/CentOS:
+
+1. SSHKeyData - Public Key - Copy/Paste from .ssh/id_rsa.pub - xclip -selection clipboard < ~/.ssh/id_rsa.pub
+
+2. PoolId - From RHEL - subscription-manager list --available
+
+3. SSHPrivate Data - Base64 Encoded id_rsa - cat ~/.ssh/id_rsa | base64 | xclip -selection clipboard
+
+### Input Parameters
+
+| Name| Type           | Description |
+| ------------- | ------------- | ------------- |
+| adminUsername  | String       | Username for SSH Login and OpenShift Webconsole |
+|  adminPassword | SecureString | Password for the OpenShift Webconsole |
+| sshKeyData     | String       | Public SSH Key for the Virtual Machines |
+| masterDnsName  | String       | DNS Prefix for the OpenShift Master / Webconsole |
+| numberOfNodes  | Integer      | Number of OpenShift Nodes to create |
+| masterVMSize | String | The size of the Master Virtual Machine |
+| infranodeVMSize| String | The size of the Infranode Virtual Machine |
+| nodeVMSize| String | The size of the each Node Virtual Machine |
+
+### Output Parameters
+
+| Name| Type           | Description |
+| ------------- | ------------- | ------------- |
+| OpenShift Webconsole | String       | URL of the OpenShift Webconsole |
+| OpenShift Master ssh |String | SSH String to Login at the Master |
+| OpenShift Router Public IP | String       | Router Public IP. Needed if you want to create your own Wildcard DNS |
+
+------
+
+This template deploys Red Hat OpenShift on Azure.
+
+Attribution:
+
+Thanks to:
+Daniel Falkner - Microsoft Germany - For original templates.
+
+Harold Wong <Harold.Wong@microsoft.com> for his great support.
+
+Ivan McKinley
+
+For full commit history: Please see - https://github.com/glennswest/azure-openshift/

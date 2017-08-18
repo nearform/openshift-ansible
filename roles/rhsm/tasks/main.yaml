@@ -23,8 +23,8 @@
     - name: "Install Satellite certificate (if applicable)"
       command: "rpm -Uh --force {{ rhsm_katello_url }}"
       when:
-      - rhsm_katello_url is defined
-      - rhsm_katello_url|trim != ''
+        - rhsm_katello_url is defined
+        - rhsm_katello_url|trim != ''
 
     - name: "Is the system already registered?"
       command: "subscription-manager status"
@@ -48,12 +48,12 @@
 
     - name: "Disable repositories that should not be enabled"
       shell: "subscription-manager repos --disable={{ item }}"
-      with_items: 
-      - "{{ enabled_repos.stdout_lines | difference(openshift_required_repos) }}"
+      with_items:
+        - "{{ enabled_repos.stdout_lines | difference(openshift_required_repos) }}"
 
     - name: "Enable specified repositories not already enabled"
       command: "subscription-manager repos --enable={{ item }}"
       with_items:
-      - "{{ openshift_required_repos | difference(enabled_repos.stdout_lines) }}"
+        - "{{ openshift_required_repos | difference(enabled_repos.stdout_lines) }}"
 
   when: ansible_distribution == "RedHat"

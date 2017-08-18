@@ -6,8 +6,7 @@
   - vars/main.yaml
   roles:
   - instance-groups
-  - rhsm-subscription
-  - rhsm-repos
+  - rhsm
   - vmware-guest-setup
   - gluster-ports
 - include: ../../../playbooks/openshift-storage.yaml

@@ -6,7 +6,7 @@
   - vars/main.yaml
   roles:
   - instance-groups
-  - rhsm-subscription
+  - rhsm
   - gluster-rhsm-repos
   - vmware-guest-setup
   - gluster-crs-prerequisites

@@ -15,8 +15,7 @@
   - vars/main.yaml
   roles:
   - instance-groups
-  - rhsm-subscription
-  - rhsm-repos
+  - rhsm
   - vmware-guest-setup
 - include: ../../../playbooks/openshift-storage.yaml
 - include: ../../../playbooks/add-node-prerequisite.yaml

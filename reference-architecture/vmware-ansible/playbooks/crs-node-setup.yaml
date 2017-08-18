@@ -9,5 +9,6 @@
   - rhsm
   - gluster-rhsm-repos
   - vmware-guest-setup
+  - docker-storage-setup
   - gluster-crs-prerequisites
   - gluster-ports

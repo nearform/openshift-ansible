@@ -2,8 +2,8 @@
 
 ## Submitting Code To The Playbooks
 
-Following these guidelines will it easier for people to review your
-code and merge it faster.
+Following these guidelines will make it easier for people to review
+your code and merge it faster.
 
 
 1. Please add **documentation** to any user-facing changes you make

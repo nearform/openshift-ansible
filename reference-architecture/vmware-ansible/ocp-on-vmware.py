@@ -485,7 +485,6 @@ def launch_refarch_env(console_port=8443,
     os.system(command)
     tags = ",".join(tags)
     if clean is True:
-        # recreate inventory with added nodes to clean up
         tags = 'clean'
     if tag:
         tags = tag
@@ -495,6 +494,7 @@ def launch_refarch_env(console_port=8443,
     #else:
     #   command='docker run -t --rm --volume `pwd`:/opt/ansible:z -v ~/.ssh:/root/.ssh:z -v /tmp:/tmp:z --net=host ansible:2.2-latest'
     if 'clean' in tags:
+        tags = 'all'
         command='ansible-playbook '
         playbook = 'playbooks/cleanup-vsphere.yaml'
     else:

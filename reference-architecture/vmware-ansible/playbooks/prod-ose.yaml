@@ -10,8 +10,7 @@
   vars_files:
     - vars/main.yaml
   roles:
-    - rhsm-subscription
-    - rhsm-repos
+    - rhsm
     - vmware-guest-setup
     - docker-storage-setup
     - openshift-volume-quota

@@ -11,8 +11,7 @@
   vars_files:
     - vars/main.yaml
   roles:
-    - rhsm-subscription
-    - rhsm-repos
+    - rhsm
     - vmware-guest-setup
     - nfs-server
   ignore_errors: yes

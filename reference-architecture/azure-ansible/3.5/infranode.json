@@ -5,9 +5,6 @@
     "vmName" : {
       "type" : "string"
     },
-    "dnsName" : {
-      "type" : "string"
-    },
     "sa" : {
       "type" : "string"
     },
@@ -20,22 +17,13 @@
     "adminUsername" : {
       "type" : "string"
     },
-    "adminPassword" : {
-      "type" : "securestring"
-    },
     "sshKeyData" : {
-      "type" : "string",
+      "type" : "securestring",
       "metadata" : {
         "description" : "SSH RSA public key file as a string."
       }
     },
-    "numberOfNodes" : {
-      "type" : "int"
-    },
     "baseTemplateUrl" : {
-      "type" : "string"
-    },
-    "routerExtIP" : {
       "type" : "string"
     },
     "imageReference" : {
@@ -44,65 +32,19 @@
         "description" : "imageReference object that should be used to create the virtual machine"
       }
     },
-    "RHNUserName" : {
+    "dnsName" : {
       "type" : "string"
     },
-    "RHNPassword" : {
-      "type" : "securestring"
-    },
-    "SubscriptionPoolId" : {
+    "LoadBalancerName" : {
       "type" : "string"
     },
-    "sshPrivateData" : {
-      "type" : "securestring",
-      "metadata" : {
-        "description" : "SSH RSA private key file as a string."
-      }
-    },
-    "wildcardZone" : {
+    "availabilitySet" : {
       "type" : "string"
-    },
-    "registrystoragename" : {
-      "type" : "string"
-    },
-    "registrykey" : {
-      "type" : "string"
-    },
-    "location" : {
-      "type" : "string"
-    },
-    "subscriptionid" : {
-      "type" : "string"
-    },
-    "tenantid" : {
-      "type" : "string"
-    },
-    "aadclientid" : {
-      "type" : "string"
-    },
-    "aadclientsecret" : {
-      "type" : "string"
-    },
-    "rhsmmode" : {
-      "type" : "string"
-    },
-    "openshiftsdn" : {
-      "type" : "string"
-    },
-    "metrics" : {
-      "type" : "bool"
-    },
-    "logging" : {
-      "type" : "bool"
-    },
-    "opslogging" : {
-      "type" : "bool"
     }
   },
   "variables" : {
     "apiVersion" : "2015-06-15",
-    "sshKeyPath" : "[concat('/home/',parameters('adminUsername'),'/.ssh/authorized_keys')]",
-    "sQuote" : "\""
+    "sshKeyPath" : "[concat('/home/',parameters('adminUsername'),'/.ssh/authorized_keys')]"
   },
   "resources" : [
     {
@@ -114,7 +56,6 @@
         "displayName" : "NetworkInterface"
       },
       "dependsOn" : [
-        "[concat('Microsoft.Network/publicIPAddresses/', concat(parameters('vmName'), 'pip'))]",
         "[concat('Microsoft.Network/networkSecurityGroups/', concat(parameters('vmName'), 'nsg'))]"
       ],
       "properties" : {
@@ -123,12 +64,14 @@
             "name" : "ipconfig1",
             "properties" : {
               "privateIPAllocationMethod" : "Dynamic",
-              "publicIPAddress" : {
-                "id" : "[resourceId('Microsoft.Network/publicIPAddresses', concat(parameters('vmName'), 'pip'))]"
-              },
               "subnet" : {
                 "id" : "[parameters('subnetRef')]"
-              }
+              },
+              "loadBalancerBackendAddressPools" : [
+                {
+                  "id" : "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Network/loadBalancers/', parameters('LoadBalancerName'), '/backendAddressPools/loadBalancerBackEnd')]"
+                }
+              ]
             }
           }
         ],
@@ -187,6 +130,16 @@
               "vhd" : {
                 "uri" : "[concat('http://', parameters('sa'), '.blob.core.windows.net/openshiftvmachines/', parameters('vmName'), '_datadisk1.vhd')]"
               }
+            },
+            {
+              "caching" : "None",
+              "createOption" : "Empty",
+              "diskSizeGB" : "128",
+              "lun" : 1,
+              "name" : "datadisk2",
+              "vhd" : {
+                "uri" : "[concat('http://', parameters('sa'), '.blob.core.windows.net/openshiftvmachines/', parameters('vmName'), '_datadisk2.vhd')]"
+              }
             }
           ]
         },
@@ -196,6 +149,9 @@
               "id" : "[resourceId('Microsoft.Network/networkInterfaces', concat(parameters('vmName'), 'nic'))]"
             }
           ]
+        },
+        "availabilitySet" : {
+          "id" : "[resourceId('Microsoft.Compute/availabilitySets', parameters('availabilitySet'))]"
         }
       }
     },
@@ -217,11 +173,11 @@
         "autoUpgradeMinorVersion" : true,
         "settings" : {
           "fileUris" : [
-            "[concat(parameters('baseTemplateUrl'), 'bastion.sh')]"
+            "[concat(parameters('baseTemplateUrl'), 'node.sh')]"
           ]
         },
         "protectedSettings" : {
-          "commandToExecute" : "[ concat('bash bastion.sh ', resourceGroup().name, ' ', parameters('wildcardZone'), ' ',  parameters('adminUsername'), ' ', parameters('adminPassword'), ' ', reference(concat(parameters('vmName'), 'pip')).dnsSettings.fqdn, ' ', padLeft(parameters('numberOfNodes'), 2, '0'), ' ', parameters('routerExtIP'),' ', parameters('RHNUserName'), ' ', parameters('RHNPassword'),' ', parameters('SubscriptionPoolId'), ' ',  variables('sQuote'),  parameters('sshPrivateData'), variables('sQuote'),  ' ', variables('sQuote'), parameters('sshKeyData'), variables('sQuote'),' ',parameters('registrystoragename'),' ',parameters('registrykey'),' ',parameters('location'),' ',parameters('subscriptionid'),' ',parameters('tenantid'),' ',parameters('aadclientid'),' ',parameters('aadclientsecret'),' ',parameters('rhsmmode'),' ',parameters('openshiftsdn'),' ',parameters('metrics'),' ',parameters('logging'),' ',parameters('opslogging'))]"
+          "commandToExecute" : "sh node.sh"
         }
       }
     },
@@ -236,45 +192,34 @@
       "properties" : {
         "securityRules" : [
           {
-            "name" : "default-allow-ssh",
+            "name" : "default-allow-openshift-router-http",
             "properties" : {
               "protocol" : "Tcp",
               "sourcePortRange" : "*",
-              "destinationPortRange" : "22",
+              "destinationPortRange" : "80",
               "sourceAddressPrefix" : "*",
               "destinationAddressPrefix" : "*",
               "access" : "Allow",
               "priority" : 1000,
               "direction" : "Inbound"
             }
+          },
+          {
+            "name" : "default-allow-openshift-router-https",
+            "properties" : {
+              "protocol" : "Tcp",
+              "sourcePortRange" : "*",
+              "destinationPortRange" : "443",
+              "sourceAddressPrefix" : "*",
+              "destinationAddressPrefix" : "*",
+              "access" : "Allow",
+              "priority" : 2000,
+              "direction" : "Inbound"
+            }
           }
         ]
       }
-    },
-    {
-      "apiVersion" : "[variables('apiVersion')]",
-      "type" : "Microsoft.Network/publicIPAddresses",
-      "name" : "[concat(parameters('vmName'), 'pip')]",
-      "location" : "[resourceGroup().location]",
-      "tags" : {
-        "displayName" : "PublicIPAddress"
-      },
-      "properties" : {
-        "publicIPAllocationMethod" : "Static",
-        "dnsSettings" : {
-          "domainNameLabel" : "[parameters('dnsName')]"
-        }
-      }
     }
   ],
-  "outputs" : {
-    "fqdn" : {
-      "type" : "string",
-      "value" : "[reference(concat(parameters('vmName'), 'pip')).dnsSettings.fqdn]"
-    },
-    "pip" : {
-      "type" : "string",
-      "value" : "[reference(concat(parameters('vmName'), 'pip')).ipAddress]"
-    }
-  }
+  "outputs" : {}
 }

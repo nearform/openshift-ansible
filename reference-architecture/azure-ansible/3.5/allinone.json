@@ -163,9 +163,9 @@
     }
   },
   "variables" : {
-    "gituser" : "openshift",
+    "gituser" : "glennswest",
     "branch" : "master",
-    "version" : "3.6",
+    "version" : "3.5",
     "baseTemplateUrl" : "[concat('https://raw.githubusercontent.com/',variables('gituser'),'/openshift-ansible-contrib/',variables('branch'),'/reference-architecture/azure-ansible/',variables('version'),'/')]",
     "location" : "[resourceGroup().location]",
     "virtualNetworkName" : "openshiftVnet",
@@ -173,7 +173,7 @@
     "vhdStorageType" : "Premium_LRS",
     "vnetId" : "[resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]",
     "rhel" : {
-      "publisher" : "Redhat",
+      "publisher" : "redhat",
       "offer" : "RHEL",
       "sku" : "7-RAW",
       "version" : "latest"
@@ -454,8 +454,7 @@
               "uri" : "[concat('http://', variables('StorageAccountName'), '.blob.core.windows.net/openshiftvmachines/', resourceGroup().name, '.vhd')]"
             },
             "name" : "osdisk",
-            "createOption" : "FromImage",
-            "diskSizeGB" : "192"
+            "createOption" : "FromImage"
           },
           "dataDisks" : [
             {

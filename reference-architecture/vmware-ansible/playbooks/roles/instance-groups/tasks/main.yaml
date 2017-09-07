@@ -60,25 +60,25 @@
 - name: Add NFS instances to allnodes
   add_host:
     name: "{{ hostvars[item].inventory_hostname }}"
-    groups: allnodes 
+    groups: allnodes
   with_items: "{{ groups[cluster_id + '-infra-nfs'] }}"
 
 - name: Add loadbalancer instances to allnodes
   add_host:
     name: "{{ hostvars[item].inventory_hostname }}"
-    groups: allnodes 
+    groups: allnodes
   with_items: "{{ groups[cluster_id + '-loadbalancer'] }}"
 
 - name: Add cns instances to allnodes 
   add_host:
     name: "{{ hostvars[item].inventory_hostname }}"
-    groups: allnodes 
+    groups: allnodes
   with_items: "{{ groups[cluster_id + '-storage'] | default([]) }}"
 
 - name: Add crs instances to allnodes
   add_host:
     name: "{{ hostvars[item].inventory_hostname }}"
-    groups: allnodes 
+    groups: allnodes
   with_items: "{{ groups[cluster_id + '-crs'] | default([]) }}"
 
 - name: Add cns instances to host group

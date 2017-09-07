@@ -6,7 +6,7 @@
   roles:
     - instance-groups
 
-- hosts: allnodes 
+- hosts: allnodes
   ignore_errors: yes
   vars_files:
     - vars/main.yaml

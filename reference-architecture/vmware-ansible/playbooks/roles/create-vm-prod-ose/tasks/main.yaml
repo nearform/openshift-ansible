@@ -33,6 +33,9 @@
     - size_gb: 40
       datastore: "{{ vcenter_datastore }}"
       type: thin
+    - size_gb: 40
+      datastore: "{{ vcenter_datastore }}"
+      type: thin
     hardware:
       memory_mb: 16384
     networks:

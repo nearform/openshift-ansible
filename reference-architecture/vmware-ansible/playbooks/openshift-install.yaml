@@ -1,9 +1,9 @@
 ---
 - hosts: localhost
   gather_facts: yes
+  ignore_errors: yes
   vars_files:
   - vars/main.yaml
-  ignore_errors: yes
   roles:
   # Group systems
   - instance-groups
@@ -16,28 +16,14 @@
     openshift_release: "v3.6"
     debug_level: 2
     console_port: 8443
-    #osm_controller_args:
-    #  cloud-provider:
-    #  - "vsphere"
-    #  cloud-config:
-    #  - "/etc/vsphere/vsphere.conf"
-    #osm_api_server_args:
-    #  cloud-provider:
-    #  - "vsphere"
-    #  cloud-config:
-    #  - "/etc/vsphere/vsphere.conf"
-    openshift_node_kubelet_args:
-      #cloud-provider:
-      #- "vsphere"
-      #cloud-config:
-      #- "/etc/vsphere/vsphere.conf"
-      node-labels:
-      - "role={{ openshift_node_labels.role }}"
     openshift_debug_level: "{{ debug_level }}"
     openshift_node_debug_level: "{{ node_debug_level | default(debug_level, true) }}"
+    openshift_node_kubelet_args:
+      node-labels:
+      - "role={{ openshift_node_labels.role }}"
     openshift_master_debug_level: "{{ master_debug_level | default(debug_level, true) }}"
     openshift_master_access_token_max_seconds: 2419200
-    openshift_hosted_router_replicas: 1
+    openshift_hosted_router_replicas: 2
     openshift_hosted_registry_replicas: 1
     openshift_master_api_port: "{{ console_port }}"
     openshift_master_console_port: "{{ console_port }}"
@@ -50,11 +36,11 @@
     openshift_router_selector: "role=infra"
     openshift_master_cluster_method: native
     openshift_cloudprovider_kind: vsphere
-    wildcard_zone: apps.vcenter.e2e.bos.redhat.com
+    wildcard_zone:
     osm_default_subdomain: "{{ wildcard_zone }}"
     openshift_master_default_subdomain: "{{osm_default_subdomain}}"
-    deployment_type: openshift-enterprise
-    load_balancer_hostname: haproxy-0.vcenter.e2e.bos.redhat.com
+    deployment_type:
+    load_balancer_hostname:
     openshift_master_cluster_hostname: "{{ load_balancer_hostname }}"
     openshift_master_cluster_public_hostname: "{{ load_balancer_hostname }}"
     os_sdn_network_plugin_name: "{{ openshift_sdn }}"
@@ -73,20 +59,20 @@
         preferredUsername:
         - uid
       insecure: true
-      url: ldap://e2e.bos.redhat.com:389/CN=Users,DC=e2e,DC=bos,DC=redhat,DC=com?sAMAccountName
-      bindDN: CN=openshift,CN=Users,DC=e2e,DC=bos,DC=redhat,DC=com
-      bindPassword: password
+      url:
+      bindDN:
+      bindPassword:
     openshift_hosted_registry_storage_kind: nfs
     openshift_hosted_registry_storage_access_modes: ['ReadWriteMany']
-    openshift_hosted_registry_storage_host: nfs-0.vcenter.e2e.bos.redhat.com
-    openshift_hosted_registry_storage_nfs_directory: /exports
+    openshift_hosted_registry_storage_host:
+    openshift_hosted_registry_storage_nfs_directory:
     openshift_hosted_registry_storage_volume_name: registry
-    openshift_hosted_registry_storage_volume_size: 20Gi
+    openshift_hosted_registry_storage_volume_size: 30Gi
     openshift_master_metrics_public_url: "https://metrics.{{ osm_default_subdomain }}/hawkular/metrics"
     openshift_hosted_metrics_storage_kind: nfs
     openshift_hosted_metrics_storage_access_modes: ['ReadWriteOnce']
-    openshift_hosted_metrics_storage_host: nfs-0.vcenter.e2e.bos.redhat.com
-    openshift_hosted_metrics_storage_nfs_directory: /exports
+    openshift_hosted_metrics_storage_host:
+    openshift_hosted_metrics_storage_nfs_directory:
     openshift_hosted_metrics_storage_volume_name: metrics
     openshift_hosted_metrics_storage_volume_size: 10Gi
 #openshift_master_identity_providers: "[{'name': 'allow_all', 'login': 'true', 'challenge': 'true', 'kind': 'AllowAllPasswordIdentityProvider'}]"

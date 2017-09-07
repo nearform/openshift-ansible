@@ -28,4 +28,4 @@
   service: name=vmtoolsd state=started enabled=yes
 
 - name: set link to localtime
-  command: timedatectl set-timezone {{timezone}} 
+  command: timedatectl set-timezone {{timezone}}

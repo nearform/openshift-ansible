@@ -1,6 +1,15 @@
 ---
+- name: Unregister VMs
+  hosts:
+    - tag_openshift_master
+    - tag_openshift_infra
+    - tag_openshift_node
+    - tag_openshift_lb
+  roles:
+    - rhsm-unregister
+
 - name: oVirt infra destroy
-  hosts: engine
+  hosts: localhost
   connection: local
   gather_facts: false
 

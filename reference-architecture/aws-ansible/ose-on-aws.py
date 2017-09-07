@@ -14,19 +14,21 @@ import sys
               show_default=True)
 @click.option('--deployment-type', default='openshift-enterprise', type=click.Choice(['origin', 'openshift-enterprise']),  help='OpenShift deployment type',
               show_default=True)
-@click.option('--openshift-sdn', default='redhat/openshift-ovs-subnet', help='OpenShift SDN (redhat/openshift-ovs-subnet, redhat/openshift-ovs-multitenant, or other supported SDN)',
+@click.option('--openshift-sdn', default='redhat/openshift-ovs-multitenant', help='OpenShift SDN (redhat/openshift-ovs-subnet, redhat/openshift-ovs-multitenant, or other supported SDN)',
               show_default=True)
 
 ### AWS/EC2 options
 @click.option('--region', default='us-east-1', help='ec2 region',
               show_default=True)
-@click.option('--ami', default='ami-a33668b4', help='ec2 ami',
+@click.option('--ami', default='ami-fbc89880', help='ec2 ami',
               show_default=True)
 @click.option('--master-instance-type', default='m4.xlarge', help='ec2 instance type',
               show_default=True)
 @click.option('--node-instance-type', default='t2.large', help='ec2 instance type',
               show_default=True)
 @click.option('--app-instance-type', default='t2.large', help='ec2 instance type',
+              show_default=True)
+@click.option('--app-node-count', default='2', help='Number of Application Nodes',
               show_default=True)
 @click.option('--bastion-instance-type', default='t2.micro', help='ec2 instance type',
               show_default=True)
@@ -58,6 +60,7 @@ import sys
 @click.option('--app-dns-prefix', default='apps', help='application dns prefix',
               show_default=True)
 
+
 ### Subscription and Software options
 @click.option('--rhsm-user', help='Red Hat Subscription Management User')
 @click.option('--rhsm-password', help='Red Hat Subscription Management Password',
@@ -76,8 +79,11 @@ import sys
 @click.option('--github-client-secret', help='GitHub OAuth Client Secret')
 @click.option('--github-organization', multiple=True, help='GitHub Organization')
 @click.option('--s3-username',  help='S3 user for registry access')
-@click.option('--deploy-openshift-metrics',  help='Deploy OpenShift Metrics', type=click.Choice(['true', 'false']), default='false')
-@click.option('--openshift-hosted-metrics-storage-volume-size', default='20Gi', help='Size of OptionShift Metrics Persistent Volume',
+@click.option('--openshift-metrics-deploy',  help='Deploy OpenShift Metrics', type=click.Choice(['true', 'false']), default='true')
+@click.option('--openshift-logging-deploy',  help='Deploy OpenShift Logging', type=click.Choice(['true', 'false']), default='true')
+@click.option('--openshift-metrics-storage-volume-size', default='20Gi', help='Size of OptionShift Metrics Persistent Volume',
+              show_default=False)
+@click.option('--openshift-logging-storage-volume-size', default='100Gi', help='Size of OptionShift Logging Persistent Volume',
               show_default=False)
 @click.option('--no-confirm', is_flag=True,
               help='Skip confirmation prompt')
@@ -91,6 +97,7 @@ def launch_refarch_env(region=None,
                     master_instance_type=None,
                     node_instance_type=None,
                     app_instance_type=None,
+                    app_node_count=None,
                     bastion_instance_type=None,
                     keypair=None,
                     create_key=None,
@@ -119,14 +126,15 @@ def launch_refarch_env(region=None,
                     github_client_id=None,
                     github_client_secret=None,
                     github_organization=None,
-                    deploy_openshift_metrics=None,
-                    openshift_hosted_metrics_storage_volume_size=None,
+                    openshift_metrics_deploy=None,
+                    openshift_metrics_storage_volume_size=None,
+                    openshift_logging_deploy=None,
+                    openshift_logging_storage_volume_size=None,
                     verbose=0):
 
   # Need to prompt for the R53 zone:
   if public_hosted_zone is None:
     public_hosted_zone = click.prompt('Hosted DNS zone for accessing the environment')
-
 
   if s3_bucket_name is None:
     s3_bucket_name = stack_name + '-ocp-registry-' + public_hosted_zone.split('.')[0]
@@ -165,6 +173,23 @@ def launch_refarch_env(region=None,
     public_subnet_id2 = click.prompt('Specify the second Public subnet within the existing VPC')
     public_subnet_id3 = click.prompt('Specify the third Public subnet within the existing VPC')
 
+  app_node_count = int(app_node_count)
+  if app_node_count > 4:
+    click.echo("Please choose a value between 1 and 4")
+    sys.exit(1)
+
+  if master_instance_type in ['m4.large', 't2.micro', 't2.small', 't2.nano', 'm3.medium', 'm3.large', 'm3.xlarge']:
+    click.echo('The master instance type will not support an OpenShift deployment')
+    sys.exit(1)
+
+  if node_instance_type in ['t2.micro', 't2.nano', 'm3.medium', 'm3.large']:
+    click.echo('The node instance type will not support an OpenShift deployment')
+    sys.exit(1)
+
+  if app_instance_type in ['t2.micro', 't2.nano', 'm3.medium', 'm3.large']:
+    click.echo('The app instance type will not support an OpenShift deployment')
+    sys.exit(1)
+
  # Prompt for Bastion SG if byo-bastion specified
   if byo_bastion in 'yes' and bastion_sg in '/dev/null':
     bastion_sg = click.prompt('Specify the the Bastion Security group(example: sg-4afdd24)')
@@ -192,6 +217,8 @@ def launch_refarch_env(region=None,
   if isinstance(github_organization, str) or isinstance(github_organization, unicode):
     github_organization = [github_organization]
 
+  deploy_glusterfs = "false"
+
   # Display information to the user about their choices
   click.echo('Configured values:')
   click.echo('\tstack_name: %s' % stack_name)
@@ -200,6 +227,7 @@ def launch_refarch_env(region=None,
   click.echo('\tmaster_instance_type: %s' % master_instance_type)
   click.echo('\tnode_instance_type: %s' % node_instance_type)
   click.echo('\tapp_instance_type: %s' % app_instance_type)
+  click.echo('\tapp_node_count: %d' % app_node_count)
   click.echo('\tbastion_instance_type: %s' % bastion_instance_type)
   click.echo('\tkeypair: %s' % keypair)
   click.echo('\tcreate_key: %s' % create_key)
@@ -220,18 +248,19 @@ def launch_refarch_env(region=None,
   click.echo('\tpublic_hosted_zone: %s' % public_hosted_zone)
   click.echo('\tapp_dns_prefix: %s' % app_dns_prefix)
   click.echo('\tapps_dns: %s' % wildcard_zone)
-  click.echo('\trhsm_user: %s' % rhsm_user)
-  click.echo('\trhsm_password: *******')
-  click.echo('\trhsm_pool: %s' % rhsm_pool)
   click.echo('\tcontainerized: %s' % containerized)
   click.echo('\ts3_bucket_name: %s' % s3_bucket_name)
   click.echo('\ts3_username: %s' % s3_username)
   click.echo('\tgithub_client_id: *******')
   click.echo('\tgithub_client_secret: *******')
   click.echo('\tgithub_organization: %s' % (','.join(github_organization)))
-  click.echo('\tdeploy_openshift_metrics: %s' % deploy_openshift_metrics)
-  click.echo('\topenshift_hosted_metrics_storage_volume_size: %s' % openshift_hosted_metrics_storage_volume_size)
+  click.echo('\topenshift_metrics_deploy: %s' % openshift_metrics_deploy)
+  click.echo('\topenshift_metrics_storage_volume_size: %s' % openshift_metrics_storage_volume_size)
+  click.echo('\topenshift_logging_deploy: %s' % openshift_logging_deploy)
+  click.echo('\topenshift_logging_storage_volume_size: %s' % openshift_logging_storage_volume_size)
   click.echo("")
+
+  # app_node_count = (app_node_count +1)
 
   if not no_confirm:
     click.confirm('Continue using these values?', abort=True)
@@ -275,6 +304,7 @@ def launch_refarch_env(region=None,
     master_instance_type=%s \
     node_instance_type=%s \
     app_instance_type=%s \
+    app_node_count=%d \
     bastion_instance_type=%s \
     public_hosted_zone=%s \
     wildcard_zone=%s \
@@ -290,8 +320,11 @@ def launch_refarch_env(region=None,
     github_client_id=%s \
     github_client_secret=%s \
     github_organization=%s \
+    deploy_glusterfs=%s \
     openshift_hosted_metrics_deploy=%s \
-    openshift_hosted_metrics_storage_volume_size=%s \' %s' % (region,
+    openshift_hosted_metrics_storage_volume_size=%s \
+    openshift_hosted_logging_deploy=%s \
+    openshift_hosted_logging_storage_volume_size=%s \' %s' % (region,
                     stack_name,
                     ami,
                     keypair,
@@ -310,6 +343,7 @@ def launch_refarch_env(region=None,
                     master_instance_type,
                     node_instance_type,
                     app_instance_type,
+                    int(app_node_count),
                     bastion_instance_type,
                     public_hosted_zone,
                     wildcard_zone,
@@ -325,8 +359,11 @@ def launch_refarch_env(region=None,
                     github_client_id,
                     github_client_secret,
                     str(map(lambda x: x.encode('utf8'), github_organization)).replace("'", '"').replace(' ', ''),
-                    deploy_openshift_metrics,
-                    openshift_hosted_metrics_storage_volume_size,
+                    deploy_glusterfs,
+                    openshift_metrics_deploy,
+                    openshift_metrics_storage_volume_size,
+                    openshift_logging_deploy,
+                    openshift_logging_storage_volume_size,
                     playbook)
 
     if verbose > 0:

@@ -1,5 +1,0 @@
----
-- name: create static inventory file
-  hosts: localhost
-  roles:
-  - inventory-file-creation

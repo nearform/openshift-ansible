@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 #
 # Create an OSEv3.yml file with user values
 #
@@ -9,12 +9,6 @@ OCP3_INVENTORY_FILE=${OCP3_INVENTORY_FILE:-inventory}
 
 OCP3_OSEV3_TEMPLATE=${OCP3_OSEV3_TEMPLATE:-OSEv3.yml.template}
 OCP3_OSEV3_YML_FILE=${OCP3_OSEV3_YAML_FILE:-OSEv3.yml}
-
-# Replace domain in inventory file
-sed -e "s/ocp3.example.com/${OCP3_BASE_DOMAIN}/g" \
-  ${OCP3_INVENTORY_TEMPLATE} \
-  > ${OCP3_INVENTORY_FILE}
-
 
 # Replace values in OSEv3.yml template
 cp ${OCP3_OSEV3_TEMPLATE} ${OCP3_OSEV3_YML_FILE}

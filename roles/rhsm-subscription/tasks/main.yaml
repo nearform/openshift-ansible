@@ -48,7 +48,7 @@
         password: "{{ rhsm_password }}"
         state: present
         pool: "{{ rhsm_pool }}"
-      when: "'Current' not in subscribed.stdout and rhsm_user is defined and rhsm_user"
+      when: "'not registered' in subscribed.stdout and rhsm_user is defined and rhsm_user"
 
     - name: Check if subscription is attached
       command: subscription-manager list --consumed --pool-only --matches="{{ rhsm_pool }}"
@@ -70,7 +70,10 @@
         - name: Attach subscription
           command: subscription-manager attach --pool="{{ pool_id.stdout }}"
 
-      when: rhsm_pool is defined and rhsm_pool and not skip_packages is defined
+      #when: rhsm_pool is defined and rhsm_pool and not skip_packages is defined
+      when:
+        - rhsm_pool is defined
+        - subscription_attached.stdout == ''
 
     - name: Install katello-agent RPM if we are using satellite
       yum:

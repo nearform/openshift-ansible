@@ -5,7 +5,7 @@
       register: enabled_repos
 
     - name: "Disable repositories that should not be enabled"
-      shell: "subscription-manager repos --disable={{ item }}"                                                                                                                                                                             
+      shell: "subscription-manager repos --disable={{ item }}"
       with_items:
         - "{{ enabled_repos.stdout_lines | difference(openshift_required_repos) }}"
 

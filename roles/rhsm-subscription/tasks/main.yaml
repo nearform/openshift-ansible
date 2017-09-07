@@ -21,7 +21,7 @@
       ignore_errors: yes
 
     - name: Is the host already registered?
-      command: "subscription-manager status"
+      command: "subscription-manager version"
       register: subscribed
       changed_when: no
       ignore_errors: yes

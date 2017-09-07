@@ -47,6 +47,6 @@
   when: "'crs' in item.value.guestname"
 
 - name: Add CRS production VMs to inventory
-  add_host: hostname="{{ item.value.guestname }}" ansible_ssh_host="{{ item.value.ip4addr }}" groups="crs_annoation, crs, production_group"
+  add_host: hostname="{{ item.value.guestname }}" ansible_ssh_host="{{ item.value.ip4addr }}" groups="{{ crs_annoation }}, crs, production_group"
   with_dict: "{{host_inventory}}"
   when: "'crs' in item.value.guestname"

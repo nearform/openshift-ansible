@@ -38,6 +38,6 @@
   when: "'haproxy' in item.value.guestname"
 
 - name: Add haproxy server to inventory
-  add_host: hostname="{{ item.value.guestname}}" ansible_ssh_host="{{ item.value.ip4addr }}" groups="haproxy_group"
+  add_host: hostname="{{ item.value.guestname}}" ansible_ssh_host="{{ item.value.ip4addr }}" groups="{{ item.value.tag }}, haproxy_group"
   with_dict: "{{ host_inventory }}"
   when: "'haproxy' in item.value.guestname"

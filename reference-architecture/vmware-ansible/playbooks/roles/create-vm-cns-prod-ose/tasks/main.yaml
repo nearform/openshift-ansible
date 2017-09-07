@@ -10,6 +10,7 @@
     resource_pool: "{{ vcenter_resource_pool }}"
     template: "{{vcenter_template_name}}"
     state: poweredon
+    wait_for_ip_address: true
     folder: "/{{ vcenter_folder }}"
     annotation: "{{ item.value.tag }}"
     disk:

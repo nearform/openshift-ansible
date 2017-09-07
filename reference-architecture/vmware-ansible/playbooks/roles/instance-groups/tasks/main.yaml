@@ -69,7 +69,7 @@
     groups: allnodes
   with_items: "{{ groups[cluster_id + '-loadbalancer'] }}"
 
-- name: Add cns instances to allnodes 
+- name: Add cns instances to allnodes
   add_host:
     name: "{{ hostvars[item].inventory_hostname }}"
     groups: allnodes

@@ -1,0 +1,1 @@
+{"host_inventory": {"crs-0": {"guestname": "crs-0", "tag": "3e06olsus6x2rbgcxw4t-storage", "ip4addr": "10.19.114.230"}, "crs-1": {"guestname": "crs-1", "tag": "3e06olsus6x2rbgcxw4t-storage", "ip4addr": "10.19.114.231"}, "crs-2": {"guestname": "crs-2", "tag": "3e06olsus6x2rbgcxw4t-storage", "ip4addr": "10.19.114.232"}}}

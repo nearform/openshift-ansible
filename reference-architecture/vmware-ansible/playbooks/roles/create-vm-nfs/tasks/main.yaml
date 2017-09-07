@@ -38,6 +38,6 @@
   when: "'nfs' in item.value.guestname"
 
 - name: Add NFS server to inventory
-  add_host: hostname="{{ item.value.guestname}}" ansible_ssh_host="{{ item.value.ip4addr }}" groups="nfs_group"
+  add_host: hostname="{{ item.value.guestname}}" ansible_ssh_host="{{ item.value.ip4addr }}" groups="{{ item.value.tag }}, nfs_group"
   with_dict: "{{ host_inventory }}"
   when: "'nfs' in item.value.guestname"

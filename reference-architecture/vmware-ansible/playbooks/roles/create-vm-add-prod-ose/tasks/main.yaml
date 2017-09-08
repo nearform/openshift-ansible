@@ -14,6 +14,7 @@
     hostname: "{{ vcenter_host }}"
     username: "{{ vcenter_username }}"
     password: "{{ vcenter_password }}"
+    validate_certs: False
     name: "{{ item.value.guestname }}"
     cluster: "{{ vcenter_cluster}}"
     datacenter: "{{ vcenter_datacenter }}"

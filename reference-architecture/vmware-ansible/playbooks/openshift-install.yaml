@@ -18,7 +18,21 @@
     console_port: 8443
     openshift_debug_level: "{{ debug_level }}"
     openshift_node_debug_level: "{{ node_debug_level | default(debug_level, true) }}"
+    osm_controller_args:
+      cloud-provider:
+      - "vsphere"
+      cloud-config:
+      - "/etc/vsphere/vsphere.conf"
+    osm_api_server_args:
+      cloud-provider:
+      - "vsphere"
+      cloud-config:
+      - "/etc/vsphere/vsphere.conf"
     openshift_node_kubelet_args:
+      cloud-provider:
+      - "vsphere"
+      cloud-config:
+      - "/etc/vsphere/vsphere.conf"
       node-labels:
       - "role={{ openshift_node_labels.role }}"
     openshift_master_debug_level: "{{ master_debug_level | default(debug_level, true) }}"

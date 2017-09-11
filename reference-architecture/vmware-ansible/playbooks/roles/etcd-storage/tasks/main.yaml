@@ -1,0 +1,26 @@
+---
+- name: Create openshift volume group
+  lvg: vg=etcd pvs=/dev/sdd
+
+- name: Create lvm volumes
+  lvol: vg=etcd lv=etcd size=95%FREE state=present shrink=no
+
+- name: Create local partition on lvm lv
+  filesystem:
+    fstype: xfs
+    dev: /dev/etcd/etcd
+
+- name: Make mounts owned by nfsnobody
+  file: path=/var/lib/etcd state=directory mode=0755
+
+- name: Mount the partition
+  mount:
+    name: /var/lib/etcd
+    src:  /dev/etcd/etcd
+    fstype: xfs
+    state: present
+
+- name: Remount new partition
+  command: "mount -a"
+
+

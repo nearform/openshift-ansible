@@ -11,6 +11,11 @@ Internal DNS should be set up to reflect the number of nodes in the environment.
 
 ### OpenShift Playbooks
 The code in this repository handles all of the VMware specific components except for the installation of OpenShift. We rely on the OpenShift playbooks from the openshift-ansible-playbooks rpm. You will need the rpm installed on the workstation before using ocp-on-vmware.py.
+```bash
+wget https://raw.githubusercontent.com/openshift/openshift-ansible-contrib/vmw-3.6/reference-architecture/vmware-ansible/scripts/setup_ansible.sh
+```
+
+The following commands can be executed by themselves or via the script ./setup_ansible.sh
 
 ```bash
 echo "Subscribing and enabling the repos we need for deployment"
@@ -23,7 +28,6 @@ subscription-manager repos --enable=rhel-7-server-extras-rpms
 
 echo "Enabling the python27 SCL and use it for most of our packaging needs"
 yum install -y python27
-scl enable python27 bash
 
 echo "Installing the base packages that are needed for deployment minus the ones that are only on EPEL"
 yum install -y git atomic-openshift-utils python-click python-ldap ansible-2.3

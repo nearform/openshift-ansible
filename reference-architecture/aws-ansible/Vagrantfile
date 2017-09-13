@@ -94,7 +94,7 @@ pip install --upgrade git+https://github.com/ansible/ansible.git@stable-2.2 setu
 mkdir -p /usr/share/ansible
 cd /usr/share/ansible
 git clone https://github.com/openshift/openshift-ansible.git openshift-ansible 
-cd openshift-ansible && git checkout release-1.5
+cd openshift-ansible && git checkout release-3.6
 SCRIPT
 
 $shell= <<SCRIPT

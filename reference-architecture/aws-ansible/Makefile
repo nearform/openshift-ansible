@@ -1,14 +1,16 @@
-.PHONY: all vagrant-check up clean
+.PHONY: all vagrant-check up clean update
 	
 .DELETE_ON_ERROR:
-
-all: up
+all: vagrant-check up
 
 vagrant-check:
 	@command -v vagrant >/dev/null 2>&1 || { echo >&2 "vagrant is not available please install it"; exit 1; }
 
-up:
+up: vagrant-check update
 	vagrant up --provider virtualbox
 
-clean:
+update: vagrant-check
+	vagrant box update
+
+clean: vagrant-check
 	vagrant destroy --force

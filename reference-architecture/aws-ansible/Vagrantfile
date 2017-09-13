@@ -55,7 +55,7 @@ GITHUB_CLIENT_SECRET = ENV['GITHUB_CLIENT_SECRET']
 GITHUB_CLIENT_ID = ENV['GITHUB_CLIENT_ID']
 
 # Map of AWS regions and AMIs
-REGIONS = {
+AMIS = {
   "us-east-1" => "ami-4a70015c",
   "ap-south-1" => "ami-9c7b06f3",
   "eu-west-2" => "ami-14425570",
@@ -72,8 +72,6 @@ REGIONS = {
   "us-west-2" => "ami-fbd8bd9b"
 }
 
-AMI = REGIONS[REGION]
-
 $provision = <<SCRIPT
 rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
 
@@ -88,7 +86,7 @@ yum -y install python-pip git python2-boto \
 pip install --upgrade pip
 
 # Install ansible v2.2, setuptools and graffiti_monkey
-pip install --upgrade git+https://github.com/ansible/ansible.git@stable-2.2 setuptools graffiti_monkey
+pip install --upgrade git+git://github.com/ansible/ansible.git@stable-2.2 setuptools graffiti_monkey -vvv
 
 # Clone repository 
 mkdir -p /usr/share/ansible
@@ -130,11 +128,10 @@ cd /usr/src/openshift-ansible/reference-architecture/aws-ansible
 --key-path=/home/vagrant/.ssh/ocp.pub \
 --public-hosted-zone=#{PUBLIC_HOSTED_ZONE} \
 --deployment-type=origin \
---ami=#{AMI} \
+--ami=#{AMIS[REGION]} \
 --github-organization=#{GITHUB_ORGANIZATION} \
 --github-client-secret=#{GITHUB_CLIENT_SECRET} \
 --github-client-id=#{GITHUB_CLIENT_ID} \
---deploy-openshift-metrics=true \
 --containerized=true \
 --no-confirm && graffiti-monkey --region #{REGION}
 SCRIPT
@@ -142,13 +139,19 @@ SCRIPT
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.box = "centos/7"
   
+  # set auto_update to false, if you do NOT want to check the correct 
+  # additions version when booting this machine
+  config.vbguest.auto_update = false
+  
   config.vm.provider "virtualbox" do |v|
     v.memory = "#{RAM}"
     v.cpus = "#{CPUCOUNT}"
   end
   
+  config.vm.network :private_network, ip: '192.168.50.50'
+  
   config.vm.synced_folder "./", "/vagrant", disabled: true
-  config.vm.synced_folder "../../", "/usr/src/openshift-ansible"
+  config.vm.synced_folder "../../", "/usr/src/openshift-ansible", nfs: true
   
   config.vm.provision "shell", inline: $provision
   config.vm.provision "shell", inline: $shell, privileged: false, env: {

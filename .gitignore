@@ -28,3 +28,4 @@ static-inventory
 *.retry
 roles/infra-ansible/
 roles/openshift-ansible/
+/reference-architecture/aws-ansible/playbooks/roles/cloudformation-infra/files/openshift-infra-greenfield.json

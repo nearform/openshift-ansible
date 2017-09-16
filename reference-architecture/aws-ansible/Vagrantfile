@@ -128,6 +128,7 @@ cd /usr/src/openshift-ansible/reference-architecture/aws-ansible
 --key-path=/home/vagrant/.ssh/ocp.pub \
 --public-hosted-zone=#{PUBLIC_HOSTED_ZONE} \
 --deployment-type=origin \
+--app-node-count=3 \
 --ami=#{AMIS[REGION]} \
 --github-organization=#{GITHUB_ORGANIZATION} \
 --github-client-secret=#{GITHUB_CLIENT_SECRET} \

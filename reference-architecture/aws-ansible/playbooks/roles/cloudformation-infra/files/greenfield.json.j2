@@ -1347,11 +1347,11 @@
          ]
      }
  },
-{% set rotator = 1 %}
+{% set vars = {'rotator': 1} %}
 {% for idx in range(1, app_node_count|int + 1) %}
-{% if rotator == 4 %}
-  {% set rotator = 1 %}
-{% endif %}
+{%- if vars.rotator == 4 %}
+  {%- if vars.update({'rotator': 1}) %}{%- endif %}
+{%- endif %}
     "AppNode{{ '%02d' % idx }}" : {
        "Type" : "AWS::EC2::Instance",
        "DependsOn": ["NodeInstanceProfile"],
@@ -1360,9 +1360,9 @@
           "UserData": {"Ref": "NodeUserData"},
           "KeyName" : {"Ref": "KeyName"},
           "InstanceType": {"Ref": "AppNodeInstanceType"},
-	  "SecurityGroupIds": [{ "Fn::GetAtt" : ["NodeSG", "GroupId"] }],
-          "SubnetId" : {"Ref": "PrivateSubnet{{ rotator }}"},
-	  "IamInstanceProfile": { "Ref": "NodeInstanceProfile" },
+	        "SecurityGroupIds": [{ "Fn::GetAtt" : ["NodeSG", "GroupId"] }],
+          "SubnetId" : {"Ref": "PrivateSubnet{{ vars.rotator }}"},
+	        "IamInstanceProfile": { "Ref": "NodeInstanceProfile" },
           "Tags": [
           { "Key": "Name",
             "Value": {"Fn::Join": [".", ["ose-app-node{{ '%02d' % idx }}",{"Ref": "PublicHostedZone"}]]}
@@ -1402,7 +1402,7 @@
          ]
      }
    },
-{% set rotator = rotator + 1 %}
+{%- if vars.update({'rotator': vars.rotator + 1 }) %}{%- endif %}
 {% endfor %}
     "S3UserName" : {
       "Type" : "AWS::IAM::User",

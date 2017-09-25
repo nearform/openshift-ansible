@@ -132,6 +132,7 @@ cd /usr/src/openshift-ansible/reference-architecture/aws-ansible
 --app-node-count=#{APP_NODE_COUNT} \
 --node-instance-type=m4.xlarge \
 --ami=#{AMIS[REGION]} \
+--openshift-metrics-deploy=false \
 --github-organization=#{GITHUB_ORGANIZATION} \
 --github-client-secret=#{GITHUB_CLIENT_SECRET} \
 --github-client-id=#{GITHUB_CLIENT_ID} \

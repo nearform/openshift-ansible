@@ -1,0 +1,12 @@
+---
+- hosts: localhost
+  gather_facts: yes
+  become: yes
+  roles:
+  - rhsm
+
+- hosts: localhost
+  gather_facts: yes
+  become: yes
+  roles:
+  - deploy-host

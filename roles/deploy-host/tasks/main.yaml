@@ -32,6 +32,23 @@
   when: "'gcp' in provider"
 
 - block:
+   - name: "Obtain currently enabled repos for rhv"
+     shell: 'subscription-manager repos --list-enabled | sed -ne "s/^Repo ID:[^a-zA-Z0-9]*\(.*\)/\1/p"'
+     register: enabled_repos
+
+   - name: "Enable rhv mgmt repo for rhv"
+     command: "subscription-manager repos --enable=rhel-7-server-rhv-4-mgmt-agent-rpms"
+     when: "'rhv' not in enabled_repos.stdout"
+
+   - name: "Establish rhv pre-req packages"
+     set_fact:
+       openshift_deploy_packages_by_provider: ['ovirt-engine-sdk-python']
+
+   - name: "Be sure all pre-req rhv packages are installed"
+     yum: name={{item}} state=installed
+     with_items:
+     - "{{ openshift_deploy_packages_by_provider }}"
+
    - name: "Confirm location of openshift-ansible-contrib for rhv"
      stat:
        path: "~/git/openshift-ansible-contrib"

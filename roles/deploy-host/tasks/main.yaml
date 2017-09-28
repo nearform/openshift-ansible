@@ -21,31 +21,31 @@
 # Different locations per provier
 
 - block: 
-   - name: "Establish GCP pre-req packages"
+   - name: "Establish gcp pre-req packages"
      set_fact:
        openshift_deploy_packages_by_provider: ['qemu-img', 'python-libcloud', 'python2-jmespath', 'python2-passlib', 'python2-libcloud', 'java-1.8.0-openjdk-headless', 'httpd-tools', ' python2-passlib']
 
-   - name: "Be sure all pre-req GCP packages are installed"
+   - name: "Be sure all pre-req gcp packages are installed"
      yum: name={{item}} state=installed
      with_items:
      - "{{ openshift_deploy_packages_by_provider }}"
   when: "'gcp' in provider"
 
 - block:
-   - name: "Confirm location of openshift-ansible-contrib for RHV"
+   - name: "Confirm location of openshift-ansible-contrib for rhv"
      stat:
        path: "~/git/openshift-ansible-contrib"
      register: contrib
  
-   - name: "Confirm location of ovirt for RHV doesn't already exist"
+   - name: "Confirm location of ovirt for rhv doesn't already exist"
      stat:
-       path: "~/git/ovirt"
+       path: "~/git/ovirt-ansible"
      register: ovirt
 
    - name: "Git clone required rhv repo"
      git: 
        repo: "https://github.com/ovirt/ovirt-ansible"
-       dest: "~/git/ovirt"
+       dest: "~/git/ovirt-ansible"
      when: "contrib.stat.exists and not ovirt.stat.exists"
   when: "'rhv' in provider"
 

@@ -32,6 +32,15 @@
   when: "'gcp' in provider"
 
 - block:
+   - name: "Search for SSH key"
+     stat:
+       path: "~/.ssh/id_rsa"
+     register: ssh_key
+
+   - name: "Create SSH key if its missing"
+     command: "ssh-keygen -N '' -f ~/.ssh/id_rsa"
+     when: "not ssh_key.stat.exists"
+
    - name: "Obtain currently enabled repos for rhv"
      shell: 'subscription-manager repos --list-enabled | sed -ne "s/^Repo ID:[^a-zA-Z0-9]*\(.*\)/\1/p"'
      register: enabled_repos
@@ -67,6 +76,15 @@
   when: "'rhv' in provider"
 
 - block:
+   - name: "Search for SSH key"
+     stat:
+       path: "~/.ssh/id_rsa"
+     register: ssh_key
+
+   - name: "Create SSH key if its missing"
+     command: "ssh-keygen -N '' -f ~/.ssh/id_rsa"
+     when: "not ssh_key.stat.exists"
+
    - name: "Obtain currently enabled repos for vsphere"
      shell: 'subscription-manager repos --list-enabled | sed -ne "s/^Repo ID:[^a-zA-Z0-9]*\(.*\)/\1/p"'
      register: enabled_repos

@@ -130,6 +130,7 @@ cd /usr/src/openshift-ansible/reference-architecture/aws-ansible
 --public-hosted-zone=#{PUBLIC_HOSTED_ZONE} \
 --deployment-type=origin \
 --app-node-count=#{APP_NODE_COUNT} \
+--app-instance-type=m4.xlarge \
 --node-instance-type=m4.xlarge \
 --ami=#{AMIS[REGION]} \
 --openshift-metrics-deploy=false \

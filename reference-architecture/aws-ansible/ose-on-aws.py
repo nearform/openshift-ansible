@@ -134,7 +134,7 @@ def launch_refarch_env(region=None,
     public_hosted_zone = click.prompt('Hosted DNS zone for accessing the environment')
 
   if s3_bucket_name is None:
-    s3_bucket_name = stack_name + '-ocp-registry-' + public_hosted_zone.split('.')[0]
+    s3_bucket_name = stack_name + '-ocp-registry-' + "-".join(public_hosted_zone.split('.')[:-1])
 
   if s3_username is None:
     s3_username = stack_name + '-s3-openshift-user'

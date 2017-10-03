@@ -27,47 +27,47 @@
   when: "'gcp' in provider"
 
 - block:
-   - name: "Search for SSH key"
-     stat:
-       path: "~/.ssh/id_rsa"
-     register: ssh_key
+    - name: "Search for SSH key"
+      stat:
+        path: "~/.ssh/id_rsa"
+      register: ssh_key
 
-   - name: "Create SSH key if its missing"
-     command: "ssh-keygen -N '' -f ~/.ssh/id_rsa"
-     when: "not ssh_key.stat.exists"
+    - name: "Create SSH key if its missing"
+      command: "ssh-keygen -N '' -f ~/.ssh/id_rsa"
+      when: "not ssh_key.stat.exists"
 
-   - name: "Obtain currently enabled repos for rhv"
-     shell: 'subscription-manager repos --list-enabled | sed -ne "s/^Repo ID:[^a-zA-Z0-9]*\(.*\)/\1/p"'
-     register: enabled_repos
+    - name: "Obtain currently enabled repos for rhv"
+      shell: 'subscription-manager repos --list-enabled | sed -ne "s/^Repo ID:[^a-zA-Z0-9]*\(.*\)/\1/p"'
+      register: enabled_repos
 
-   - name: "Enable rhv mgmt repo for rhv"
-     command: "subscription-manager repos --enable=rhel-7-server-rhv-4-mgmt-agent-rpms"
-     when: "'rhv' not in enabled_repos.stdout"
+    - name: "Enable rhv mgmt repo for rhv"
+      command: "subscription-manager repos --enable=rhel-7-server-rhv-4-mgmt-agent-rpms"
+      when: "'rhv' not in enabled_repos.stdout"
 
-   - name: "Establish rhv pre-req packages"
-     set_fact:
-       openshift_deploy_packages_by_provider: ['ovirt-engine-sdk-python']
+    - name: "Establish rhv pre-req packages"
+      set_fact:
+        openshift_deploy_packages_by_provider: ['ovirt-engine-sdk-python']
 
-   - name: "Be sure all pre-req rhv packages are installed"
-     yum: name={{item}} state=installed
-     with_items:
-       - "{{ openshift_deploy_packages_by_provider }}"
+    - name: "Be sure all pre-req rhv packages are installed"
+      yum: name={{item}} state=installed
+      with_items:
+        - "{{ openshift_deploy_packages_by_provider }}"
 
-   - name: "Confirm location of openshift-ansible-contrib for rhv"
-     stat:
-       path: "~/git/openshift-ansible-contrib"
-     register: contrib
+    - name: "Confirm location of openshift-ansible-contrib for rhv"
+      stat:
+        path: "~/git/openshift-ansible-contrib"
+      register: contrib
 
-   - name: "Confirm location of ovirt for rhv doesn't already exist"
-     stat:
-       path: "~/git/ovirt-ansible"
-     register: ovirt
+    - name: "Confirm location of ovirt for rhv doesn't already exist"
+      stat:
+        path: "~/git/ovirt-ansible"
+      register: ovirt
 
-   - name: "Git clone required rhv repo"
-     git:
-       repo: "https://github.com/ovirt/ovirt-ansible"
-       dest: "~/git/ovirt-ansible"
-     when: "contrib.stat.exists and not ovirt.stat.exists"
+    - name: "Git clone required rhv repo"
+      git:
+        repo: "https://github.com/ovirt/ovirt-ansible"
+        dest: "~/git/ovirt-ansible"
+      when: "contrib.stat.exists and not ovirt.stat.exists"
   when: "'rhv' in provider"
 
 - block:
@@ -76,30 +76,30 @@
         path: "~/.ssh/id_rsa"
       register: ssh_key
 
-   - name: "Create SSH key if its missing"
-     command: "ssh-keygen -N '' -f ~/.ssh/id_rsa"
-     when: "not ssh_key.stat.exists"
+    - name: "Create SSH key if its missing"
+      command: "ssh-keygen -N '' -f ~/.ssh/id_rsa"
+      when: "not ssh_key.stat.exists"
 
-   - name: "Obtain currently enabled repos for vsphere"
-     shell: 'subscription-manager repos --list-enabled | sed -ne "s/^Repo ID:[^a-zA-Z0-9]*\(.*\)/\1/p"'
-     register: enabled_repos
+    - name: "Obtain currently enabled repos for vsphere"
+      shell: 'subscription-manager repos --list-enabled | sed -ne "s/^Repo ID:[^a-zA-Z0-9]*\(.*\)/\1/p"'
+      register: enabled_repos
 
-   - name: "Enable SCL Repo for vsphere"
-     command: "subscription-manager repos --enable=rhel-server-rhscl-7-rpms"
-     when: "'rhscl' not in enabled_repos.stdout"
+    - name: "Enable SCL Repo for vsphere"
+      command: "subscription-manager repos --enable=rhel-server-rhscl-7-rpms"
+      when: "'rhscl' not in enabled_repos.stdout"
 
-   - name: "Set facts for vsphere non EPEL packages"
-     set_fact:
-       openshift_deploy_packages_by_provider: ['python-click', 'python-ldap', 'python27']
+    - name: "Set facts for vsphere non EPEL packages"
+      set_fact:
+        openshift_deploy_packages_by_provider: ['python-click', 'python-ldap', 'python27']
 
-   - name: "Be sure all vsphere pre-req provider packages are installed"
-     yum: name={{item}} state=installed
-     with_items:
-       - "{{ openshift_deploy_packages_by_provider }}"
+    - name: "Be sure all vsphere pre-req provider packages are installed"
+      yum: name={{item}} state=installed
+      with_items:
+        - "{{ openshift_deploy_packages_by_provider }}"
 
-   - name: "Set facts for vsphere EPEL packages"
-     set_fact:
-       openshift_deploy_epel_packages_by_provider: ['python-iptools', 'python2-pyvmomi']
+    - name: "Set facts for vsphere EPEL packages"
+      set_fact:
+        openshift_deploy_epel_packages_by_provider: ['python-iptools', 'python2-pyvmomi']
   when: "'vsphere' in provider"
 
 - block:

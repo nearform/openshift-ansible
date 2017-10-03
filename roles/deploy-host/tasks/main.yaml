@@ -15,11 +15,6 @@
   with_items:
     - "{{ openshift_deploy_packages }}"
 
-##TODO 
-# Add ssh key location for all providers
-# Create if not there and move into place
-# Different locations per provier
-
 - block: 
    - name: "Establish gcp pre-req packages"
      set_fact:
@@ -28,7 +23,7 @@
    - name: "Be sure all pre-req gcp packages are installed"
      yum: name={{item}} state=installed
      with_items:
-     - "{{ openshift_deploy_packages_by_provider }}"
+       - "{{ openshift_deploy_packages_by_provider }}"
   when: "'gcp' in provider"
 
 - block:

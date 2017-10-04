@@ -191,7 +191,7 @@ common_azure()
   if [ $TYPE == 'node' ]
   then
     # Get last 2 numbers and add 1
-    LASTNUMBER=$((${LASTVM: -2}+1))
+    LASTNUMBER=$((10#${LASTVM: -2}+1))
     # Format properly XX
     NEXT=$(printf %02d $LASTNUMBER)
   else

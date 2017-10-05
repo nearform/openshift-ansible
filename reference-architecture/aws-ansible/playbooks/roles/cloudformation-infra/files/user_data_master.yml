@@ -16,7 +16,6 @@ fs_setup:
 runcmd:
 - mkdir -p /var/lib/etcd
 - mkdir -p /var/lib/origin/openshift.local.volumes
-- sed -i -e 's/^Defaults\s\+requiretty/# \0/' /etc/sudoers
 
 mounts:
 - [ /dev/xvdc, /var/lib/etcd, xfs, "defaults" ]

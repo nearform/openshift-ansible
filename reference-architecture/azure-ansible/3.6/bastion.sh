@@ -28,6 +28,7 @@ export OPENSHIFTSDN=${array[22]}
 export METRICS=${array[23]}
 export LOGGING=${array[24]}
 export OPSLOGGING=${array[25]}
+export GITURL=${array[26]}
 export FULLDOMAIN=${THEHOSTNAME#*.*}
 export WILDCARDFQDN=${WILDCARDZONE}.${FULLDOMAIN}
 export WILDCARDIP=`dig +short ${WILDCARDFQDN}`

@@ -45,6 +45,7 @@ echo $WILDCARDFQDN
 echo $WILDCARDIP
 echo $WILDCARDNIP
 echo $RHSMMODE
+echo $GITURL
 
 echo 'Show Registry Values'
 echo $REGISTRYSTORAGENAME

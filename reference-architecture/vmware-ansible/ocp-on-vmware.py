@@ -34,7 +34,7 @@ class VMwareOnOCP(object):
     byo_lb=None
     lb_config=''
     lb_host=None
-    lb_ha_host=None
+    lb_ha_ip=None
     byo_nfs=None
     nfs_host=None
     nfs_registry_mountpoint=None
@@ -160,8 +160,8 @@ class VMwareOnOCP(object):
                 print "rhel_subscription_user="
             elif line.startswith("rhel_subscription_pass="):
                 print "rhel_subscription_pass="
-            elif line.startswith("lb_ha_host="):
-                print "lb_ha_host="
+            elif line.startswith("lb_ha_ip="):
+                print "lb_ha_ip="
             elif line.startswith("master_nodes="):
                 print "master_nodes=3"
             elif line.startswith("infra_nodes="):
@@ -288,7 +288,7 @@ class VMwareOnOCP(object):
         self.openshift_sdn = config.get('vmware', 'openshift_sdn')
         self.byo_lb = config.get('vmware', 'byo_lb')
         self.lb_host = config.get('vmware', 'lb_host')
-        self.lb_ha_host = config.get('vmware', 'lb_ha_host')
+        self.lb_ha_ip = config.get('vmware', 'lb_ha_ip')
         self.byo_nfs = config.get('vmware', 'byo_nfs')
         self.nfs_host = config.get('vmware', 'nfs_host')
         self.nfs_registry_mountpoint = config.get('vmware', 'nfs_registry_mountpoint')
@@ -358,7 +358,7 @@ class VMwareOnOCP(object):
         if self.byo_nfs == "False":
             self.support_nodes=self.support_nodes+1
         if self.byo_lb == "False":
-            if self.lb_ha_host != '':
+            if self.lb_ha_ip != '':
                 self.support_nodes=self.support_nodes+3
             else:
                 self.support_nodes=self.support_nodes+1
@@ -391,8 +391,8 @@ class VMwareOnOCP(object):
             del ip4addr[0]
 
         if self.byo_lb == "False":
-            if self.lb_ha_host:
-                bind_entry.append(self.lb_ha_host + "\t\tA\t" + wild_ip)
+            if self.lb_ha_ip:
+                bind_entry.append(self.lb_ha_ip + "\t\tA\t" + wild_ip)
                 i = 2
             else:
                 i = 1
@@ -403,7 +403,7 @@ class VMwareOnOCP(object):
                     lb_name="haproxy-"+str(i)
                 d['host_inventory'][lb_name] = {}
                 d['host_inventory'][lb_name]['guestname'] = lb_name
-                if not self.lb_ha_host:
+                if not self.lb_ha_ip:
                     d['host_inventory'][lb_name]['ip4addr'] = wild_ip
                     bind_entry.append(lb_name + "\tA\t" + wild_ip)
                 else:
@@ -467,8 +467,8 @@ class VMwareOnOCP(object):
         click.echo('\tdns_zone: %s' % self.dns_zone)
         click.echo('\tapp_dns_prefix: %s' % self.app_dns_prefix)
         click.echo('\tbyo_lb: %s' % self.byo_lb)
-        if self.lb_ha_host:
-            click.echo('\tlb_ha_host: %s' % self.lb_ha_host)
+        if self.lb_ha_ip:
+            click.echo('\tlb_ha_ip: %s' % self.lb_ha_ip)
         else:
             click.echo('\tlb_host: %s' % self.lb_host)
         click.echo('\tUsing values from: %s' % self.vmware_ini_path)
@@ -502,8 +502,8 @@ class VMwareOnOCP(object):
                 url = "ldap://" + self.ldap_fqdn + ":389/" + url_base + "?sAMAccountName"
 
             install_file = "playbooks/ocp-install.yaml"
-            if self.lb_ha_host:
-                lb_name = self.lb_ha_host
+            if self.lb_ha_ip:
+                lb_name = self.lb_ha_ip
             else:
                 lb_name = self.lb_host + "." + self.dns_zone
 
@@ -598,8 +598,8 @@ class VMwareOnOCP(object):
         if self.tag:
             tags = self.tag
 
-        if self.lb_ha_host != '':
-            self.lb_host = self.lb_ha_host
+        if self.lb_ha_ip != '':
+            self.lb_host = self.lb_ha_ip
 
         # grab the default priv key from the user"
         command='cp -f ~/.ssh/id_rsa ssh_key/ocp-installer'
@@ -646,7 +646,7 @@ class VMwareOnOCP(object):
             container_storage=%s \
             openshift_hosted_metrics_deploy=%s \
             lb_host=%s \
-            lb_ha_host=%s \
+            lb_ha_ip=%s \
             nfs_host=%s \
             nfs_registry_mountpoint=%s \' %s' % ( tags,
                             self.vcenter_host,
@@ -678,7 +678,7 @@ class VMwareOnOCP(object):
                             self.container_storage,
                             self.openshift_hosted_metrics_deploy,
                             self.lb_host,
-                            self.lb_ha_host,
+                            self.lb_ha_ip,
                             self.nfs_host,
                             self.nfs_registry_mountpoint,
                             playbook)

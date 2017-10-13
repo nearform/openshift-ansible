@@ -2,7 +2,7 @@
 This repository contains the scripts used to deploy an OpenShift environment based off of the Reference Architecture Guide for OpenShift 3.6 on VMware
 
 ## Overview
-The repository contains Ansible playbooks which deploy 3 Masters, 3 infrastructure nodes and 3 application nodes. All nodes could utilize anti-affinity rules to separate them on the number of hypervisors you have allocated for this deployment. The playbooks deploy a Docker registry and scale the router to the number of Infrastruture nodes. Please see the [TLDR](README.md#TLDR:-Steps-to-install-Red-Hat-OpenShift-Cluster-Platform) bottom section if you just want the concise deployment steps.
+The repository contains Ansible playbooks which deploy 3 masters, 3 infrastructure nodes and 3 application nodes. All nodes could utilize anti-affinity rules to separate them on the number of hypervisors you have allocated for this deployment. The playbooks deploy a Docker registry and scale the router to the number of Infrastruture nodes. 
 
 ![Architecture](images/OCP-on-VMware-Architecture.jpg)
 
@@ -93,11 +93,13 @@ Continue using these values? [y/N]:
 ### Existing VM Environment and Deployment (Brownfield)
 The `ocp-on-vmware.py` script allows for deployments into an existing environment
 in which VMs already exists and are subscribed to the proper `RHEL` [channels](https://access.redhat.com/documentation/en/openshift-container-platform/3.6/single/installation-and-configuration/#installing-base-packages).
-The prerequisite packages will be installed. The script expects the proper VM annotations are created on the existing VMs:
+The prerequisite packages will be installed. The script expects the proper VM annotations are created on the existing VMs. 
 
-* app nodes will be labeled **"my_cluster-app"** 
-* infra nodes labeled **"my_cluster-infra"**
-* master nodes labeled as **"my_cluster-master"**
+The annotation is a combination of a unique` cluster_id` plus the node type:
+
+* app nodes will be labeled with **"-app"** 
+* infra nodes labeled with **"-infra"**
+* master nodes labeled with **"-master"**
 
 Lastly, the prepared VMs must correspond to the following hardware requirements:
 
@@ -111,7 +113,6 @@ The *ocp-install* tag will install OpenShift on a pre-existing environment. The 
 The *ocp-configure* tag will configure persistent registry and scale nodes.
 
 Notice in the instance below we are supplying our own external NFS server and load balancer.
-
 ```bash
 $ cd ~/git/openshift-ansible-contrib/reference-architecture/vmware-ansible/
 

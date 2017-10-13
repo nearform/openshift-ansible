@@ -210,17 +210,16 @@ $ cd /root/git/openshift-ansible-contrib/reference-architecture/vmware-ansible/
 $ cat ocp-on-vmware.ini
 ...omitted...
 # folder/cluster/resource pool in vCenter to organize VMs
-vcenter_folder=ocp3
-vcenter_datastore=DPLHP380G9-10-SS200-2
-vcenter_cluster=OCP3
+vcenter_folder=ocp
+vcenter_cluster=devel
+vcenter_datacenter=Boston
 vcenter_resource_pool=OCP3
-vcenter_datacenter=vDPL
+vcenter_datastore=ose3-vmware
 ...omitted...
 # persistent container storage: none, crs, cns
 container_storage=cns
 
 $ ./add-node.py --node_type=storage
-Configured inventory values:
 Configured inventory values:
      cluster_id:  0klgsla 
      console_port:  8443
@@ -233,24 +232,24 @@ Continue creating the inventory file with these values? [y/N]: y
 Gluster topology file created using /dev/sdd: topology.json
 Inventory file created: add-node.json
 host_inventory:
-  ocp3-app-cns-0:
-    guestname: ocp3-app-cns-0
-    ip4addr: 172.0.10.211
+  app-cns-0:
+    guestname: app-cns-0
+    ip4addr: 10.*.*.240
     tag: storage
-  ocp3-app-cns-1:
-    guestname: ocp3-app-cns-1
-    ip4addr: 172.0.10.212
+  app-cns-1:
+    guestname: app-cns-1
+    ip4addr: 10.*.*.241
     tag: storage
-  ocp3-app-cns-2:
-    guestname: ocp3-app-cns-2
-    ip4addr: 172.0.10.213
+  app-cns-2:
+    guestname: app-cns-2
+    ip4addr: 10.*.*.242
     tag: storage
 
 Continue adding nodes with these values? [y/N]:
 ```
 The process for CRS is different in the playbooks but performed identically. Simply replace container_storage=cns to crs.
 
-### Upgrading the cluster
+### Upgrading an existing OCP cluster
 
 To upgrade an existing cluster to a newer version:
 
@@ -268,15 +267,10 @@ $ cd ~/git/ && git clone https://github.com/openshift/openshift-ansible-contrib
 $ cd ~/git/openshift-ansible-contrib && ansible-playbook playbooks/deploy-host.yaml -e provider=vsphere 
 ```
 
-* Fill out the variables in the ocp-on-vmware.ini file.
+* Fill out the variables in the ocp-on-vmware.ini file and run ocp installer.
 
 ```bash
 $ vim ~/git/openshift-ansible-contrib/reference-architecture/vmware-ansible/ocp-on-vmware.ini
-```
-
-* Run ocp-on-vmware.py 
-
-```bash
 $ cd ~/openshift-ansible-contrib/reference-architecture/vmware-ansible/ && ./ocp-on-vmware.py
 ```
 

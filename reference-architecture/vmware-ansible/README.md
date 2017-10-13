@@ -23,13 +23,13 @@ $ cd ~/git/openshift-ansible-contrib && ansible-playbook playbooks/deploy-host.y
 ```
 - The deploy-host playbook will create an SSH key and move it into place at **ssh_keys/ocp-installer**.
 
-- Copy the SSH pub key to the template
+Copy the SSH pub key to the template
 
 ```bash
 ssh-copy-id root@template_ip_address
 ```
 
-- Next fill out the variables in ~/git/openshift-ansible-contrib/reference-architecture/vmware-ansible/ocp-on-vmware.ini and run the installer
+- Next fill out the variables in ocp-on-vmware.ini and run the installer
 
 The Ansible script will launch infrastructure and flow straight into installing the OpenShift application and components.
 Additionally, ocp-on-vmware.py will configure LDAP authentication credentials for the OpenShift install create an inventory file to define the number of nodes for each **role**: *app, infra, master*.
@@ -41,10 +41,16 @@ $ cd ~/git/openshift-ansible-contrib/reference-architecture/vmware-ansible/ && .
 ```
 
 ### VMware Template Name
-`vcenter_template_name` is the VMware template name. The template should be configured with open-vm-tools installed on RHEL 7.4.
+The variable `vcenter_template_name` is the VMware template name it should have RHEL 7.4 installed with the open-vm-tools package.
 
 ### New VMware Environment (Greenfield)
-When installing all components into your VMware environment perform the following. This will create the haproxy, the nfs server for the registry, and all the production OpenShift VMs. 
+When configuring a Greednfield cluster the following components are installed by default:
+
+- HAproxy VM
+- NFS VM for registry
+- 3 Master OpenShift VMs
+- 3 Infrastructure OpenShift VMs
+- 3 Application nodes OpenShift VMs
 
 ```bash
 $ cd ~/git/openshift-ansible-contrib/reference-architecture/vmware-ansible/
@@ -109,9 +115,9 @@ Lastly, the prepared VMs must correspond to the following hardware requirements:
 | Master  | 2 vCPU | 16GB RAM | 1 x 60GB - OS RHEL 7.4 | 1 x 40GB - Docker volume | 1 x 40Gb -  EmptyDir volume | 1 x 40GB - ETCD volume |
 | Node | 2 vCPU | 8GB RAM | 1 x 60GB - OS RHEL 7.4 | 1 x 40GB - Docker volume | 1 x 40Gb - EmptyDir volume | |
 
-The *ocp-install* tag will install OpenShift on your pre-existing environment. The dynamic inventory script sorts your VMs by their annotations and that is how the proper OpenShift labels are applied.
+The *ocp-install* tag will install OpenShift on a pre-existing environment. The dynamic inventory script sorts the VMs by annotations, this is how the proper OpenShift labels are applied.
 
-The *ocp-configure* tag will configure your persistent registry and scale your nodes.
+The *ocp-configure* tag will configure persistent registry and scale nodes.
 
 Notice in the instance below we are supplying our own external NFS server and load balancer.
 
@@ -244,6 +250,14 @@ Continue adding nodes with these values? [y/N]:
 ```
 The process for CRS is different in the playbooks but performed identically. Simply replace container_storage=cns to crs.
 
+### Upgrading the cluster
+
+To upgrade an existing cluster to a newer version:
+
+```bash
+$ cd ~/openshift-ansible-contrib/reference-architecture/vmware-ansible/ && ./ocp-on-vmware.py --tag ocp-update
+```
+
 ### TLDR: Steps to install Red Hat OpenShift Cluster Platform
 
 * Clone the git repo and prepare the deploy host.
@@ -272,10 +286,4 @@ $ cd ~/openshift-ansible-contrib/reference-architecture/vmware-ansible/ && ./ocp
 $ cd ~/openshift-ansible-contrib/reference-architecture/vmware-ansible/ && ./ocp-on-vmware.py --tag ocp-demo
 ```
 
-* Update the install by running ocp-on-vmware.py --tag ocp-update
-
-```bash
-$ cd ~/openshift-ansible-contrib/reference-architecture/vmware-ansible/ && ./ocp-on-vmware.py --tag ocp-update
-```
-If you have installation failures during the ./ocp-on-vmware.py run by itself, you can
-simply rerun it.
+If installation failures occuring during the ./ocp-on-vmware.py run, simply rerun it.

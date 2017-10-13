@@ -99,25 +99,25 @@
 
   - name: Install Satellite CA certificate
     yum:
-      name: "http://{{ sat6_hostname }}/pub/katello-ca-consumer-latest.noarch.rpm"
+      name: "http://{{ rhsm_satellite }}/pub/katello-ca-consumer-latest.noarch.rpm"
       state: present
-    when: sat6_hostname | default
+    when: rhsm_satellite | default
 
   - name: Subscribe to Satellite with activation key and auto-attach
     redhat_subscription:
       autosubscribe: true
-      server_hostname: "{{ sat6_hostname | default(None) }}"
-      org_id: "{{ sat6_organization | default(None) }}"
-      activationkey: "{{ sat6_activationkey }}"
-    when: sat6_activationkey | default
+      server_hostname: "{{ rhsm_satellite | default(None) }}"
+      org_id: "{{ rhsm_org_id | default(None) }}"
+      activationkey: "{{ rhsm_activation_key }}"
+    when: rhsm_activation_key | default
 
   - name: Subscribe to RHSM and auto-attach
     redhat_subscription:
       username: "{{ rhn_username | default(None) }}"
       password: "{{ rhn_password | default(None) }}"
       autosubscribe: true
-      server_hostname: "{{ sat6_hostname | default(None) }}"
-      org_id: "{{ sat6_organization | default(None) }}"
+      server_hostname: "{{ rhsm_satellite | default(None) }}"
+      org_id: "{{ rhsm_org_id | default(None) }}"
     when: rhn_username|default and rhn_password|default and rhn_pool|default == ""
 
   - name: Subscribe to RHSM and attach a pool
@@ -125,8 +125,8 @@
       username: "{{ rhn_username }}"
       password: "{{ rhn_password }}"
       pool_ids: ["{{ rhn_pool }}"]
-      server_hostname: "{{ sat6_hostname|default(None) }}"
-      org_id: "{{ sat6_organization|default(None) }}"
+      server_hostname: "{{ rhsm_satellite|default(None) }}"
+      org_id: "{{ rhsm_org_id|default(None) }}"
     when: rhn_username|default and rhn_password|default and rhn_pool|default
 
 - include: ansible/bind-server.yml

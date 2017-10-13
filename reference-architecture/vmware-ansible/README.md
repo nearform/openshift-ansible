@@ -130,7 +130,6 @@ The prerequisite packages will be installed. The script expects the proper VM an
 
 Lastly, the prepared VMs must correspond to the following hardware requirements:
 
-.Virtual Machine Node Requirements
 |Node Type | Hardware
 | ------- | ------- |
 | Master  | 2 vCPU

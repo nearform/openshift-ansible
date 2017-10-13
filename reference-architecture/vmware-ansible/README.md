@@ -8,32 +8,31 @@ The repository contains Ansible playbooks which deploy 3 Masters, 3 infrastructu
 
 ## Prerequisites and Usage
 
- 
-Make sure your public key is copied to your template.
+- Make sure your public key is copied to your template.
 
 - Internal DNS should be set up to reflect the number of nodes in the environment. The default "VM network" should have a contiguous static IP addresses set up for initial provisioning.
 
 - The code in this repository handles all of the VMware specific components except for the installation of OpenShift.
 
-The following commands should be issued from the deployment host
+- The deploy-host playbook will create an SSH key and move it into place at **ssh_keys/ocp-installer**.
+
+The following commands should be issued from the deployment host:
 ```
 # yum install -y ansible git
 $ mkdir ~/git/ && git clone https://github.com/openshift/openshift-ansible-contrib
 $ cd ~/git/openshift-ansible-contrib && ansible-playbook playbooks/deploy-host.yaml -e provider=vsphere
 ```
-- The deploy-host playbook will create an SSH key and move it into place at **ssh_keys/ocp-installer**.
 
-Copy the SSH pub key to the template
-
+Copy the SSH pub key to the template:
 ```bash
 ssh-copy-id root@template_ip_address
 ```
 
-- Next fill out the variables in ocp-on-vmware.ini and run the installer
+Next fill out the variables in ocp-on-vmware.ini and run the installer
 
 The Ansible script will launch infrastructure and flow straight into installing the OpenShift application and components.
 Additionally, ocp-on-vmware.py will configure LDAP authentication credentials for the OpenShift install create an inventory file to define the number of nodes for each **role**: *app, infra, master*.
-Also, the script will help with the DNS configuration and will facilitate static IP configuration.
+Lastly, the script will help with the DNS configuration and will facilitate static IP configuration.
 
 ```bash
 $ vim  ~/git/openshift-ansible-contrib/reference-architecture/vmware-ansible/ocp-on-vmware.ini
@@ -85,15 +84,7 @@ Configured values:
      app_nodes:  3
      storage_nodes:  0
      vm_ipaddr_start:  10.*.*.225
-     ocp_hostname_prefix:  
-     auth_type:  ldap
-     ldap_user:  openshift
-     ldap_user_password:  ******
-     ldap_fqdn:  e2e.bos.redhat.com
-     openshift_hosted_metrics_deploy:  false
-     openshift_sdn:  redhat/openshift-ovs-subnet
-     containerized:  false
-     container_storage:  none
+... ommitted ...
      ini_path:  ./ocp-on-vmware.ini
      tag:  None
 Continue using these values? [y/N]:
@@ -143,17 +134,7 @@ nfs_registry_mountpoint=/my-registry
 $ ./ocp-on-vmware.py --tag ocp-install,ocp-configure
 
 Configured values:
-    console port: 8443
-    deployment_type: openshift-enterprise
-    vcenter_host: 10.*.*.25
-    vcenter_username: administrator@vsphere.local
-    vcenter_password: *******
-    vcenter_template_name: ocp-server-template-2.0.2
-    vcenter_folder: ocp
-    vcenter_cluster: devel
-    vcenter_datacenter: Boston
-    vcenter_resource_pool: OCP3
-    dns_zone: vcenter.e2e.bos.redhat.com
+... content abbreviated ...
     app_dns_prefix: apps
     vm_dns: 10.*.*.5
     vm_gw: 10.*.*.254

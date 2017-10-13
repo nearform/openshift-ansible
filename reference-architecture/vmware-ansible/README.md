@@ -2,49 +2,46 @@
 This repository contains the scripts used to deploy an OpenShift environment based off of the Reference Architecture Guide for OpenShift 3.6 on VMware
 
 ## Overview
-The repository contains Ansible playbooks which deploy 3 Masters, 2 infrastructure nodes and 3 application nodes. All nodes could utilize anti-affinity rules to separate them on the number of hypervisors you have allocated for this deployment. The playbooks deploy a Docker registry and scale the router to the number of Infrastruture nodes. Please see the [TLDR](README.md#TLDR:-Steps-to-install-Red-Hat-OpenShift-Cluster-Platform) bottom section if you just want the concise deployment steps.
+The repository contains Ansible playbooks which deploy 3 Masters, 3 infrastructure nodes and 3 application nodes. All nodes could utilize anti-affinity rules to separate them on the number of hypervisors you have allocated for this deployment. The playbooks deploy a Docker registry and scale the router to the number of Infrastruture nodes. Please see the [TLDR](README.md#TLDR:-Steps-to-install-Red-Hat-OpenShift-Cluster-Platform) bottom section if you just want the concise deployment steps.
 
 ![Architecture](images/OCP-on-VMware-Architecture.jpg)
 
-## Prerequisites
-Internal DNS should be set up to reflect the number of nodes in the environment. The default "VM network" should have a contiguous static IP addresses set up for initial provisioning.
+## Prerequisites and Usage
 
-### OpenShift Playbooks
-The code in this repository handles all of the VMware specific components except for the installation of OpenShift.
-
-The following commands should be issued from the deployment host
-```bash
-# yum install -y ansible git
-$ mkdir ~/git/ && git clone https://github.com/openshift/openshift-ansible-contrib
-cd ~/git/openshift-ansible-contrib && ansible-playbook playbooks/deploy-host.yaml -e provider=vsphere
-```
-
-Next fill out the variables in ~/git/openshift-ansible-contrib/reference-architecture/vmware-ansible/ocp-on-vmware.ini and run the installer
-
-```bash
-vim  ~/git/openshift-ansible-contrib/reference-architecture/vmware-ansible/ocp-on-vmware.ini
-cd ~/git/openshift-ansible-contrib/reference-architecture/vmware-ansible/
-./ocp-on-vmware.py
-```
-
-## Usage
-The Ansible script will launch infrastructure and flow straight into installing the OpenShift application and components.
-
-### Before Launching the Ansible script
-The deploy-host playbook will create an SSH key and move it into place at **ssh_keys/ocp-installer**.
  
 Make sure your public key is copied to your template.
+
+- Internal DNS should be set up to reflect the number of nodes in the environment. The default "VM network" should have a contiguous static IP addresses set up for initial provisioning.
+
+- The code in this repository handles all of the VMware specific components except for the installation of OpenShift.
+
+The following commands should be issued from the deployment host
+```
+# yum install -y ansible git
+$ mkdir ~/git/ && git clone https://github.com/openshift/openshift-ansible-contrib
+$ cd ~/git/openshift-ansible-contrib && ansible-playbook playbooks/deploy-host.yaml -e provider=vsphere
+```
+- The deploy-host playbook will create an SSH key and move it into place at **ssh_keys/ocp-installer**.
+
+- Copy the SSH pub key to the template
 
 ```bash
 ssh-copy-id root@template_ip_address
 ```
 
-Additionally, ocp-on-vmware.py will configure LDAP authentication credentials for the OpenShift install create an inventory file to define the number of nodes for each **role**: *app, infra, master*.
+- Next fill out the variables in ~/git/openshift-ansible-contrib/reference-architecture/vmware-ansible/ocp-on-vmware.ini and run the installer
 
-Also, the script  will help with the DNS configuration and will facilitate static IP configuration.
+The Ansible script will launch infrastructure and flow straight into installing the OpenShift application and components.
+Additionally, ocp-on-vmware.py will configure LDAP authentication credentials for the OpenShift install create an inventory file to define the number of nodes for each **role**: *app, infra, master*.
+Also, the script will help with the DNS configuration and will facilitate static IP configuration.
+
+```bash
+$ vim  ~/git/openshift-ansible-contrib/reference-architecture/vmware-ansible/ocp-on-vmware.ini
+$ cd ~/git/openshift-ansible-contrib/reference-architecture/vmware-ansible/ && ./ocp-on-vmware.py
+```
 
 ### VMware Template Name
-This is VMware template name. The template should be configured with open-vm-tools installed on RHEL 7.4. The template should have your public key listed in its authorized_keys section.
+`vcenter_template_name` is the VMware template name. The template should be configured with open-vm-tools installed on RHEL 7.4.
 
 ### New VMware Environment (Greenfield)
 When installing all components into your VMware environment perform the following. This will create the haproxy, the nfs server for the registry, and all the production OpenShift VMs. 
@@ -64,10 +61,9 @@ deployment_type=openshift-enterprise
 vcenter_host=myvcenter.example.com
 vcenter_username=administrator@vsphere.local
 vcenter_password=password
-
 ... ommitted ...
 
-./ocp-on-vmware.py  \
+./ocp-on-vmware.py  
 
 Configured values:
 
@@ -75,36 +71,14 @@ Configured values:
      console_port:  8443
      deployment_type:  openshift-enterprise
      openshift_vers:  v3_6
-     vcenter_host:  10.19.114.25
+     vcenter_host:  10.*.*.25
      vcenter_username:  administrator@vsphere.local
-     vcenter_password:  ******
-     vcenter_template_name:  ocp-server-template-2.0.2
-     vcenter_folder:  ocp36
-     vcenter_datastore:  ose3-vmware-prod
-     vcenter_cluster:  devel
-     vcenter_resource_pool:  ocp36
-     vcenter_datacenter:  Boston
-     dns_zone:  vcenter.e2e.bos.redhat.com
-     app_dns_prefix:  apps
-     vm_dns:  10.19.114.5
-     vm_gw:  10.19.115.254
-     vm_netmask:  255.255.254.0
-     vm_network:  "VM Network"
-     rhel_subscription_user:  sysengra
-     rhel_subscription_pass:  ******
-     rhel_subscription_server:  
-     rhel_subscription_pool:  Red Hat OpenShift Container Platform, Premium*
-     byo_lb:  False
-     lb_host:  haproxy-0
-     lb_ha_ip:  10.19.114.231
-     byo_nfs:  False
-     nfs_host:  nfs-0
-     nfs_registry_mountpoint:  /exports
-     master_nodes:  1
-     infra_nodes:  1
-     app_nodes:  1
+... ommitted ...
+     master_nodes:  3
+     infra_nodes:  3
+     app_nodes:  3
      storage_nodes:  0
-     vm_ipaddr_start:  10.19.114.225
+     vm_ipaddr_start:  10.*.*.225
      ocp_hostname_prefix:  
      auth_type:  ldap
      ldap_user:  openshift
@@ -228,14 +202,14 @@ The process for adding an infra node is identical.
 ```bash
 $ cd /root/git/openshift-ansible-contrib/reference-architecture/vmware-ansible/
 $ cat ocp-on-vmware.ini
-….omitted….
+...omitted...
 # folder/cluster/resource pool in vCenter to organize VMs
 vcenter_folder=ocp3
 vcenter_datastore=DPLHP380G9-10-SS200-2
 vcenter_cluster=OCP3
 vcenter_resource_pool=OCP3
 vcenter_datacenter=vDPL
-….omitted….
+...omitted...
 # persistent container storage: none, crs, cns
 container_storage=cns
 

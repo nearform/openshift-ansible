@@ -132,17 +132,8 @@ Lastly, the prepared VMs must correspond to the following hardware requirements:
 
 |Node Type | Hardware
 | ------- | ------- |
-| Master  | 2 vCPU
-            16GB RAM
-            1 x 60GB - OS RHEL 7.4
-            1 x 40GB - Docker volume
-            1 x 40Gb -  EmptyDir volume
-            1 x 40GB - ETCD volume |
-| Node | 2 vCPU
-         8GB RAM
-         1 x 60GB - OS RHEL 7.4
-         1 x 40GB - Docker volume
-         1 x 40Gb - EmptyDir volume |
+| Master  | 2 vCPU 16GB RAM 1 x 60GB - OS RHEL 7.4 1 x 40GB - Docker volume 1 x 40Gb -  EmptyDir volume 1 x 40GB - ETCD volume |
+| Node | 2 vCPU 8GB RAM 1 x 60GB - OS RHEL 7.4 1 x 40GB - Docker volume 1 x 40Gb - EmptyDir volume |
 
 The *ocp-install* tag will install OpenShift on your pre-existing environment. The dynamic inventory script sorts your VMs by their annotations and that is how the proper OpenShift labels are applied.
 

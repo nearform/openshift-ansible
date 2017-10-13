@@ -131,9 +131,8 @@ The prerequisite packages will be installed. The script expects the proper VM an
 Lastly, the prepared VMs must correspond to the following hardware requirements:
 
 .Virtual Machine Node Requirements
-|===
-^|Node Type ^| Hardware
-
+|Node Type | Hardware
+| ------- | ------- |
 .6+^.^s| Master                                                                                                                                                                                                              
 | 2 vCPU
 | 16GB RAM
@@ -147,7 +146,6 @@ Lastly, the prepared VMs must correspond to the following hardware requirements:
 | 1 x 60GB - OS RHEL 7.4
 | 1 x 40GB - Docker volume
 | 1 x 40Gb - EmptyDir volume
-|===
 
 The *ocp-install* tag will install OpenShift on your pre-existing environment. The dynamic inventory script sorts your VMs by their annotations and that is how the proper OpenShift labels are applied.
 
@@ -240,8 +238,8 @@ The process for adding an infra node is identical.
 #### Using CNS or CRS - Container Native Storage or Container Ready Storage
 
 ```bash
-$ *cd /root/git/openshift-ansible-contrib/reference-architecture/vmware-ansible/*
-$ *cat ocp-on-vmware.ini*
+$ cd /root/git/openshift-ansible-contrib/reference-architecture/vmware-ansible/
+$ cat ocp-on-vmware.ini
 ….omitted….
 # folder/cluster/resource pool in vCenter to organize VMs
 vcenter_folder=ocp3

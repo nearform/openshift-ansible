@@ -13,18 +13,36 @@ The repository contains Ansible playbooks which deploy 3 masters, 3 infrastructu
 Described usage is for RHEL 7 based operating system.
 
 ### Prerequisites
-The following commands should be issued from the deployment host:
+
+You can use the `deploy-host.yaml` playbook provided within the repository to install all required packages on the deployment host:
 ```
-# yum install -y git ansible
-$ cd ~/git/ && git clone https://github.com/openshift/openshift-ansible-contrib
-$ cd ~/git/openshift-ansible-contrib && ansible-playbook playbooks/deploy-host.yaml -e provider=gcp
+sudo subscription-manager repos --enable rhel-7-server-rpms --enable rhel-7-server-extras-rpms --enable rhel-7-server-ose-3.6-rpms
+sudo yum update
+sudo yum install git ansible
+git clone https://github.com/openshift/openshift-ansible-contrib
+cd openshift-ansible-contrib
+ansible-playbook playbooks/deploy-host.yaml -e provider=gcp
 ```
 
-Note: You need to have GNU tar because the BSD version will not work. Also, it may be necessary to update qemu-img if the package is already installed. If the package is not updated, errors may occur when uploading the RHEL image to GCP.
+Alternatively, you can install all packages manually:
+```
+# Enable repos for RHEL
+sudo subscription-manager repos --enable rhel-7-server-rpms --enable rhel-7-server-extras-rpms --enable rhel-7-server-ose-3.6-rpms
+
+# Install EPEL repo
+sudo yum install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+
+# Install packages
+sudo yum install curl python which tar qemu-img openssl git ansible java-1.8.0-openjdk-headless httpd-tools python2-passlib python-libcloud python2-jmespath atomic-openshift-utils
+```
+
+Note: It's possible to deploy OCP without the `atomic-openshift-utils` package installed (`openshift-ansible` installer will be then downloaded directly from [GitHub](https://github.com/openshift/openshift-ansible)). This may be convenient when you don't want to consume your OpenShift subscription on your deployment host, or when you are running the deployment from CentOS or Fedora.
+
+Note 2: You need to have GNU tar because the BSD version will not work. Also, it may be necessary to update qemu-img if the package is already installed. If the package is not updated, errors may occur when uploading the RHEL image to GCP.
 
 ### RHEL KVM Guest Image
 
-For OpenShift Cloud Platform deployment, you also need to have RHEL 7 KVM Guest Image locally downloaded from [Red Hat Access Portal](https://access.redhat.com/downloads/content/69/ver=/rhel---7/latest/x86_64/product-software). This is because RHEL 7 image available in the GCP doesn't support custom subscriptions and the OCP is not available there.
+For OpenShift Cloud Platform deployment, you need to have RHEL 7 KVM Guest Image locally downloaded from [Red Hat Access Portal](https://access.redhat.com/downloads/content/69/ver=/rhel---7/latest/x86_64/product-software). This is because RHEL 7 image available in the GCP doesn't support custom subscriptions and the OCP is not available there.
 
 For OpenShift Origin deployment, KVM Guest Image is not needed, CentOS 7 image available in the GCP will be used directly.
 
@@ -56,7 +74,7 @@ gcloud init
 
 More information about the Google Cloud SDK (with info about repositories for other Linux distributions) can be found in [the documentation](https://cloud.google.com/sdk/docs/).
 
-### Clone this repository
+### Configuration file
 
 Now copy the `config.yaml.example` file to `config.yaml`:
 ```

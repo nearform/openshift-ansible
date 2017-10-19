@@ -23,13 +23,13 @@ function restore_dns {
 trap restore_dns EXIT
 
 mkdir -p bin
-scp -o "StrictHostKeyChecking no" -o "UserKnownHostsFile /dev/null" openshift@master-0.$ENV_ID.example.com:/usr/bin/oc bin/
+scp -o "StrictHostKeyChecking no" -o "UserKnownHostsFile /dev/null" openshift@console.$ENV_ID.example.com:/usr/bin/oc bin/
 ls -alh bin
 
 export PATH="$PWD/bin:$PATH"
 ENV_ID="openshift-$TRAVIS_BUILD_NUMBER"
 
-oc login --insecure-skip-tls-verify=true https://master-0.$ENV_ID.example.com:8443 -u test -p password
+oc login --insecure-skip-tls-verify=true https://console.$ENV_ID.example.com:8443 -u test -p password
 oc new-project test
 oc new-app --template=cakephp-mysql-example
 

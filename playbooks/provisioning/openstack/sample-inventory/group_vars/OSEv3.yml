@@ -5,8 +5,8 @@ openshift_deployment_type: origin
 openshift_master_default_subdomain: "apps.{{ env_id }}.{{ public_dns_domain }}"
 
 openshift_master_cluster_method: native
-openshift_master_cluster_hostname: "{{ groups.lb.0|default(groups.masters.0) }}"
-openshift_master_cluster_public_hostname: "{{ groups.lb.0|default(groups.masters.0) }}"
+openshift_master_cluster_public_hostname: "console.{{ env_id }}.{{ public_dns_domain }}"
+openshift_master_cluster_hostname: "{{ openshift_master_cluster_public_hostname }}"
 
 osm_default_node_selector: 'region=primary'
 
@@ -27,9 +27,14 @@ openshift_hosted_registry_wait: True
 #openshift_hosted_registry_storage_access_modes: ['ReadWriteOnce']
 #openshift_hosted_registry_storage_openstack_filesystem: xfs
 
-## Configure this if you're attaching a Cinder volume you've set up.
+## NOTE(shadower): This won't work until the openshift-ansible issue #5657 is fixed:
+## https://github.com/openshift/openshift-ansible/issues/5657
 ## If you're using the `cinder_hosted_registry_name` option from
-## `all.yml`, this will be configured automaticaly.
+## `all.yml`, uncomment these lines:
+#openshift_hosted_registry_storage_openstack_volumeID: "{{ lookup('os_cinder', cinder_hosted_registry_name).id }}"
+#openshift_hosted_registry_storage_volume_size: "{{ cinder_hosted_registry_size_gb }}Gi"
+
+## If you're using a Cinder volume you've set up yourself, uncomment these lines:
 #openshift_hosted_registry_storage_openstack_volumeID: e0ba2d73-d2f9-4514-a3b2-a0ced507fa05
 #openshift_hosted_registry_storage_volume_size: 10Gi
 
@@ -46,3 +51,9 @@ openshift_override_hostname_check: true
 # NOTE(shadower): Always switch to root on the OSEv3 nodes.
 # openshift-ansible requires an explicit `become`.
 ansible_become: true
+
+# # Flannel networking
+#osm_cluster_network_cidr: 10.128.0.0/14
+#openshift_use_openshift_sdn: false
+#openshift_use_flannel: true
+#flannel_interface: eth1

@@ -24,7 +24,7 @@
 
     - name: Generate OCP public IP for play
       set_fact:
-        openshift_master_cluster_public_ip: "{{ lb_ha_host }}"
+        openshift_master_cluster_public_ip: "{{ lb_ha_ip }}"
 
     - name: Generate random external password
       shell: uuidgen
@@ -44,5 +44,5 @@
       notify: restart keepalived
 
   when:
-    - lb_ha_host is defined
-    - lb_ha_host|trim != ''
+    - lb_ha_ip is defined
+    - lb_ha_ip|trim != ''

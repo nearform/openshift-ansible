@@ -17,6 +17,7 @@
   - instance-groups
   - rhsm
   - vmware-guest-setup
+  - cloud-provider-setup
   - docker-storage-setup
   - openshift-volume-quota
 - include: add-node-prerequisite.yaml

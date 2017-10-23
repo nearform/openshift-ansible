@@ -54,7 +54,10 @@ class VMWareAddNode(object):
     rhel_subscription_user=None
     rhel_subscription_pass=None
     rhel_subscription_pool=None
-    public_hosted_zone=None
+    rhsm_katello_url=None
+    rhsm_activation_key=None
+    rhsm_org_id=None
+    dns_zone=None
     app_dns_prefix=None
     admin_key=None
     user_key=None
@@ -154,28 +157,15 @@ class VMWareAddNode(object):
         defaults = {'vmware': {
             'ini_path': os.path.join(os.path.dirname(__file__), '%s.ini' % scriptbasename),
             'console_port':'8443',
-            'cluster_id':'',
             'container_storage':'none',
             'deployment_type':'openshift-enterprise',
             'openshift_vers':'v3_4',
-            'vcenter_host':'',
             'vcenter_username':'administrator@vsphere.local',
-            'vcenter_password':'',
             'vcenter_template_name':'ocp-server-template-2.0.2',
             'vcenter_folder':'ocp',
-            'vcenter_datastore':'',
-            'vcenter_datacenter':'',
-            'vcenter_cluster':'',
             'vcenter_resource_pool':'/Resources/OCP3',
-            'public_hosted_zone':'',
             'app_dns_prefix':'apps',
-            'vm_dns':'',
-            'vm_gw':'',
-            'vm_netmask':'',
             'vm_network':'VM Network',
-            'rhel_subscription_user':'',
-            'rhel_subscription_pass':'',
-            'rhel_subscription_server':'',
             'rhel_subscription_pool':'Red Hat OpenShift Container Platform, Premium*',
             'openshift_sdn':'redhat/openshift-ovs-subnet',
             'byo_lb':'no',
@@ -227,7 +217,7 @@ class VMWareAddNode(object):
         self.vcenter_cluster = config.get('vmware', 'vcenter_cluster')
         self.vcenter_datacenter = config.get('vmware', 'vcenter_datacenter')
         self.vcenter_resource_pool = config.get('vmware', 'vcenter_resource_pool')
-        self.public_hosted_zone= config.get('vmware', 'public_hosted_zone')
+        self.dns_zone= config.get('vmware', 'dns_zone')
         self.app_dns_prefix = config.get('vmware', 'app_dns_prefix')
         self.vm_dns = config.get('vmware', 'vm_dns')
         self.vm_gw = config.get('vmware', 'vm_gw')
@@ -237,6 +227,9 @@ class VMWareAddNode(object):
         self.rhel_subscription_pass = config.get('vmware', 'rhel_subscription_pass')
         self.rhel_subscription_server = config.get('vmware', 'rhel_subscription_server')
         self.rhel_subscription_pool = config.get('vmware', 'rhel_subscription_pool')
+        self.rhsm_katello_url = config.get('vmware', 'rhsm_katello_url')
+        self.rhsm_activation_key = config.get('vmware', 'rhsm_activation_key')
+        self.rhsm_org_id = config.get('vmware', 'rhsm_org_id')
         self.openshift_sdn = config.get('vmware', 'openshift_sdn')
         self.byo_lb = config.get('vmware', 'byo_lb')
         self.lb_host = config.get('vmware', 'lb_host')
@@ -267,7 +260,7 @@ class VMWareAddNode(object):
                 self.inventory_file = "crs-inventory.json"
             if 'cns' in self.container_storage:
                 self.inventory_file = "cns-inventory.json"
-        required_vars = {'cluster_id':self.cluster_id, 'public_hosted_zone':self.public_hosted_zone, 'vcenter_host':self.vcenter_host, 'vcenter_password':self.vcenter_password, 'vm_ipaddr_start':self.vm_ipaddr_start, 'ldap_fqdn':self.ldap_fqdn, 'ldap_user_password':self.ldap_user_password, 'vm_dns':self.vm_dns, 'vm_gw':self.vm_gw, 'vm_netmask':self.vm_netmask, 'vcenter_datacenter':self.vcenter_datacenter}
+        required_vars = {'cluster_id':self.cluster_id, 'dns_zone':self.dns_zone, 'vcenter_host':self.vcenter_host, 'vcenter_password':self.vcenter_password, 'vm_ipaddr_start':self.vm_ipaddr_start, 'ldap_fqdn':self.ldap_fqdn, 'ldap_user_password':self.ldap_user_password, 'vm_dns':self.vm_dns, 'vm_gw':self.vm_gw, 'vm_netmask':self.vm_netmask, 'vcenter_datacenter':self.vcenter_datacenter}
         for k, v in required_vars.items():
             if v == '':
                 err_count += 1
@@ -275,7 +268,7 @@ class VMWareAddNode(object):
         if err_count > 0:
             print "Please fill out the missing variables in %s " %  vmware_ini_path
             exit (1)
-        self.wildcard_zone="%s.%s" % (self.app_dns_prefix, self.public_hosted_zone)
+        self.wildcard_zone="%s.%s" % (self.app_dns_prefix, self.dns_zone)
         self.support_nodes=0
 
         print 'Configured inventory values:'
@@ -293,9 +286,9 @@ class VMWareAddNode(object):
         if not self.args.no_confirm:
             if not click.confirm('Continue creating the inventory file with these values?'):
                 sys.exit(0)
-        if self.byo_nfs == "no":
+        if self.byo_nfs == "False":
             self.support_nodes=self.support_nodes+1
-        if self.byo_lb == "no":
+        if self.byo_lb == "False":
             self.support_nodes=self.support_nodes+1
 
         total_nodes=int(self.master_nodes)+int(self.app_nodes)+int(self.infra_nodes)+int(self.support_nodes)+int(self.storage_nodes)+int(self.node_number)
@@ -333,7 +326,7 @@ class VMWareAddNode(object):
             d['host_inventory'][guest_name]['guestname'] = guest_name
             d['host_inventory'][guest_name]['ip4addr'] = unusedip4addr[0]
             d['host_inventory'][guest_name]['tag'] = str(self.cluster_id) + '-' + self.node_type
-            data = data + '{ "node" : { "hostnames": {"manage": [ "%s.%s" ],"storage": [ "%s" ]},"zone": %s },"devices": [ "/dev/sdd" ]}' % (  guest_name, self.public_hosted_zone,  unusedip4addr[0], i+1 )
+            data = data + '{ "node" : { "hostnames": {"manage": [ "%s.%s" ],"storage": [ "%s" ]},"zone": %s },"devices": [ "/dev/sdd" ]}' % (  guest_name, self.dns_zone,  unusedip4addr[0], i+1 )
             del unusedip4addr[0]
             if unusedip4addr:
                 data = data + ","
@@ -361,8 +354,8 @@ class VMWareAddNode(object):
 
         print 'Inventory file created: %s' % self.inventory_file
 
-        if self.byo_lb == "no":
-            lb_host_fqdn = "%s.%s" % (self.lb_host, self.public_hosted_zone)
+        if self.byo_lb == "False":
+            lb_host_fqdn = "%s.%s" % (self.lb_host, self.dns_zone)
             self.lb_host = lb_host_fqdn
 
             if self.ocp_hostname_prefix is not None:
@@ -433,7 +426,7 @@ class VMWareAddNode(object):
             vcenter_cluster=%s \
             vcenter_datacenter=%s \
             vcenter_resource_pool=%s \
-            public_hosted_zone=%s \
+            dns_zone=%s \
             app_dns_prefix=%s \
             vm_dns=%s \
             vm_gw=%s \
@@ -449,8 +442,11 @@ class VMWareAddNode(object):
             user_key=%s \
             rhel_subscription_user=%s \
             rhel_subscription_pass=%s \
-            rhel_subscription_server=%s \
-            rhel_subscription_pool="%s" \
+            rhsm_satellite=%s \
+            rhsm_pool="%s" \
+            rhsm_katello_url="%s" \
+            rhsm_activation_key="%s" \
+            rhsm_org_id="%s" \
             openshift_sdn=%s \
             lb_host=%s \
             node_type=%s \
@@ -467,7 +463,7 @@ class VMWareAddNode(object):
                             self.vcenter_cluster,
                             self.vcenter_datacenter,
                             self.vcenter_resource_pool,
-                            self.public_hosted_zone,
+                            self.dns_zone,
                             self.app_dns_prefix,
                             self.vm_dns,
                             self.vm_gw,
@@ -485,6 +481,9 @@ class VMWareAddNode(object):
                             self.rhel_subscription_pass,
                             self.rhel_subscription_server,
                             self.rhel_subscription_pool,
+		            self.rhsm_katello_url,
+        		    self.rhsm_activation_key,
+        		    self.rhsm_org_id,
                             self.openshift_sdn,
                             self.lb_host,
                             self.node_type,

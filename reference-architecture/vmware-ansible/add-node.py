@@ -54,6 +54,9 @@ class VMWareAddNode(object):
     rhel_subscription_user=None
     rhel_subscription_pass=None
     rhel_subscription_pool=None
+    rhsm_katello_url=None
+    rhsm_activation_key=None
+    rhsm_org_id=None
     dns_zone=None
     app_dns_prefix=None
     admin_key=None
@@ -154,28 +157,15 @@ class VMWareAddNode(object):
         defaults = {'vmware': {
             'ini_path': os.path.join(os.path.dirname(__file__), '%s.ini' % scriptbasename),
             'console_port':'8443',
-            'cluster_id':'',
             'container_storage':'none',
             'deployment_type':'openshift-enterprise',
             'openshift_vers':'v3_4',
-            'vcenter_host':'',
             'vcenter_username':'administrator@vsphere.local',
-            'vcenter_password':'',
             'vcenter_template_name':'ocp-server-template-2.0.2',
             'vcenter_folder':'ocp',
-            'vcenter_datastore':'',
-            'vcenter_datacenter':'',
-            'vcenter_cluster':'',
             'vcenter_resource_pool':'/Resources/OCP3',
-            'dns_zone':'',
             'app_dns_prefix':'apps',
-            'vm_dns':'',
-            'vm_gw':'',
-            'vm_netmask':'',
             'vm_network':'VM Network',
-            'rhel_subscription_user':'',
-            'rhel_subscription_pass':'',
-            'rhel_subscription_server':'',
             'rhel_subscription_pool':'Red Hat OpenShift Container Platform, Premium*',
             'openshift_sdn':'redhat/openshift-ovs-subnet',
             'byo_lb':'no',
@@ -237,6 +227,9 @@ class VMWareAddNode(object):
         self.rhel_subscription_pass = config.get('vmware', 'rhel_subscription_pass')
         self.rhel_subscription_server = config.get('vmware', 'rhel_subscription_server')
         self.rhel_subscription_pool = config.get('vmware', 'rhel_subscription_pool')
+        self.rhsm_katello_url = config.get('vmware', 'rhsm_katello_url')
+        self.rhsm_activation_key = config.get('vmware', 'rhsm_activation_key')
+        self.rhsm_org_id = config.get('vmware', 'rhsm_org_id')
         self.openshift_sdn = config.get('vmware', 'openshift_sdn')
         self.byo_lb = config.get('vmware', 'byo_lb')
         self.lb_host = config.get('vmware', 'lb_host')
@@ -293,9 +286,9 @@ class VMWareAddNode(object):
         if not self.args.no_confirm:
             if not click.confirm('Continue creating the inventory file with these values?'):
                 sys.exit(0)
-        if self.byo_nfs == "no":
+        if self.byo_nfs == "False":
             self.support_nodes=self.support_nodes+1
-        if self.byo_lb == "no":
+        if self.byo_lb == "False":
             self.support_nodes=self.support_nodes+1
 
         total_nodes=int(self.master_nodes)+int(self.app_nodes)+int(self.infra_nodes)+int(self.support_nodes)+int(self.storage_nodes)+int(self.node_number)
@@ -361,7 +354,7 @@ class VMWareAddNode(object):
 
         print 'Inventory file created: %s' % self.inventory_file
 
-        if self.byo_lb == "no":
+        if self.byo_lb == "False":
             lb_host_fqdn = "%s.%s" % (self.lb_host, self.dns_zone)
             self.lb_host = lb_host_fqdn
 
@@ -449,8 +442,11 @@ class VMWareAddNode(object):
             user_key=%s \
             rhel_subscription_user=%s \
             rhel_subscription_pass=%s \
-            rhel_subscription_server=%s \
-            rhel_subscription_pool="%s" \
+            rhsm_satellite=%s \
+            rhsm_pool="%s" \
+            rhsm_katello_url="%s" \
+            rhsm_activation_key="%s" \
+            rhsm_org_id="%s" \
             openshift_sdn=%s \
             lb_host=%s \
             node_type=%s \
@@ -485,6 +481,9 @@ class VMWareAddNode(object):
                             self.rhel_subscription_pass,
                             self.rhel_subscription_server,
                             self.rhel_subscription_pool,
+		            self.rhsm_katello_url,
+        		    self.rhsm_activation_key,
+        		    self.rhsm_org_id,
                             self.openshift_sdn,
                             self.lb_host,
                             self.node_type,

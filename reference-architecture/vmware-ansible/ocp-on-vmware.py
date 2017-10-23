@@ -31,6 +31,9 @@ class VMwareOnOCP(object):
     rhel_subscription_pass=None
     rhel_subscription_server=None
     rhel_subscription_pool=None
+    rhsm_katello_url=None
+    rhsm_activation_key=None
+    rhsm_org_id=None
     byo_lb=None
     lb_config=''
     lb_host=None
@@ -285,6 +288,9 @@ class VMwareOnOCP(object):
         self.rhel_subscription_pass = config.get('vmware', 'rhel_subscription_pass')
         self.rhel_subscription_server = config.get('vmware', 'rhel_subscription_server')
         self.rhel_subscription_pool = config.get('vmware', 'rhel_subscription_pool')
+	self.rhsm_katello_url = config.get('vmware', 'rhsm_katello_url')
+	self.rhsm_activation_key = config.get('vmware', 'rhsm_activation_key')
+	self.rhsm_org_id = config.get('vmware', 'rhsm_org_id')
         self.openshift_sdn = config.get('vmware', 'openshift_sdn')
         self.byo_lb = config.get('vmware', 'byo_lb')
         self.lb_host = config.get('vmware', 'lb_host')
@@ -639,8 +645,11 @@ class VMwareOnOCP(object):
             openshift_vers=%s \
             rhsm_user=%s \
             rhsm_password=%s \
-            rhel_subscription_server=%s \
+            rhsm_satellite=%s \
             rhsm_pool="%s" \
+            rhsm_katello_url="%s" \
+            rhsm_activation_key="%s" \
+            rhsm_org_id="%s" \
             openshift_sdn=%s \
             containerized=%s \
             container_storage=%s \
@@ -673,6 +682,9 @@ class VMwareOnOCP(object):
                             self.rhel_subscription_pass,
                             self.rhel_subscription_server,
                             self.rhel_subscription_pool,
+			    self.rhsm_katello_url,
+			    self.rhsm_activation_key,
+			    self.rhsm_org_id,
                             self.openshift_sdn,
                             self.containerized,
                             self.container_storage,

@@ -45,7 +45,7 @@
         server_hostname: "{{ rhsm_satellite | default(omit) }}"
         activationkey: "{{ rhsm_activation_key | default(omit) }}"
         org_id: "{{ rhsm_org_id | default(omit) }}"
-      when: 
+      when:
         - "'not registered' in subscribed.stdout"
         - rhsm_user is defined
         - rhsm_user|trim != ''

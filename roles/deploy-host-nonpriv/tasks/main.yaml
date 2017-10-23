@@ -5,7 +5,7 @@
     stat:
       path: ~/.ssh/id_rsa
     register: ssh_key
-  
+
   - name: Create SSH key if it is missing
     command: "ssh-keygen -N '' -f ~/.ssh/id_rsa"
     when: not ssh_key.stat.exists

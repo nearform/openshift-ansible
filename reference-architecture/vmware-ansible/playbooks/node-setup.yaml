@@ -24,7 +24,7 @@
     openshift_master_cluster_method: native
     openshift_cloudprovider_kind: vsphere
     os_sdn_network_plugin_name: "{{ openshift_sdn }}"
-    deployment_type: openshift-enterprise
-    load_balancer_hostname: haproxy-0.vcenter.e2e.bos.redhat.com
+    deployment_type:
+    load_balancer_hostname:
     openshift_master_cluster_hostname: "{{ load_balancer_hostname }}"
     openshift_master_cluster_public_hostname: "{{ load_balancer_hostname }}"

@@ -305,6 +305,16 @@
       "metadata" : {
         "description" : "Enable OCP aggregated logging for ops"
       }
+    },
+    "cnsVMSize" : {
+      "type" : "string",
+      "defaultValue" : "Standard_E8_v3",
+      "allowedValues" : [
+        "Standard_E8_v3"
+      ],
+      "metadata" : {
+        "description" : "The size of the each Node Virtual Machine."
+      }
     }
   },
   "variables" : {
@@ -504,6 +514,9 @@
       },
       "Standard_GS5" : {
         "storageAccountType" : "Premium_LRS"
+      },
+      "Standard_E8_v3" : {
+        "storageAccountType" : "Premium_LRS"
       }
     },
     "tenantId" : "[subscription().tenantId]",
@@ -533,7 +546,9 @@
     "apiVersionNetwork" : "2016-03-30",
     "tmApiVersion" : "2015-11-01",
     "apiVersionStorage" : "2015-06-15",
-    "apiVersionLinkTemplate" : "2015-01-01"
+    "apiVersionLinkTemplate" : "2015-01-01",
+    "cnsNodeCnt" : 3,
+    "cnsStorageName" : "[concat('sancns', resourceGroup().name)]"
   },
   "resources" : [
     {
@@ -1310,6 +1325,74 @@
           }
         ]
       }
+    },
+    {
+      "name" : "[concat('cnsSet', copyindex())]",
+      "type" : "Microsoft.Resources/deployments",
+      "apiVersion" : "2015-01-01",
+      "copy" : {
+        "name" : "cnsSet",
+        "count" : "variables('cnsNodeCnt')]"
+      },
+      "dependsOn" : [
+        "[concat('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]",
+        "[concat('Microsoft.Storage/storageAccounts/', variables('cnsStorageName'))]"
+      ],
+      "properties" : {
+        "mode" : "Incremental",
+        "templateLink" : {
+          "uri" : "[variables('baseVMachineTemplateUriNode')]",
+          "contentVersion" : "1.0.0.0"
+        },
+        "parameters" : {
+          "vmName" : {
+            "value" : "[concat('cns', padLeft(add(copyindex(), 1), 2, '0'))]"
+          },
+          "sa" : {
+            "value" : "[variables('cnsStorageName')]"
+          },
+          "subnetRef" : {
+            "value" : "[variables('nodeSubnetRef')]"
+          },
+          "vmSize" : {
+            "value" : "[parameters('cnsVMSize')]"
+          },
+          "adminUsername" : {
+            "value" : "[parameters('adminUsername')]"
+          },
+          "sshKeyData" : {
+            "value" : "[parameters('sshKeyData')]"
+          },
+          "baseTemplateUrl" : {
+            "value" : "[variables('baseTemplateUrl')]"
+          },
+          "imageReference" : {
+            "value" : "[variables(parameters('image'))]"
+          },
+          "availabilitySet" : {
+            "value" : "['cnsavailabilityset']"
+          }
+        }
+      }
+    },
+    {
+      "type" : "Microsoft.Storage/storageAccounts",
+      "name" : "[variables('cnsStorageName')]",
+      "apiVersion" : "[variables('apiVersion')]",
+      "location" : "[variables('location')]",
+      "tags" : {
+        "displayName" : "StorageAccount"
+      },
+      "properties" : {
+        "accountType" : "[variables('vmSizesMap')[parameters('cnsVmSize')].storageAccountType]"
+      }
+    },
+    {
+      "type" : "Microsoft.Compute/availabilitySets",
+      "name" : "cnsavailabilityset",
+      "location" : "[variables('location')]",
+      "apiVersion" : "[variables('apiVersionCompute')]",
+      "properties" : {}
     }
   ],
   "outputs" : {

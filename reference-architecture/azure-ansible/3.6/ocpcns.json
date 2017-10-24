@@ -348,7 +348,7 @@
       "sku" : "7-RAW",
       "version" : "latest"
     },
-    "baseVMachineTemplateUriBastion" : "[concat(variables('baseTemplateUrl'), 'bastion.json')]",
+    "baseVMachineTemplateUriBastion" : "[concat(variables('baseTemplateUrl'), 'bastioncns.json')]",
     "vmSizesMap" : {
       "Standard_A2" : {
         "storageAccountType" : "Standard_LRS"

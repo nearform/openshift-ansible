@@ -50,7 +50,7 @@
 
     - name: "Establish rhv pre-req packages"
       set_fact:
-        openshift_deploy_packages_by_provider: ['ovirt-engine-sdk-python']
+        openshift_deploy_packages_by_provider: ['python-ovirt-engine-sdk4']
 
     - name: "Be sure all pre-req rhv packages are installed"
       yum: name={{item}} state=installed

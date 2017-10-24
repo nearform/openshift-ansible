@@ -10,6 +10,7 @@ openshift_deploy_packages: ['git', 'atomic-openshift-utils']
 # AWS - 'python-click', 'python-netaddr'
 # VMW - 'python-click', 'python-ldap', 'python27'
 # GCP - 'qemu-img', 'python-libcloud', 'python2-jmespath', 'python2-passlib', 'python2-libcloud'
+# RHV = 'python2-jmespath', 'python-ovirt-engine-sdk4'
 
 openshift_deploy_epel_packages: ['python2-boto', 'python-netaddr', 'python2-boto3', 'python-iptools', 'python2-pyvmomi']
 # openshift_deploy_epel_packages_by_provider

@@ -1,9 +1,9 @@
 ---
-- hosts: etcd
+- hosts: masters
   gather_facts: no
   become: true
   tasks:
-  - name: Get controller ID in all etcds
+  - name: Get controller ID in all masters
     shell: |
       journalctl -b -u atomic-openshift-master-controllers.service --output cat | grep "Attempting to acquire controller lease as" | tail -1 | awk '{ print $11 }' | sed 's/,//'
     changed_when: False
@@ -15,7 +15,7 @@
       etcdctl2 get /openshift.io/leases/controllers
     changed_when: False
     register: controllerid
-    delegate_to: "{{ groups.etcd.0 }}"
+    delegate_to: "{{ groups.masters.0 }}"
     run_once: True
 
   - debug: msg="Controller running in {{ inventory_hostname }}"

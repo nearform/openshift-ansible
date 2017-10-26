@@ -563,7 +563,6 @@
     "tmApiVersion" : "2015-11-01",
     "apiVersionStorage" : "2015-06-15",
     "apiVersionLinkTemplate" : "2015-01-01",
-    "cnsNodeCnt" : 3,
     "cnsStorageName" : "[concat('sancns', resourceGroup().name)]",
     "baseVMachineTemplateUriCns" : "[concat(variables('baseTemplateUrl'), 'nodecns.json')]"
   },
@@ -1349,7 +1348,7 @@
       "apiVersion" : "2015-01-01",
       "copy" : {
         "name" : "cnsSet",
-        "count" : "variables('cnsNodeCnt')]"
+        "count" : "[variables('cnsNodeCnt')]"
       },
       "dependsOn" : [
         "[concat('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]",

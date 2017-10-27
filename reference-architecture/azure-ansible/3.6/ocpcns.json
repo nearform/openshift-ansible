@@ -325,7 +325,7 @@
     },
     "cnsDiskSize" : {
       "type" : "int",
-      "defaultValue" : 200,
+      "defaultValue" : 300,
       "minValue" : 1,
       "maxValue" : 4096,
       "metadata" : {

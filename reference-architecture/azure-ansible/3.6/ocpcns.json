@@ -565,7 +565,7 @@
     "apiVersionLinkTemplate" : "2015-01-01",
     "cnsStorageName" : "[concat('sancns', resourceGroup().name)]",
     "baseVMachineTemplateUriCns" : "[concat(variables('baseTemplateUrl'), 'nodecns.json')]",
-    "cnsNodeCnt" : 3.0
+    "cnsNodeCnt" : 3
   },
   "resources" : [
     {

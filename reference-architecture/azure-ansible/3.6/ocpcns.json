@@ -791,6 +791,9 @@
           },
           "opslogging" : {
             "value" : "[parameters('opslogging')]"
+          },
+          "cnsPoolId" : {
+            "value" : "[parameters('cnsPoolId')]"
           }
         }
       }

@@ -341,6 +341,7 @@
     "baseVMachineTemplateUriInfranode" : "[concat(variables('baseTemplateUrl'), 'infranode.json')]",
     "baseVMachineTemplateUriNode" : "[concat(variables('baseTemplateUrl'), 'node.json')]",
     "baseVMachineTemplateUriMaster" : "[concat(variables('baseTemplateUrl'), 'master.json')]",
+    "baseVMachineTemplateUriBastion" : "[concat(variables('baseTemplateUrl'), 'bastioncns.json')]",
     "location" : "[resourceGroup().location]",
     "virtualNetworkName" : "openshiftVnet",
     "addressPrefix" : "10.0.0.0/16",
@@ -364,7 +365,6 @@
       "sku" : "7-RAW",
       "version" : "latest"
     },
-    "baseVMachineTemplateUriBastion" : "[concat(variables('baseTemplateUrl'), 'bastioncns.json')]",
     "vmSizesMap" : {
       "Standard_A2" : {
         "storageAccountType" : "Standard_LRS"

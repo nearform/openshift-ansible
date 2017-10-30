@@ -217,7 +217,7 @@
         "autoUpgradeMinorVersion" : true,
         "settings" : {
           "fileUris" : [
-            "[concat(parameters('baseTemplateUrl'), 'bastion.sh')]"
+            "[concat(parameters('baseTemplateUrl'), 'bastion_cns.sh')]"
           ]
         },
         "protectedSettings" : {

@@ -532,7 +532,7 @@
         "storageAccountType" : "Premium_LRS"
       },
       "Standard_E8_v3" : {
-        "storageAccountType" : "Premium_LRS"
+        "storageAccountType" : "Standard_LRS"
       }
     },
     "tenantId" : "[subscription().tenantId]",

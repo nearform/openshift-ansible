@@ -29,6 +29,7 @@ export METRICS=${array[23]}
 export LOGGING=${array[24]}
 export OPSLOGGING=${array[25]}
 export GITURL=${array[26]}
+export CNS_POOL_ID=${array[27]}
 export FULLDOMAIN=${THEHOSTNAME#*.*}
 export WILDCARDFQDN=${WILDCARDZONE}.${FULLDOMAIN}
 export WILDCARDIP=`dig +short ${WILDCARDFQDN}`
@@ -236,6 +237,7 @@ cat <<EOF > /etc/ansible/hosts
 masters
 nodes
 etcd
+glusterfs
 new_nodes
 new_masters
 
@@ -330,6 +332,11 @@ master3
 [new_nodes]
 [new_masters]
 
+[glusterfs]
+cns01 glusterfs_devices="[ '/dev/sde', '/dev/sdf', '/dev/sdg', '/dev/sdh' ]"
+cns02 glusterfs_devices="[ '/dev/sde', '/dev/sdf', '/dev/sdg', '/dev/sdh' ]"
+cns03 glusterfs_devices="[ '/dev/sde', '/dev/sdf', '/dev/sdg', '/dev/sdh' ]"
+
 [nodes]
 master1 openshift_hostname=master1 openshift_node_labels="{'role':'master','zone':'default','logging':'true'}" openshift_schedulable=false
 master2 openshift_hostname=master2 openshift_node_labels="{'role':'master','zone':'default','logging':'true'}" openshift_schedulable=false
@@ -337,6 +344,9 @@ master3 openshift_hostname=master3 openshift_node_labels="{'role':'master','zone
 infranode1 openshift_hostname=infranode1 openshift_node_labels="{'role': 'infra', 'zone': 'default','logging':'true'}"
 infranode2 openshift_hostname=infranode2 openshift_node_labels="{'role': 'infra', 'zone': 'default','logging':'true'}"
 infranode3 openshift_hostname=infranode3 openshift_node_labels="{'role': 'infra', 'zone': 'default','logging':'true'}"
+cns01 openshift_hostname=cns01 node=true storage=true openshift_schedulable=true openshift_node_labels={'role': 'app', 'zone':'cns'}
+cns02 openshift_hostname=cns02 node=true storage=true openshift_schedulable=true openshift_node_labels={'role': 'app', 'zone':'cns'}
+cns03 openshift_hostname=cns03 node=true storage=true openshift_schedulable=true openshift_node_labels={'role': 'app', 'zone':'cns'}
 EOF
 
 # Loop to add Nodes

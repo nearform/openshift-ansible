@@ -435,6 +435,21 @@ cat <<EOF >> /home/${AUSERNAME}/subscribe.yml
   - name: Wait for Things to Settle
     pause: minutes=2
 EOF
+cat <<EOF >> /home/${AUSERNAME}/subscribe.yml
+---
+- hosts: glusterfs
+  vars:
+    description: "attach pool to cns nodes"
+  tasks:
+    - name: attach cns pool subscription
+      shell: subscription-manager attach --pool=$CNS_POOL_ID
+      register: task_result
+      until: task_result.rc == 0
+      retries: 10
+      delay: 30
+      ignore_errors: yes
+EOF
+
 
 cat <<EOF > /home/${AUSERNAME}/postinstall.yml
 ---

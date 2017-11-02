@@ -59,7 +59,7 @@ echo $AADCLIENTSECRET
 
 domain=$(grep search /etc/resolv.conf | awk '{print $2}')
 
-ps -ef | grep bastion.sh > cmdline.out
+ps -ef | grep bastion_cns.sh > cmdline.out
 
 systemctl enable dnsmasq.service
 systemctl start dnsmasq.service

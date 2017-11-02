@@ -344,9 +344,9 @@ master3 openshift_hostname=master3 openshift_node_labels="{'role':'master','zone
 infranode1 openshift_hostname=infranode1 openshift_node_labels="{'role': 'infra', 'zone': 'default','logging':'true'}"
 infranode2 openshift_hostname=infranode2 openshift_node_labels="{'role': 'infra', 'zone': 'default','logging':'true'}"
 infranode3 openshift_hostname=infranode3 openshift_node_labels="{'role': 'infra', 'zone': 'default','logging':'true'}"
-cns01 openshift_hostname=cns01 node=true storage=true openshift_schedulable=true openshift_node_labels={'role': 'app', 'zone':'cns'}
-cns02 openshift_hostname=cns02 node=true storage=true openshift_schedulable=true openshift_node_labels={'role': 'app', 'zone':'cns'}
-cns03 openshift_hostname=cns03 node=true storage=true openshift_schedulable=true openshift_node_labels={'role': 'app', 'zone':'cns'}
+cns01 openshift_hostname=cns01 node=true storage=true openshift_schedulable=true openshift_node_labels="{'role': 'app', 'zone':'cns'}"
+cns02 openshift_hostname=cns02 node=true storage=true openshift_schedulable=true openshift_node_labels="{'role': 'app', 'zone':'cns'}"
+cns03 openshift_hostname=cns03 node=true storage=true openshift_schedulable=true openshift_node_labels="{'role': 'app', 'zone':'cns'}"
 EOF
 
 # Loop to add Nodes
@@ -436,18 +436,17 @@ cat <<EOF >> /home/${AUSERNAME}/subscribe.yml
     pause: minutes=2
 EOF
 cat <<EOF >> /home/${AUSERNAME}/subscribe.yml
----
 - hosts: glusterfs
   vars:
     description: "attach pool to cns nodes"
   tasks:
-    - name: attach cns pool subscription
-      shell: subscription-manager attach --pool=$CNS_POOL_ID
-      register: task_result
-      until: task_result.rc == 0
-      retries: 10
-      delay: 30
-      ignore_errors: yes
+  - name: attach cns pool subscription
+    shell: subscription-manager attach --pool=$CNS_POOL_ID
+    register: task_result
+    until: task_result.rc == 0
+    retries: 10
+    delay: 30
+    ignore_errors: yes
 EOF
 
 

@@ -365,8 +365,8 @@ cat <<EOF > /home/${AUSERNAME}/subscribe.yml
     description: "Wait for nodes"
   tasks:
   - name: wait for servers to be up
-      local_action: wait_for
-      args:
+    local_action: wait_for
+    args:
         host: "{{ inventory_hostname }}"
         port: 22
         state: started

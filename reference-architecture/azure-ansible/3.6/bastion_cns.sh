@@ -364,6 +364,14 @@ cat <<EOF > /home/${AUSERNAME}/subscribe.yml
   vars:
     description: "Wait for nodes"
   tasks:
+  - name: wait for servers to be up
+      local_action: wait_for
+      args:
+        host: "{{ inventory_hostname }}"
+        port: 22
+        state: started
+        delay: 30
+        timeout: 300
   - name: wait for .updateok
     wait_for: path=/root/.updateok
 - hosts: all

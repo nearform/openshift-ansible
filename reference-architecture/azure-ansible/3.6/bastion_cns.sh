@@ -371,7 +371,7 @@ cat <<EOF > /home/${AUSERNAME}/subscribe.yml
         port: 22
         state: started
         delay: 30
-        timeout: 300
+        timeout: 30000
   - name: wait for .updateok
     wait_for: path=/root/.updateok
 - hosts: all

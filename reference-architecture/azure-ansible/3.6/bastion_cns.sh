@@ -344,9 +344,9 @@ master3 openshift_hostname=master3 openshift_node_labels="{'role':'master','zone
 infranode1 openshift_hostname=infranode1 openshift_node_labels="{'role': 'infra', 'zone': 'default','logging':'true'}"
 infranode2 openshift_hostname=infranode2 openshift_node_labels="{'role': 'infra', 'zone': 'default','logging':'true'}"
 infranode3 openshift_hostname=infranode3 openshift_node_labels="{'role': 'infra', 'zone': 'default','logging':'true'}"
-cns01 openshift_hostname=cns01 node=true storage=true openshift_schedulable=true openshift_node_labels="{'role': 'app', 'zone':'cns'}"
-cns02 openshift_hostname=cns02 node=true storage=true openshift_schedulable=true openshift_node_labels="{'role': 'app', 'zone':'cns'}"
-cns03 openshift_hostname=cns03 node=true storage=true openshift_schedulable=true openshift_node_labels="{'role': 'app', 'zone':'cns'}"
+cns01 openshift_hostname=cns01 node=True storage=True openshift_schedulable=true openshift_node_labels="{'role': 'app', 'zone':'cns'}"
+cns02 openshift_hostname=cns02 node=True storage=True openshift_schedulable=true openshift_node_labels="{'role': 'app', 'zone':'cns'}"
+cns03 openshift_hostname=cns03 node=True storage=True openshift_schedulable=true openshift_node_labels="{'role': 'app', 'zone':'cns'}"
 EOF
 
 # Loop to add Nodes

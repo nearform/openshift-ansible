@@ -242,6 +242,8 @@ new_nodes
 new_masters
 
 [OSEv3:vars]
+openshift_storage_glusterfs_namespace=glusterfs 
+openshift_storage_glusterfs_name=storage
 osm_controller_args={'cloud-provider': ['azure'], 'cloud-config': ['/etc/azure/azure.conf']}
 osm_api_server_args={'cloud-provider': ['azure'], 'cloud-config': ['/etc/azure/azure.conf']}
 openshift_node_kubelet_args={'cloud-provider': ['azure'], 'cloud-config': ['/etc/azure/azure.conf'], 'enable-controller-attach-detach': ['true']}
@@ -1081,20 +1083,6 @@ azure storage container create ${2} > ~/.azuresettings/${1}/container.dat
 EOF
 chmod +x /home/${AUSERNAME}/create_azure_storage_container.sh
 
-cat <<EOF > /home/${AUSERNAME}/scgeneric.yml
-kind: StorageClass
-apiVersion: storage.k8s.io/v1beta1
-metadata:
-  name: "generic"
-  annotations:
-    storageclass.beta.kubernetes.io/is-default-class: "true"
-    volume.beta.kubernetes.io/storage-class: "generic"
-    volume.beta.kubernetes.io/storage-provisioner: kubernetes.io/azure-disk
-provisioner: kubernetes.io/azure-disk
-parameters:
-  storageAccount: sapv${RESOURCEGROUP}
-EOF
-
 cat <<EOF > /home/${AUSERNAME}/openshift-install.sh
 export ANSIBLE_HOST_KEY_CHECKING=False
 sleep 120
@@ -1180,7 +1168,6 @@ then
   ansible-playbook -e "openshift_logging_install_logging=\${DEPLOYLOGGING} openshift_logging_use_ops=\${DEPLOYOPSLOGGING}" /usr/share/ansible/openshift-ansible/playbooks/byo/openshift-cluster/openshift-logging.yml
 fi
 
-oc create -f /home/${AUSERNAME}/scgeneric.yml
 EOF
 
 cat <<'EOF' > /home/${AUSERNAME}/create_pv.sh

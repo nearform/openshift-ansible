@@ -39,4 +39,7 @@ yum install -y cloud-utils-growpart.noarch
 growpart $rootdrive $part_number -u on
 xfs_growfs $rootdev
 
+# to enable to suport of CNS this is required
+modprobe dm_thin_pool
+
 touch /root/.updateok

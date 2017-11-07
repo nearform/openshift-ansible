@@ -363,6 +363,7 @@ done
 cat <<EOF > /home/${AUSERNAME}/subscribe.yml
 ---
 - hosts: all
+  gather_facts: False
   vars:
     description: "Wait for nodes"
   tasks:

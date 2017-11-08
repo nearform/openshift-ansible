@@ -244,7 +244,6 @@ new_masters
 [OSEv3:vars]
 openshift_storage_glusterfs_namespace=glusterfs 
 openshift_storage_glusterfs_name=storage
-openshift_storage_glusterfs_nodeselector='role=cns'
 osm_controller_args={'cloud-provider': ['azure'], 'cloud-config': ['/etc/azure/azure.conf']}
 osm_api_server_args={'cloud-provider': ['azure'], 'cloud-config': ['/etc/azure/azure.conf']}
 openshift_node_kubelet_args={'cloud-provider': ['azure'], 'cloud-config': ['/etc/azure/azure.conf'], 'enable-controller-attach-detach': ['true']}
@@ -347,9 +346,9 @@ master3 openshift_hostname=master3 openshift_node_labels="{'role':'master','zone
 infranode1 openshift_hostname=infranode1 openshift_node_labels="{'role': 'infra', 'zone': 'default','logging':'true'}"
 infranode2 openshift_hostname=infranode2 openshift_node_labels="{'role': 'infra', 'zone': 'default','logging':'true'}"
 infranode3 openshift_hostname=infranode3 openshift_node_labels="{'role': 'infra', 'zone': 'default','logging':'true'}"
-cns01 openshift_hostname=cns01 node=True storage=True openshift_schedulable=true openshift_node_labels="{'role': 'cns', 'zone':'glusterfs'}"
-cns02 openshift_hostname=cns02 node=True storage=True openshift_schedulable=true openshift_node_labels="{'role': 'cns', 'zone':'glusterfs'}"
-cns03 openshift_hostname=cns03 node=True storage=True openshift_schedulable=true openshift_node_labels="{'role': 'cns', 'zone':'glusterfs'}"
+cns01 openshift_hostname=cns01 node=True storage=True openshift_schedulable=true openshift_node_labels="{'role': 'app', 'zone':'default'}"
+cns02 openshift_hostname=cns02 node=True storage=True openshift_schedulable=true openshift_node_labels="{'role': 'app', 'zone':'default'}"
+cns03 openshift_hostname=cns03 node=True storage=True openshift_schedulable=true openshift_node_labels="{'role': 'app', 'zone':'default'}"
 EOF
 
 # Loop to add Nodes
@@ -472,7 +471,12 @@ cat <<EOF > /home/${AUSERNAME}/postinstall.yml
     file: path=/etc/origin/master state=directory
   - name: add initial user to Red Hat OpenShift Container Platform
     shell: htpasswd -c -b /etc/origin/master/htpasswd ${AUSERNAME} ${PASSWORD}
-
+- hosts: glusterfs
+  vars:
+    description: "relabel gluster nodes"
+  tasks:
+  - name: oc label
+    shell: oc label node "{{ inventory_hostname }}" "role=cns" "zone=glusterfs" 
 EOF
 
 cat > /home/${AUSERNAME}/ssovars.yml <<EOF

@@ -476,7 +476,7 @@ cat <<EOF > /home/${AUSERNAME}/postinstall.yml
     description: "relabel gluster nodes"
   tasks:
   - name: oc label
-    shell: oc label node "{{ inventory_hostname }}" "role=cns" "zone=glusterfs" 
+    shell: oc label node "{{ inventory_hostname }}" role=cns zone=glusterfs --overwrite
 EOF
 
 cat > /home/${AUSERNAME}/ssovars.yml <<EOF

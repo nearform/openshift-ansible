@@ -1103,7 +1103,6 @@ wget http://master1:8443/api > healtcheck.out
 ansible all -b -m command -a "nmcli con modify eth0 ipv4.dns-search $(domainname -d)"
 ansible all -b -m service -a "name=NetworkManager state=restarted"
 
-ansible-playbook /home/${AUSERNAME}/postinstall.yml
 cd /root
 mkdir .kube
 scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${AUSERNAME}@master1:~/.kube/config /tmp/kube-config
@@ -1113,6 +1112,7 @@ cp /tmp/kube-config /home/${AUSERNAME}/.kube/config
 chown --recursive ${AUSERNAME} /home/${AUSERNAME}/.kube
 rm -f /tmp/kube-config
 yum -y install atomic-openshift-clients
+ansible-playbook /home/${AUSERNAME}/postinstall.yml
 echo "setup registry for azure"
 oc env dc docker-registry -e REGISTRY_STORAGE=azure -e REGISTRY_STORAGE_AZURE_ACCOUNTNAME=$REGISTRYSTORAGENAME -e REGISTRY_STORAGE_AZURE_ACCOUNTKEY=$REGISTRYKEY -e REGISTRY_STORAGE_AZURE_CONTAINER=registry
 oc patch dc registry-console -p '{"spec":{"template":{"spec":{"nodeSelector":{"role":"infra"}}}}}'

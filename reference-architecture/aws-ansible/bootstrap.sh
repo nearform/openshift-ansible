@@ -1,13 +1,15 @@
 #!/bin/bash
-set -euo pipeline
+set -eo pipefail
 
-REGION=
+# Atomic CentOS
 AMI=ami-d2cfe8b7
-KEY_PAIR=
-PUBLIC_HOSTED_ZONE=
-GITHUB_ORGANIZATION=
-GITHUB_CLIENT_SECRET=
-GITHUB_CLIENT_ID=
+
+[ -z "$REGION" ] && echo "Need to set REGION";
+[ -z "$KEY_PAIR" ] && echo "Need to set KEY_PAIR";
+[ -z "$PUBLIC_HOSTED_ZONE" ] && echo "Need to set PUBLIC_HOSTED_ZONE";
+[ -z "$GITHUB_ORGANIZATION" ] && echo "Need to set GITHUB_ORGANIZATION";
+[ -z "$GITHUB_CLIENT_SECRET" ] && echo "Need to set GITHUB_CLIENT_SECRET";
+[ -z "$GITHUB_CLIENT_ID" ] && echo "Need to set GITHUB_CLIENT_ID";
 
 # TODO: change name folder
 mkdir -p /home/centos/.ssh && ssh-keygen -t rsa -N '' -f /home/centos/.ssh/ocp
@@ -38,16 +40,16 @@ cd /usr/src/openshift-ansible/reference-architecture/aws-ansible
 # Run ose-on-aws.py script
 # import the variable
 ./ose-on-aws.py \
---region=$REGION \
---keypair=$KEY_PAIR \
+--region="$REGION" \
+--keypair="$KEY_PAIR" \
 --create-key=yes \
 --key-path=/home/centos/.ssh/ocp.pub \
---public-hosted-zone=$PUBLIC_HOSTED_ZONE \
+--public-hosted-zone="$PUBLIC_HOSTED_ZONE" \
 --deployment-type=origin \
 --ami=$AMI \
 --openshift-metrics-deploy=true \
---github-organization=$GITHUB_ORGANIZATION \
---github-client-secret=$GITHUB_CLIENT_SECRET \
---github-client-id=$GITHUB_CLIENT_ID \
+--github-organization="$GITHUB_ORGANIZATION" \
+--github-client-secret="$GITHUB_CLIENT_SECRET" \
+--github-client-id="$GITHUB_CLIENT_ID" \
 --containerized=true \
---no-confirm && graffiti-monkey --region $REGION
+--no-confirm && graffiti-monkey --region "$REGION"

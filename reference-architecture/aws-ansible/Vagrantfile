@@ -22,8 +22,6 @@ end
 
 $provision = <<SCRIPT
 #!/bin/bash
-set -e
-
 rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
 
 # Install dependencies
@@ -45,7 +43,7 @@ cd /usr/share/ansible
 git clone https://github.com/openshift/openshift-ansible.git openshift-ansible 
 cd openshift-ansible && git checkout release-3.7
 
-git clone git@github.com:nearform/openshift-ansible.git /usr/src/openshift-ansible
+git clone https://github.com/nearform/openshift-ansible.git /usr/src/openshift-ansible
 SCRIPT
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|

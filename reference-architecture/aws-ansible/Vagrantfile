@@ -75,5 +75,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     override.ssh.username = "centos"
     override.ssh.private_key_path = "~/.ssh/management-ocp.pem"
     override.ssh.forward_agent = true
+
+    override.nfs.functional = false
   end
 end
